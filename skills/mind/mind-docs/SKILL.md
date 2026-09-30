@@ -92,3 +92,4 @@ Guide/architettura/DESIGN.md: vedi skill `design-md` per DESIGN.md.
 - Se la docs tocca codice: chiudere con `mind-verification`.
 - Se la docs documenta una decisione architetturale: salvarla in `mind-memory` (tool memory).
 - Flusso a monte (se rilevante): `mind-brainstorming`, `mind-planning`, `mind-implementation`.
+- **Consegna come link cliccabile**: quando citi un file di docs/spec/report all'utente, usa un hyperlink `file://` assoluto (`[etichetta](file:///F:/OpenCode%20Project/percorso/file.md)`) — nell'app desktop si apre con Ctrl+click. Mai path nudi.

@@ -75,6 +75,7 @@ Se manca `DESIGN.md` → `design-system/create.md` (survey, scansione codebase, 
 ### Stage 5 — Mockup della schermata chiave (GATE UTENTE)
 Costruisci UN mockup statico ad alta fedeltà della schermata più importante, con contenuto REALE e token del DESIGN.md. Screenshot → LEGGILO → autocritica (togli un accessorio prima di consegnare). Scrivi `05-mockup.md`.
 **Gate di approvazione (obbligatorio)**: presenta il mockup all'utente e itera finché non è approvato; esito in `05-feedback.md`. NESSUN codice di produzione prima di questa approvazione.
+**Presenta il mockup come link cliccabile**: nel `05-mockup.md` e nel messaggio all'utente cita il file con hyperlink `file://` assoluto (es. `[apri mockup](file:///F:/OpenCode%20Project/.../docs/mockups/nome.html)`) così si apre con Ctrl+click senza cercarlo.
 
 ### Stage 6 — Componenti e pattern
 Dal mockup estrai l'inventario dei componenti, mappa ognuno ai token del DESIGN.md, decidi i pattern di maturità P1-P3 (`design-system/patterns.md`) con criterio binario APPLICATO / NON APPLICATO e motivazione. Definisci la gerarchia: chi è il protagonista e chi sta in silenzio. Scrivi `06-components.md`.
@@ -112,6 +113,7 @@ Passata finale su ciò che è stato costruito: gate C1-C9, `enforce.md` (regole 
 5. **Parallelismo solo su unità indipendenti**: componenti e sezioni in parallelo SOLO se i token sono già fissati (Stage 4) e i file non collidono.
 6. **Fix loop con budget**: ≤3 tentativi sullo stesso subagent, poi subagent nuovo con modello superiore.
 7. **Niente skill inutili**: gli stage si attivano solo se il dominio è toccato (skip logic).
+8. **Artefatti come link cliccabili**: mockup, screenshot, report e `state.json` si citano sempre con hyperlink `file://` assoluto (Ctrl+click nell'app desktop), mai come path nudo.
 
 ## Contezza (state awareness)
 
@@ -130,6 +132,7 @@ Chi riprende il lavoro legge `state.json` e sa sempre: soggetto, audience e comp
 | Chi implementa si auto-valuta esteticamente | review in contesto fresco: subagent Lust, read-only |
 | Animazioni sparse per "dare vita" | una coreografia di load + motion che risponde alle azioni |
 | Dire "è bello" senza screenshot | screenshot letti o verifica nel browser chiesta all'utente |
+| Consegnare un path nudo da cercare a mano | hyperlink `file://` assoluto (Ctrl+click) per mockup e artefatti |
 | Interrompere l'utente a ogni passo | interruzioni solo ai due gate di approvazione |
 
 ## COORDINAMENTO

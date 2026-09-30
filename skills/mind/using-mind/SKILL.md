@@ -96,6 +96,7 @@ Prima di rispondere o agire, identifica il tipo di task e scegli la rotta dalla 
 4. **Controllo conflitti file pre-dispatch**: prima dei subagent in parallelo, mappa i file toccati; se due unità scrivono lo stesso file, separale o serializza.
 5. **Delivery in fasi** per feature grandi: offri fasi funzionanti (fase 1 → fasi successive) invece di un piano monolitico.
 6. **Design debt check post-build**: dopo una rotta UI, verifica che il CSS non cancelli selettori e che `DESIGN.md` resti aggiornato.
+7. **Artefatti sempre come link cliccabili**: ogni volta che citi un file prodotto o rilevante (mockup, screenshot, report, design, spec, digest) usa un **hyperlink markdown `file://` assoluto**, non un path nudo. Nell'app desktop opencode un link `file://` si apre con **Ctrl+click** (o Cmd). Formato: `[etichetta](file:///F:/OpenCode%20Project/percorso/file.html)` — path assoluto, slash `/`, spazi come `%20`. Vale per ogni skill ed è obbligatorio nei report finali.
 
 ## Comunicazione tra skill
 

@@ -71,6 +71,7 @@ La tabella di routing è la **fonte unica** per instradare un task alla sequenza
 4. **Controllo conflitti file pre-dispatch**: in `mind-implementation`, PRIMA di lanciare i subagent in parallelo, mappa i file toccati da ogni unità; se due unità scrivono lo stesso file, separale (o serializza) prima del dispatch.
 5. **Delivery in fasi per feature grandi**: in `mind-planning`, se la feature è grande, offri esplicitamente fasi (fase 1 funzionante → fasi successive) invece di un piano monolitico.
 6. **Design debt check post-build**: dopo una rotta UI (frontend-design/design-system/motion), verifica che il CSS generato non cancelli selettori e che `DESIGN.md` resti aggiornato rispetto al codice reale.
+7. **Artefatti come link cliccabili**: ogni file citato all'utente (mockup, screenshot, report, spec, digest, documento) va presentato come hyperlink markdown `file://` assoluto, es. `[apri mockup](file:///F:/OpenCode%20Project/.../docs/mockups/nome.html)`; nell'app desktop opencode si apre con **Ctrl+click** (Cmd su macOS). Path assoluto, slash `/`, spazi come `%20`. Mai path nudi da cercare a mano.
 
 ## Precedenze
 

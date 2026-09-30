@@ -101,3 +101,7 @@ mind-documents è richiamata da using-mind (orchestratore):
 ## Gate
 
 Ogni documento generato è completo solo dopo la **verifica visiva** (convertito e letto) e il controllo "nessun placeholder / nessun dato inventato".
+
+## Consegna
+
+Consegna sempre il file con un **hyperlink `file://` assoluto** (`[report.pdf](file:///F:/OpenCode%20Project/.../report.pdf)`) così si apre con Ctrl+click nell'app desktop. Mai un path nudo da cercare a mano.
