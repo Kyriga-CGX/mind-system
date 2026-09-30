@@ -316,7 +316,7 @@ flowchart TD
     end
 
     subgraph TOOL[Tool memory - modes]
-        T1 --> S1[(memories.json<br/>scope user|project)]
+        T1 --> S1[("memories.json<br/>scope user|project")]
         T3 --> S1
         T4 --> S1
         T2 --> S1
@@ -404,7 +404,7 @@ flowchart TB
     subgraph ESEC[ESECUZIONE]
         R --> R1[rotta singola<br/>mind-* + skill custom]
         R --> R2[pipeline di dominio<br/>stage + artefatti in .mind/]
-        R --> R3[delivery pipeline<br/>.mind/delivery/{feature}/]
+        R --> R3["delivery pipeline<br/>.mind/delivery/{feature}/"]
         R --> R4[runner<br/>.mind/run/<run-id>/]
     end
     subgraph GATE[GATE FINALE]
