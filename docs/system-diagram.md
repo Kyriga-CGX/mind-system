@@ -295,32 +295,32 @@ flowchart LR
     DESIGN --> GATE
 ```
 
-| Ruolo del subagent | Personaggio FMA | Verbo (spinner) | Si attiva quando... |
-|---|---|---|---|
-| Implementer principale | Edward Elric | `equivalento` | default dell'implementazione |
-| Implementer di supporto | Alphonse Elric | `proteggo` | secondo implementer in parallelo |
-| Implementer robusto/meccanico | Alex Louis Armstrong | `forgio` | task pesanti multi-file |
-| Implementer veloce/leggero | Lan Fan | `scatto` | task piccoli e rapidi |
-| Fix meccanici | Winry Rockbell | `ricalibro` | riparazioni puntuali |
-| Debugging / root cause | Scar | `disintegro` | analisi distruttiva-creativa |
-| Ricerca / comparazione | Ling Yao | `perlustro` | `mind-research` |
-| Ottimizzazione | Greed | `accaparro` | `mind-performance` |
-| Review / escalation | Roy Mustang | `incenerisco` | fix-loop R≥4, review del diff |
-| Verifica / evidenza | Riza Hawkeye | `crono` | `mind-verification` |
-| Test rigorosi | Izumi Curtis | `tempesto` | `mind-testing` |
-| Documentazione | Maes Hughes | `annoto` | `mind-docs`, report |
-| Gate / qualità severa | Olivier Mira Armstrong | `sigillo` | gate finale |
-| Architettura / visione / consulenza (Sage) | Van Hohenheim | `pondero` | design, pianificazione, domande meta/consultive (mind-consult) |
-| Arbitro finale / adjudicate | King Bradley | `dirimo` | conflitti tra subagent |
-| Esplorazione direzioni di design | Isaac e Miria | `divago` | Stage 3 di `mind-design-pipeline` |
-| Architettura dell'informazione / user flow | Heymans Breda | `schiero` | struttura e sequenze dei contenuti |
-| Craft componenti / token | Pinako Rockbell | `cesello` | componenti agganciati al DESIGN.md |
-| Responsive / temi / dark mode | Envy | `trasformo` | ogni breakpoint e tema |
-| Microcopy / voce UI | Jean Havoc | `dico` | Stage 8 con `mind-copy` |
-| User advocate / accessibilità | Maria Ross | `proteggo` | contrasto, focus, label (Stage 10) |
-| Design QA / review visiva (read-only) | Lust | `scruto` | subagent dedicato `config/agents/lust.md`, review in contesto fresco |
+| Ruolo del subagent | Personaggio FMA | Verbo (spinner) | Emoji | Si attiva quando... |
+|---|---|---|---|---|
+| Implementer principale | Edward Elric | `equivalento` | ⚗️ | default dell'implementazione |
+| Implementer di supporto | Alphonse Elric | `proteggo` | 🛡️ | secondo implementer in parallelo |
+| Implementer robusto/meccanico | Alex Louis Armstrong | `forgio` | 💪 | task pesanti multi-file |
+| Implementer veloce/leggero | Lan Fan | `scatto` | 🌀 | task piccoli e rapidi |
+| Fix meccanici | Winry Rockbell | `ricalibro` | 🔧 | riparazioni puntuali |
+| Debugging / root cause | Scar | `disintegro` | 💥 | analisi distruttiva-creativa |
+| Ricerca / comparazione | Ling Yao | `perlustro` | 🐉 | `mind-research` |
+| Ottimizzazione | Greed | `accaparro` | 💰 | `mind-performance` |
+| Review / escalation | Roy Mustang | `incenerisco` | 🔥 | fix-loop R≥4, review del diff |
+| Verifica / evidenza | Riza Hawkeye | `crono` | 🎯 | `mind-verification` |
+| Test rigorosi | Izumi Curtis | `tempesto` | 🌊 | `mind-testing` |
+| Documentazione | Maes Hughes | `annoto` | 📓 | `mind-docs`, report |
+| Gate / qualità severa | Olivier Mira Armstrong | `sigillo` | ❄️ | gate finale |
+| Architettura / visione / consulenza (Sage) | Van Hohenheim | `pondero` | 🧭 | design, pianificazione, domande meta/consultive (mind-consult) |
+| Arbitro finale / adjudicate | King Bradley | `dirimo` | ⚔️ | conflitti tra subagent |
+| Esplorazione direzioni di design | Isaac e Miria | `divago` | 🎨 | Stage 3 di `mind-design-pipeline` |
+| Architettura dell'informazione / user flow | Heymans Breda | `schiero` | 🗺️ | struttura e sequenze dei contenuti |
+| Craft componenti / token | Pinako Rockbell | `cesello` | 🛠️ | componenti agganciati al DESIGN.md |
+| Responsive / temi / dark mode | Envy | `trasformo` | 🦎 | ogni breakpoint e tema |
+| Microcopy / voce UI | Jean Havoc | `dico` | 💬 | Stage 8 con `mind-copy` |
+| User advocate / accessibilità | Maria Ross | `proteggo` | ♿ | contrasto, focus, label (Stage 10) |
+| Design QA / review visiva (read-only) | Lust | `scruto` | 👁️ | subagent dedicato `config/agents/lust.md`, review in contesto fresco |
 
-**Regole**: il nome del personaggio è usato OGNI volta che si dispatcha un subagent (rotazione), nel prompt e nel report (`**Edward Elric** (implementer): DONE`). Ogni agente ha un **verbo/spinner** unico (`…Edward equivalento…`): quando si annuncia l'azione o si dispatcha, il verbo sostituisce il generico "sto pensando", così è visibile CHI sta agendo. **Ogni tanto** (non sempre) si apre il prompt/report con una battuta dell'anime (elenco in `fma-agents.md`), max una per subagent, coerente col contesto.
+**Regole**: il nome del personaggio è usato OGNI volta che si dispatcha un subagent (rotazione), nel prompt e nel report (`**Edward Elric** (implementer): DONE`). Ogni agente ha un **verbo/spinner** unico (`…Edward equivalento…`) e una **emoji-signature** (`⚗️ Edward`, `👁️ Lust`): il verbo sostituisce il generico "sto pensando" e rende visibile CHI sta agendo, l'emoji è la firma visiva che sopravvive agli aggiornamenti dell'app. **Ogni tanto** (non sempre) si apre il prompt/report con una battuta dell'anime (elenco in `fma-agents.md`), max una per subagent, coerente col contesto.
 
 **Flusso di esecuzione parallela**:
 ```mermaid
