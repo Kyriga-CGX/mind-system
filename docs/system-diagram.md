@@ -105,6 +105,8 @@ Regole d'oro: le macro-vie 1 e 2 non scattano mai per task puntuali (→ 3); la 
 | Feature end-to-end (UI + BE + integrazione + sicurezza, consegna unica) | `mind-pipeline` (stage: mockup→approvazione→contratti→FE→BE→integrazione→sicurezza→test→gate→memoria; artefatti in `.mind/delivery/<feature>/`) | ≥3 domini in sequenza con una consegna |
 | Feature semplice ben definita | `mind-planning` → `mind-implementation` → `mind-verification` | requisiti già chiari |
 | UI (costruire/modificare) | `frontend-design` → `design-md` (solo se manca DESIGN.md) → `design-system` → `motion` (solo animazioni) → `mind-verification` | tocca interfaccia/grafica |
+| Design strutturato (nuova UI, redesign, identità visiva, design system) | `mind-design-pipeline` (12 stage, 2 gate utente — vedi 3quater) | consegna visiva completa, ≥3 fasi di design |
+| Direzione estetica da scegliere (2-3 concept) | `mind-design-explore` → scelta utente → `design-md`/`design-system` | il brief non fissa la direzione visiva |
 | UI (solo ritocco stile) | `design-system` → `mind-verification` | piccola modifica stile |
 | Animazione / motion / 3D | `motion` → `frontend-design` (se serve direzione) → `mind-verification` | tocca animazioni/3D |
 | Prosa / testi (pulizia) | `stop-slop` | rimuovere pattern AI |
@@ -162,8 +164,9 @@ Regole d'oro: le macro-vie 1 e 2 non scattano mai per task puntuali (→ 3); la 
 10. `mind-consult` (subagent `sage`) entra SOLO per domande meta/consultive — pensare, consigliare, decidere — non per costruire/modificare codice. Se il parere sfocia in lavoro, si torna alla rotta di implementazione.
 11. `mind-pipeline` entra SOLO per feature end-to-end (≥3 domini in sequenza con consegna unica: UI+BE+integrazione). Task singoli o 1-2 domini usano la rotta specifica, NON la pipeline.
 12. Le pipeline di dominio (incident-pipeline, security-audit-pipeline, migration-pipeline, release-pipeline, onboarding-pipeline, research-pipeline, data-pipeline, performance-pipeline, mobile-pipeline, infra-pipeline, observability-pipeline, ml-pipeline, feature-rollout-pipeline, decommission-pipeline) entrano SOLO per interventi strutturati a stage con ≥3 fasi e consegna unica. Un intervento puntuale usa la rotta singola dedicata (incident/security/migration/release/research/data/performance/devops), NON la pipeline.
+13. `mind-design-pipeline` entra SOLO per un lavoro di design strutturato con consegna visiva (nuova UI, redesign completo, identità visiva, design system da zero): ≥3 fasi di design e almeno una schermata da consegnare. Il ritocco puntuale usa la rotta UI singola; la feature con BE ed endpoint usa `mind-pipeline` (che chiama la design pipeline come suo Stage 2). `mind-design-explore` entra quando manca una direzione approvata e il brief non la fissa. La review visiva finale va al subagent `lust` (read-only), MAI a chi ha implementato.
 
-**Casi limite**: UI+BE → rotta del dominio predominante, gate unico. Dubbio → route conservativa. Fix rapido di bug già investigato → salta `mind-debugging`. Refactor vs migration → senza cambio stack = refactor. Copy vs pulizia → creare = `mind-copy`, pulire = `stop-slop`. Incident vs bug → produzione giù = `mind-incident`. Richiamo vs recall → prima `memory` search, poi `mind-recall`. Documenti vs codice → file .pdf/.docx/.xlsx/.pptx = `mind-documents`. Runner vs task singolo → un obiettivo/piano da portare a termine in autonomia = `mind-runner`; un singolo task = rotta specifica. Consulenza vs costruzione → "cosa mi consigli / come miglioreresti / è una buona idea" = `mind-consult` (subagent `sage`); se il consiglio sfocia in lavoro → rotta normale; se valuta il sistema → `mind-eval`; se è una decisione architetturale → `mind-architecture`. Pipeline vs rotta specifica → feature che attraversa UI+BE+integrazione+sicurezza con consegna unica = `mind-pipeline`; task di 1-2 domini = rotta dedicata; se la feature ha UI, il mockup va approvato dall'utente PRIMA del codice. Pipeline di dominio vs rotta singola → incidente/audit/migrazione/release/onboarding/ricerca/ETL/performance STRUTTURATO a stage (≥3 fasi, consegna unica) = pipeline di dominio; un intervento puntuale (singola vulnerabilità, singola migrazione, singola release, query dati, micro-ottimizzazione, bug di sviluppo, singolo deploy, singolo endpoint) = rotta singola dedicata. Mobile vs web → app mobile cross-platform = `mind-mobile-pipeline`; solo web = `mind-pipeline`; solo release su store di app già pronta = `mind-release-pipeline`. Infra vs release → creare/modificare l'AMBIENTE = `mind-infra-pipeline`; pubblicare il CODICE in ambiente esistente = `mind-release`. Osservabilità vs incidente → costruire il monitoring = `mind-observability-pipeline`; incidente in corso senza visibilità = `mind-incident-pipeline` prima, poi observability come hardening. ML vs data → ciclo ML completo = `mind-ml-pipeline`; solo movimento/trasformazione dati = `mind-data-pipeline`; solo scelta libreria ML = `mind-research`. Rollout vs release → attivare GRADUALMENTE una feature già pronta (flag/canary/A-B, misurata) = `mind-feature-rollout-pipeline`; pubblicare una versione = `mind-release-pipeline` (la release include il flag default off, il rollout lo accende). Decommission vs migration → RIMUOVERE del tutto = `mind-decommission-pipeline`; SOSTITUIRE = `mind-migration-pipeline`; deprecation di un singolo endpoint = `mind-api`.
+**Casi limite**: UI+BE → rotta del dominio predominante, gate unico. Dubbio → route conservativa. Fix rapido di bug già investigato → salta `mind-debugging`. Refactor vs migration → senza cambio stack = refactor. Copy vs pulizia → creare = `mind-copy`, pulire = `stop-slop`. Incident vs bug → produzione giù = `mind-incident`. Richiamo vs recall → prima `memory` search, poi `mind-recall`. Documenti vs codice → file .pdf/.docx/.xlsx/.pptx = `mind-documents`. Runner vs task singolo → un obiettivo/piano da portare a termine in autonomia = `mind-runner`; un singolo task = rotta specifica. Consulenza vs costruzione → "cosa mi consigli / come miglioreresti / è una buona idea" = `mind-consult` (subagent `sage`); se il consiglio sfocia in lavoro → rotta normale; se valuta il sistema → `mind-eval`; se è una decisione architetturale → `mind-architecture`. Pipeline vs rotta specifica → feature che attraversa UI+BE+integrazione+sicurezza con consegna unica = `mind-pipeline`; task di 1-2 domini = rotta dedicata; se la feature ha UI, il mockup va approvato dall'utente PRIMA del codice. Pipeline di dominio vs rotta singola → incidente/audit/migrazione/release/onboarding/ricerca/ETL/performance STRUTTURATO a stage (≥3 fasi, consegna unica) = pipeline di dominio; un intervento puntuale (singola vulnerabilità, singola migrazione, singola release, query dati, micro-ottimizzazione, bug di sviluppo, singolo deploy, singolo endpoint) = rotta singola dedicata. Mobile vs web → app mobile cross-platform = `mind-mobile-pipeline`; solo web = `mind-pipeline`; solo release su store di app già pronta = `mind-release-pipeline`. Design strutturato vs ritocco vs feature → nuova UI/redesign/identità visiva/design system da zero con consegna visiva = `mind-design-pipeline`; ritocco puntuale o modifica di una schermata esistente = rotta UI singola (`frontend-design` → `design-system` → `motion` se animazioni); feature con UI+BE+endpoint = `mind-pipeline`; solo token mancanti = `design-system` (create.md). Direzione già fissata vs da esplorare → il brief fissa la direzione visiva = `frontend-design` + `design-md`/`design-system` (le parole del brief vincono); direzione da scegliere = `mind-design-explore` con 2-3 direzioni e gate utente (una sola proposta = falsa scelta). Chi giudica il design → chi implementa NON si auto-valuta esteticamente: review in contesto fresco con il subagent `lust` (read-only), poi gate `mind-verification`. Infra vs release → creare/modificare l'AMBIENTE = `mind-infra-pipeline`; pubblicare il CODICE in ambiente esistente = `mind-release`. Osservabilità vs incidente → costruire il monitoring = `mind-observability-pipeline`; incidente in corso senza visibilità = `mind-incident-pipeline` prima, poi observability come hardening. ML vs data → ciclo ML completo = `mind-ml-pipeline`; solo movimento/trasformazione dati = `mind-data-pipeline`; solo scelta libreria ML = `mind-research`. Rollout vs release → attivare GRADUALMENTE una feature già pronta (flag/canary/A-B, misurata) = `mind-feature-rollout-pipeline`; pubblicare una versione = `mind-release-pipeline` (la release include il flag default off, il rollout lo accende). Decommission vs migration → RIMUOVERE del tutto = `mind-decommission-pipeline`; SOSTITUIRE = `mind-migration-pipeline`; deprecation di un singolo endpoint = `mind-api`.
 
 ---
 
@@ -218,6 +221,34 @@ Oltre alla consegna di feature, il sistema ha 14 pipeline di dominio per interve
 | `mind-feature-rollout-pipeline` | flag design (default off) → metriche con baseline PRIMA → canary → A/B → espansione 25→50→100% → rollout completo (cleanup) → post-verifica | attivare gradualmente una feature già pronta, canary, A/B |
 | `mind-decommission-pipeline` | inventario consumatori → valutazione impatto → piano deprecation (periodo) → avvisi/docs → migrazione → shutdown controllato → cleanup → gate | ritirare/spegnere un servizio o feature attivo |
 
+### 3quater. Design pipeline (`mind-design-pipeline`)
+
+Lavoro di design strutturato (nuova UI, redesign, identità visiva, design system da zero): 12 stage, artefatti in `.mind/design/<progetto>/`, DUE gate di approvazione utente.
+
+```mermaid
+flowchart TB
+    U["richiesta di design"] --> ORC["using-mind: rotta design"]
+    ORC --> S1["1 Brief e soggetto<br/>cosa, per chi, compito primario"]
+    S1 --> S2["2 Audit esistente<br/>C1-C9, token hardcoded, a11y (skip se greenfield)"]
+    S2 --> S3["3 Esplorazione direzioni<br/>mind-design-explore: 2-3 concept"]
+    S3 --> G1{"GATE UTENTE<br/>sceglie la direzione"}
+    G1 -->|modifica| S3
+    G1 -->|approva| S4["4 Token e DESIGN.md<br/>design-system create.md"]
+    S4 --> S5["5 Mockup schermata chiave<br/>contenuto reale, screenshot letto"]
+    S5 --> G2{"GATE UTENTE<br/>approva il mockup"}
+    G2 -->|iterazione| S5
+    G2 -->|approva| S6["6 Componenti e pattern P1-P3"]
+    S6 --> S7["7 Motion (skip se non serve)<br/>archetipo, priority-ladder, F1-F3"]
+    S7 --> S8["8 Copy in UI (skip se non serve)<br/>mind-copy, stop-slop"]
+    S8 --> S9["9 Implementazione FE<br/>Design Squad in parallelo, token enforcement"]
+    S9 --> S10["10 Qualità visiva<br/>review Lust read-only, a11y AA, responsive, visual regression"]
+    S10 --> S11["11 Gate finale<br/>mind-verification evidenza fresca"]
+    S11 -->|fix loop R≤3| S9
+    S11 --> S12["12 Memoria<br/>mind-memory: direzione, gusti, decisioni"]
+```
+
+Regole: nessun codice di produzione prima del mockup approvato; gate anti-slop C1-C9 PRIMA dei pattern P1-P3/F1-F3; `DESIGN.md` fonte di verità (hex hardcoded = difetto); screenshot invece di rilettura; skip solo per assenza di dominio; interruzioni solo ai due gate. Design Squad: Isaac e Miria (direzioni), Breda (IA/flow), Pinako (componenti/token), Envy (responsive/temi), Havoc (microcopy), Maria Ross (a11y), Lust (design QA read-only, `config/agents/lust.md`).
+
 ## 4. Agenti FMA — come vengono chiamati e quando
 
 ```mermaid
@@ -239,6 +270,16 @@ flowchart LR
         S6[Maes Hughes - documentazione]
     end
 
+    subgraph DESIGN[Design Squad - mind-design-pipeline]
+        D1[Isaac e Miria - esplorazione direzioni]
+        D2[Heymans Breda - IA e user flow]
+        D3[Pinako Rockbell - craft componenti e token]
+        D4[Envy - responsive e temi]
+        D5[Jean Havoc - microcopy]
+        D6[Maria Ross - accessibilità]
+        D7["Lust - design QA (subagent read-only)"]
+    end
+
     subgraph GATE[Gate e arbitrato]
         G1[Roy Mustang - review/escalation]
         G2[Riza Hawkeye - verifica/evidenza]
@@ -249,6 +290,7 @@ flowchart LR
 
     DISPATCH --> GATE
     SPECIALI --> GATE
+    DESIGN --> GATE
 ```
 
 | Ruolo del subagent | Personaggio FMA | Si attiva quando... |
@@ -268,6 +310,13 @@ flowchart LR
 | Gate / qualità severa | Olivier Mira Armstrong | gate finale |
 | Architettura / visione / consulenza (Sage) | Van Hohenheim | design, pianificazione, domande meta/consultive (mind-consult) |
 | Arbitro finale / adjudicate | King Bradley | conflitti tra subagent |
+| Esplorazione direzioni di design | Isaac e Miria | Stage 3 di `mind-design-pipeline` |
+| Architettura dell'informazione / user flow | Heymans Breda | struttura e sequenze dei contenuti |
+| Craft componenti / token | Pinako Rockbell | componenti agganciati al DESIGN.md |
+| Responsive / temi / dark mode | Envy | ogni breakpoint e tema |
+| Microcopy / voce UI | Jean Havoc | Stage 8 con `mind-copy` |
+| User advocate / accessibilità | Maria Ross | contrasto, focus, label (Stage 10) |
+| Design QA / review visiva (read-only) | Lust | subagent dedicato `config/agents/lust.md`, review in contesto fresco |
 
 **Regole**: il nome del personaggio è usato OGNI volta che si dispatcha un subagent (rotazione), nel prompt e nel report (`**Edward Elric** (implementer): DONE`). **Ogni tanto** (non sempre) si apre il prompt/report con una battuta dell'anime (elenco in `fma-agents.md`), max una per subagent, coerente col contesto.
 
@@ -371,6 +420,9 @@ flowchart TD
 | `mind-ml-pipeline` | `data`/`api`/`performance`/`security` | modello valutato + servizio + drift |
 | `mind-feature-rollout-pipeline` | `release`/`observability`/`verification` | feature attiva con flag+canary misurati |
 | `mind-decommission-pipeline` | `api`/`docs`/`migration`/`verification` | servizio rimosso senza consumatori attivi |
+| `mind-design-pipeline` | `design-explore`/`frontend-design`/`design-md`/`design-system`/`motion`/`copy`/`implementation`/`testing`/`verification`/`memory` | direzione approvata, DESIGN.md aggiornato, mockup approvato, qualità visiva verificata |
+| `mind-design-explore` | `frontend-design`/`design-system`/`motion`/`copy`/`consult`/`memory` | 2-3 direzioni distinte + scelta utente registrata |
+| `lust` (design QA) | `design-system`/`motion`/`testing`/`verification` | report read-only con difetti per gravità, chi implementa corregge |
 | `design-system`/`motion` | `frontend-design` | delega direzione estetica |
 | qualunque rotta | `mind-verification` | gate finale (evidenza) |
 | qualunque rotta | `mind-memory` | salvataggio pattern/decisioni |
@@ -433,7 +485,7 @@ plugins/
   mind/          plugin orchestratore (bootstrap + registrazione skill)
   mind-memory/   plugin memoria locale-first (tool memory)
 skills/
-  mind/          using-mind (orchestratore) + routing.md + fma-agents.md + 43 skill di dominio
+  mind/          using-mind (orchestratore) + routing.md + fma-agents.md + 45 skill di dominio
   orchestrator/  wrapper storico del routing (fonte verità: using-mind/routing.md)
   + 8 skill custom (context7-mcp, design-md, design-system, ecosystem-health-check,
     execution-hygiene, frontend-design, motion, stop-slop)

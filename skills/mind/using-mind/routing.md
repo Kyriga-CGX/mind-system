@@ -9,6 +9,8 @@ La tabella di routing è la **fonte unica** per instradare un task alla sequenza
 | Nuova feature / lavoro creativo | `mind-brainstorming` → `mind-planning` → `mind-implementation` → `mind-verification` |
 | Feature end-to-end (UI + BE + integrazione + sicurezza, consegna unica) | `mind-pipeline` (stage: mockup→approvazione→contratti→FE→BE→integrazione→sicurezza→test→gate→memoria; artefatti in `.mind/delivery/<feature>/`) |
 | App mobile cross-platform (dallo stack allo store, consegna unica) | `mind-mobile-pipeline` (stack→design mobile→contratti→FE→BE→device/push→test→build+signing→release→gate) |
+| Design strutturato: nuova UI, redesign completo, identità visiva, design system da zero | `mind-design-pipeline` (brief→audit→direzioni→DESIGN.md→mockup→componenti→motion→copy→FE→qualità visiva→gate→memoria; artefatti in `.mind/design/<progetto>/`; 2 gate utente) |
+| Scelta della direzione estetica (servono 2-3 concept prima di costruire) | `mind-design-explore` (direzioni distinte + auto-check anti-slop C1-C9 + comparazione + scelta utente via tool `question`) |
 | Feature semplice ben definita | `mind-planning` → `mind-implementation` → `mind-verification` |
 | UI (costruire o modificare) | `frontend-design` (direzione, consulta design-references) → `design-md` (crea DESIGN.md solo se manca) → `design-system` (enforce) → `motion` (solo se tocca animazioni) → `mind-verification` |
 | UI (solo ritocco stile esistente) | `design-system` (enforce) → `mind-verification` |
@@ -59,6 +61,7 @@ La tabella di routing è la **fonte unica** per instradare un task alla sequenza
 | Salvataggio preferenza/contesto | `memory` tool (add) via `mind-memory` |
 | Prima configurazione / progetto nuovo | `mind-setup` (domande una alla volta → working-set in memoria) → rotta del task |
 | Documenti (PDF/DOCX/XLSX/PPTX) | `mind-documents` → (`mind-copy` per il testo) → (`mind-verification` se consegna) |
+17. `mind-design-pipeline` entra SOLO per un lavoro di design strutturato con consegna visiva (nuova UI, redesign completo, identità visiva, design system da zero): ≥3 fasi di design e almeno una schermata da consegnare. Ritocco puntuale (un colore, una card, un componente) → rotta UI singola; feature con BE ed endpoint → `mind-pipeline` (che chiama questa pipeline come suo Stage 2); app mobile con store → `mind-mobile-pipeline`. `mind-design-explore` entra quando manca una direzione approvata e il brief non la fissa; se il brief fissa la direzione visiva, le parole del brief vincono → `design-md`/`design-system`. La review visiva finale va al subagent `lust` (read-only), MAI a chi ha implementato.
 
 ## Regole di orchestrazione (gate e sequenza)
 
@@ -120,6 +123,9 @@ La tabella di routing è la **fonte unica** per instradare un task alla sequenza
 - **Mockup obbligatorio nella pipeline**: se la feature end-to-end ha una UI, il mockup (`frontend-design`) va approvato dall'utente PRIMA di scrivere codice; senza approvazione la pipeline si ferma allo Stage 2.
 - **Pipeline di dominio vs rotta singola**: un incidente/audit/migrazione/release/ricerca/ETL/performance STRUTTURATO a stage (risposta completa, consegna unica, ≥3 fasi) → pipeline di dominio (`mind-incident-pipeline`, `mind-security-audit-pipeline`, `mind-migration-pipeline`, `mind-release-pipeline`, `mind-onboarding-pipeline`, `mind-research-pipeline`, `mind-data-pipeline`, `mind-performance-pipeline`, `mind-mobile-pipeline`, `mind-infra-pipeline`, `mind-observability-pipeline`, `mind-ml-pipeline`, `mind-feature-rollout-pipeline`, `mind-decommission-pipeline`). Un intervento puntuale (singola vulnerabilità, singola migrazione, singola release, query dati, micro-ottimizzazione, bug di sviluppo, singolo deploy, singolo endpoint) → rotta singola dedicata. In dubbio: conta le fasi necessarie; ≥3 sequenziali → pipeline.
 - **Mobile vs web**: un'app mobile cross-platform end-to-end (stack→design→FE→BE→device→store) → `mind-mobile-pipeline`. Solo web → `mind-pipeline`. Solo mockup/design mobile → `frontend-design`/`design-system`. Solo release su store di un'app già pronta → `mind-release-pipeline`.
+- **Design strutturato vs ritocco vs feature**: nuova UI/redesign/identità visiva/design system da zero con consegna visiva → `mind-design-pipeline`. Ritocco puntuale o modifica di una schermata esistente → rotta UI singola (`frontend-design` → `design-system` → `motion` se animazioni). Feature con UI + BE + endpoint → `mind-pipeline`. Solo token mancanti → `design-system` (`create.md`).
+- **Direzione già fissata vs da esplorare**: il brief fissa la direzione visiva → salta la divergenza, `frontend-design` + `design-md`/`design-system`. Il brief non la fissa e serve una scelta → `mind-design-explore` (2-3 direzioni + gate utente). Una sola direzione presentata all'utente = falsa scelta.
+- **Chi giudica il design**: chi implementa NON si auto-valuta esteticamente → review in contesto fresco con il subagent `lust` (read-only), poi gate finale `mind-verification`.
 - **Infra vs release**: creare/modificare l'AMBIENTE (provisioning, rete, secrets, container, DNS) → `mind-infra-pipeline`. Pubblicare il CODICE applicativo in un ambiente già esistente → `mind-release`/`mind-release-pipeline`. Se non c'è ancora ambiente → `mind-infra-pipeline` prima, poi `mind-devops` per il deploy.
 - **Osservabilità vs incidente**: costruire il layer di monitoraggio (log/metriche/tracing/alert/dashboard) → `mind-observability-pipeline`. Incidente in corso in un sistema senza visibilità → `mind-incident-pipeline` (triage+mitigazione), poi `mind-observability-pipeline` come hardening.
 - **ML vs data**: ciclo ML completo (dati→feature→modello→eval→servizio) → `mind-ml-pipeline`. Solo movimento/trasformazione dati → `mind-data-pipeline`. Solo scelta libreria ML → `mind-research`/`context7-mcp`.
@@ -153,6 +159,8 @@ La tabella di routing è la **fonte unica** per instradare un task alla sequenza
 - `mind-ml-pipeline` → modello valutato (metrica su test set) + servizio di inferenza + monitoraggio drift in `.mind/ml/<progetto>/`
 - `mind-feature-rollout-pipeline` → feature attiva in produzione con flag+canary/A-B misurati in `.mind/rollout/<feature>/` + metriche di rilascio + cleanup rami morti
 - `mind-decommission-pipeline` → servizio/feature rimosso del tutto (shutdown + cleanup + verifica che nulla lo riferisca) in `.mind/decommission/<servizio>/`
+- `mind-design-pipeline` → UI consegnata con direzione approvata, DESIGN.md aggiornato, mockup approvato, componenti tokenizzati, qualità visiva verificata (C1-C9 + a11y AA + responsive) in `.mind/design/<progetto>/` + gate `mind-verification`
+- `mind-design-explore` → `03-concepts.md` con 2-3 direzioni distinte (wireframe ASCII, token compatti, auto-check anti-slop, comparazione) + `03-scelta.md` con la scelta dell'utente e i concept scartati; fuori pipeline → `docs/design/YYYY-MM-DD-<topic>-concepts.md`
 - `mind-incident` → postmortem in `docs/incidents/YYYY-MM-DD-<slug>-postmortem.md` (azioni con owner+scadenza)
 - `mind-eval` → report in `docs/eval/YYYY-MM-DD-<target>-eval.md` + memoria
 - `mind-verification` → evidenza eseguita (output test/lint/build) e conferma

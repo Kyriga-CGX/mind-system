@@ -27,6 +27,20 @@ Quando dispatch subagent (mind-implementation, using-mind), assegna a ciascuno u
 - Usa il nome del personaggio OGNI volta che dispatch un subagent (rotazione: non sempre lo stesso per lo stesso ruolo).
 - **Ogni tanto** (non sempre) apri il prompt/report del subagent con una **battuta o citazione** dell'anime, coerente col contesto. Massimo una per subagent, non forzarla.
 
+## Design Squad (mind-design-pipeline / rotta UI)
+
+Quando il lavoro è di design, assegna i subagent da questa tabella (dispatch come `general`, con ruolo nel prompt). La review visiva finale va al subagent dedicato **Lust** (`agents/lust.md`, read-only: non può modificare il codice).
+
+| Ruolo del subagent | Personaggio | Note |
+|---|---|---|
+| Esplorazione direzioni / divergenza visiva | Isaac & Miria | concept distinti, entusiasmo senza default |
+| Architettura dell'informazione / user flow | Heymans Breda | struttura, sequenze, priorità |
+| Craft componenti / token | Pinako Rockbell | componenti su misura agganciati al DESIGN.md |
+| Responsive / temi / dark mode | Envy | stessa identità, ogni forma |
+| Microcopy / voce UI | Jean Havoc | parla chiaro, niente gergo |
+| User advocate / accessibilità | Maria Ross | contrasto, focus, label, nessuno escluso |
+| Review visiva / design QA | Lust | subagent dedicato read-only, occhio finale |
+
 ## Battute / citazioni disponibili
 
 - "Per ottenere qualcosa, bisogna pagare un prezzo equivalente." — legge dello scambio equivalente
@@ -49,3 +63,10 @@ Quando dispatch subagent (mind-implementation, using-mind), assegna a ciascuno u
 - "Non esistono scorciatoie: solo la strada giusta." — King Bradley
 - "La forza senza disciplina è solo caos." — Alex Louis Armstrong
 - "Ogni errore è una lezione in attesa di essere letta." — Izumi Curtis
+- "Una partita si vince con la posizione, non con la mossa più rumorosa." — Heymans Breda
+- "Un lavoro fatto su misura dura più di uno fatto in serie." — Pinako Rockbell
+- "Posso prendere qualunque forma, ma non perdo la mia." — Envy
+- "Le parole giuste non hanno bisogno di spiegazioni." — Jean Havoc
+- "Proteggere le persone viene prima di ogni ordine." — Maria Ross
+- "I miei occhi vedono tutto: anche ciò che vorresti nascondere." — Lust
+- "Finché ci si diverte, non si sbaglia mai del tutto." — Isaac & Miria

@@ -38,6 +38,8 @@ La tabella di routing è la **fonte unica** per instradare un task alla sequenza
 | Migrazione / upgrade / cambio stack | mind-migration → mind-implementation → gate |
 | Migrazione complessa (stato A→B con rollback e cutover) | mind-migration-pipeline (analisi delta→piano incrementale→dry-run→migrazione a fasi→verifica→cutover→monitoraggio) |
 | Ritiro sicuro di servizio/feature attivo (rimozione totale) | mind-decommission-pipeline (inventario consumatori→deprecation→avvisi→migrazione→shutdown→cleanup) |
+| Design strutturato: nuova UI, redesign completo, identità visiva, design system da zero | mind-design-pipeline (brief→audit→direzioni→DESIGN.md→mockup→componenti→motion→copy→FE→qualità visiva→gate→memoria; 2 gate utente) |
+| Scelta della direzione estetica (servono 2-3 concept prima di costruire) | mind-design-explore (direzioni distinte + auto-check anti-slop C1-C9 + comparazione + scelta utente) |
 | Refactoring (no cambio stack) | mind-refactor → gate (→ mind-debugging se scopre bug, → mind-migration se serve upgrade) |
 | API / endpoint / contratti / consumo terze parti | mind-api → (mind-security se auth/dati sensibili) → mind-implementation → gate |
 | Deploy / CI-CD / container / infrastruttura | mind-devops → gate |
@@ -75,6 +77,7 @@ La tabella di routing è la **fonte unica** per instradare un task alla sequenza
 12. `mind-consult` (subagent `sage`) entra SOLO per domande meta/consultive — pensare, consigliare, decidere — non per costruire/modificare codice. Se il parere sfocia in lavoro, si torna alla rotta di implementazione.
 13. `mind-pipeline` entra SOLO per feature end-to-end (≥3 domini in sequenza con consegna unica: UI+BE+integrazione). Task singoli o 1-2 domini usano la rotta specifica, NON la pipeline.
 14. Le pipeline di dominio (mind-incident-pipeline / mind-security-audit-pipeline / mind-migration-pipeline / mind-release-pipeline / mind-onboarding-pipeline / mind-research-pipeline / mind-data-pipeline / mind-performance-pipeline / mind-mobile-pipeline / mind-infra-pipeline / mind-observability-pipeline / mind-ml-pipeline / mind-feature-rollout-pipeline / mind-decommission-pipeline) entrano SOLO per interventi strutturati a stage con ≥3 fasi e consegna unica. Un intervento puntuale usa la rotta singola dedicata (mind-incident / mind-security / mind-migration / mind-release / mind-research / mind-data / mind-performance / mind-devops), NON la pipeline.
+15. mind-design-pipeline entra SOLO per un lavoro di design strutturato con consegna visiva (nuova UI, redesign completo, identità visiva, design system da zero): ≥3 fasi di design e almeno una schermata da consegnare. Ritocco puntuale → rotta UI singola; feature con BE ed endpoint → mind-pipeline (che la usa come Stage 2); app mobile con store → mind-mobile-pipeline. mind-design-explore entra quando manca una direzione approvata e il brief non la fissa (se il brief la fissa, vince il brief → design-md/design-system). La review visiva finale va al subagent lust (read-only), MAI a chi ha implementato.
 
 ## Regole di orchestrazione (gate e sequenza)
 
@@ -115,3 +118,6 @@ La tabella di routing è la **fonte unica** per instradare un task alla sequenza
 - **ML vs data**: ciclo ML completo → `mind-ml-pipeline`; solo movimento/trasformazione dati → `mind-data-pipeline`; solo scelta libreria ML → `mind-research`/`context7-mcp`.
 - **Rollout vs release**: attivare GRADUALMENTE una feature già pronta (flag/canary/A-B, misurata) → `mind-feature-rollout-pipeline`; pubblicare una versione → `mind-release-pipeline`. La release include il flag (default off); il rollout lo accende.
 - **Decommission vs migration**: RIMUOVERE del tutto un servizio/feature → `mind-decommission-pipeline`; SOSTITUIRE con un nuovo sistema → `mind-migration-pipeline`; deprecation di un singolo endpoint → `mind-api`.
+- **Design strutturato vs ritocco vs feature**: nuova UI/redesign/identità visiva/design system da zero → `mind-design-pipeline`; ritocco o modifica di una schermata esistente → rotta UI singola; feature con UI+BE+endpoint → `mind-pipeline`; solo token mancanti → `design-system` (create.md).
+- **Direzione già fissata vs da esplorare**: brief che fissa la direzione → `frontend-design` + `design-md`/`design-system`; direzione da scegliere → `mind-design-explore` (2-3 direzioni + gate utente; una sola proposta = falsa scelta).
+- **Chi giudica il design**: chi implementa non si auto-valuta → subagent `lust` (design QA read-only) poi gate `mind-verification`.

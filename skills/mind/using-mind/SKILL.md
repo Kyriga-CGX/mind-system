@@ -20,6 +20,8 @@ Prima di rispondere o agire, identifica il tipo di task e scegli la rotta dalla 
 | Nuova feature / lavoro creativo | `mind-brainstorming` → `mind-planning` → `mind-implementation` → `mind-verification` |
 | Feature end-to-end (UI + BE + integrazione + sicurezza, consegna unica) | `mind-pipeline` (stage: mockup→approvazione→contratti→FE→BE→integrazione→sicurezza→test→gate→memoria) |
 | App mobile cross-platform (dallo stack allo store, consegna unica) | `mind-mobile-pipeline` (stack→design mobile→contratti→FE→BE→device/push→test→build+signing→release→gate) |
+| Design strutturato: nuova UI, redesign completo, identità visiva, design system da zero | `mind-design-pipeline` (brief→audit→direzioni→DESIGN.md→mockup→componenti→motion→copy→FE→qualità visiva→gate→memoria; 2 gate utente) |
+| Scelta della direzione estetica (servono 2-3 concept prima di costruire) | `mind-design-explore` (direzioni distinte + auto-check anti-slop + comparazione + scelta utente) |
 | UI (costruire o modificare) | `frontend-design` (direzione, consulta design-references) → `design-md` (crea DESIGN.md solo se manca) → `design-system` (enforce) → `motion` (solo se tocca animazioni) → `mind-verification` |
 | Animazione / motion / 3D | `motion` → `frontend-design` (solo se serve direzione) → `mind-verification` |
 | Prosa / testi / copy (pulizia esistente) | `stop-slop` |
@@ -84,6 +86,7 @@ Prima di rispondere o agire, identifica il tipo di task e scegli la rotta dalla 
 13. `mind-consult` (subagent `sage`) entra SOLO per domande meta/consultive — pensare, consigliare, decidere — non per costruire/modificare codice. Se il parere sfocia in lavoro, si torna alla rotta di implementazione.
 14. `mind-pipeline` entra SOLO per feature end-to-end (≥3 domini in sequenza con consegna unica: UI+BE+integrazione). Un task singolo o di 1-2 domini usa la rotta specifica, NON la pipeline.
 15. Le pipeline di dominio (`mind-incident-pipeline`/`mind-security-audit-pipeline`/`mind-migration-pipeline`/`mind-release-pipeline`/`mind-onboarding-pipeline`/`mind-research-pipeline`/`mind-data-pipeline`/`mind-performance-pipeline`/`mind-mobile-pipeline`/`mind-infra-pipeline`/`mind-observability-pipeline`/`mind-ml-pipeline`/`mind-feature-rollout-pipeline`/`mind-decommission-pipeline`) entrano SOLO quando il task è strutturato a stage (risposta a incidente, audit completo, migrazione complessa, chiusura release, onboarding, ricerca approfondita, ETL complesso, intervento performance, app mobile, infrastruttura, osservabilità, ciclo ML, rollout graduale, ritiro servizio) e attraversa ≥3 fasi con consegna unica. Un intervento puntuale usa la rotta dedicata singola (es. `mind-incident`, `mind-security`, `mind-migration`, `mind-release`, `mind-research`, `mind-data`, `mind-performance`, `mind-devops`, `mind-ml`→`mind-data`, rollout singolo→`mind-release`), NON la pipeline.
+16. `mind-design-pipeline` entra SOLO per un lavoro di design strutturato con consegna visiva (nuova UI, redesign completo, identità visiva, design system da zero): ≥3 fasi di design e almeno una schermata da consegnare. Il ritocco puntuale (un colore, una card, un componente) usa la rotta UI singola; la feature con BE ed endpoint usa `mind-pipeline` (che chiama questa pipeline come suo Stage 2). `mind-design-explore` entra quando manca una direzione approvata e il brief non la fissa: se il brief fissa già la direzione visiva, le parole del brief vincono e si passa a `design-md`/`design-system`. La review visiva finale va al subagent `lust` (read-only), MAI a chi ha implementato.
 
 ## Gate e sequenza (regole di orchestrazione)
 
@@ -111,6 +114,13 @@ Mind fa comunicare le skill passando il **risultato** di una all'input della suc
 - **refactor → testing**: il refactoring parte SOLO con test che proteggono il comportamento (baseline verde); `mind-testing` fornisce la rete di sicurezza
 - **api → security**: se l'API tocca auth/dati sensibili/pagamenti, il threat model di `mind-security` viene PRIMA del contratto e del codice
 - **api → docs**: il contratto OpenAPI/documentazione è parte dell'API, coordinata con `mind-docs`
+- **design-pipeline → design-explore**: lo Stage 3 chiede 2-3 direzioni distinte; la scelta dell'utente (`03-scelta.md`) è l'input di `design-md`/`design-system` per il DESIGN.md
+- **design-explore → design-system**: la direzione scelta diventa token (create.md), poi enforcement (enforce.md) e gate anti-slop (anti-slop.md) + pattern (patterns.md)
+- **design-pipeline → frontend-design**: la direzione estetica è prerequisito in Stage 1, 3, 5, 9; `design-references.md` solo per ispirazione reale
+- **design-pipeline → motion / mind-copy**: Stage 7 (archetipo + priority-ladder + F1-F3) e Stage 8 (microcopy con la voce scelta in Stage 3)
+- **design-pipeline → mind-implementation**: Stage 9 con la Design Squad (fma-agents.md) su unità indipendenti, token enforcement durante la scrittura
+- **design-pipeline → lust (design QA) → mind-testing → mind-verification**: la qualità visiva si valuta in contesto fresco (subagent read-only), poi visual regression e a11y, poi il gate finale con evidenza
+- **design-pipeline → mind-pipeline / mind-mobile-pipeline**: se la richiesta include BE/endpoint/sicurezza → `mind-pipeline`; se il target è app mobile con build e store → `mind-mobile-pipeline`
 - **api → migration**: modificare un'API esistente usata da client = breaking change, gestito con `mind-migration` (versioning/deprecation)
 - **release → devops**: la release usa la pipeline di build/publish di `mind-devops`; il tag/changelog di `mind-release` chiude il ciclo
 - **release → verification**: nessuna release senza build+test verdi (gate `mind-verification`)
