@@ -252,7 +252,7 @@ flowchart LR
         G1[Roy Mustang - review/escalation]
         G2[Riza Hawkeye - verifica/evidenza]
         G3[Olivier M. Armstrong - gate qualità]
-        G4[Van Hohenheim - architettura/consulenza (Sage)]
+        G4["Van Hohenheim - architettura/consulenza (Sage)"]
         G5[King Bradley - adjudicate/conflitti]
     end
 
@@ -404,7 +404,7 @@ flowchart TB
     subgraph ESEC[ESECUZIONE]
         R --> R1[rotta singola<br/>mind-* + skill custom]
         R --> R2[pipeline di dominio<br/>stage + artefatti in .mind/]
-        R --> R3[delivery pipeline<br/>.mind/delivery/<feature>/]
+        R --> R3[delivery pipeline<br/>.mind/delivery/{feature}/]
         R --> R4[runner<br/>.mind/run/<run-id>/]
     end
     subgraph GATE[GATE FINALE]
