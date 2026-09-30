@@ -127,9 +127,9 @@ sequenceDiagram
 9. `mind-runner` entra SOLO per un piano/obiettivo da eseguire per intero in autonomia (più task, possibilmente più sessioni). Un task singolo NON usa il runner.
 10. `mind-consult` (subagent `sage`) entra SOLO per domande meta/consultive — pensare, consigliare, decidere — non per costruire/modificare codice. Se il parere sfocia in lavoro, si torna alla rotta di implementazione.
 11. `mind-pipeline` entra SOLO per feature end-to-end (≥3 domini in sequenza con consegna unica: UI+BE+integrazione). Task singoli o 1-2 domini usano la rotta specifica, NON la pipeline.
-12. Le pipeline di dominio (incident-pipeline, security-audit-pipeline, migration-pipeline, release-pipeline, onboarding-pipeline, research-pipeline, data-pipeline, performance-pipeline) entrano SOLO per interventi strutturati a stage con ≥3 fasi e consegna unica. Un intervento puntuale usa la rotta singola dedicata (incident/security/migration/release/research/data/performance), NON la pipeline.
+12. Le pipeline di dominio (incident-pipeline, security-audit-pipeline, migration-pipeline, release-pipeline, onboarding-pipeline, research-pipeline, data-pipeline, performance-pipeline, mobile-pipeline, infra-pipeline, observability-pipeline, ml-pipeline, feature-rollout-pipeline, decommission-pipeline) entrano SOLO per interventi strutturati a stage con ≥3 fasi e consegna unica. Un intervento puntuale usa la rotta singola dedicata (incident/security/migration/release/research/data/performance/devops), NON la pipeline.
 
-**Casi limite**: UI+BE → rotta del dominio predominante, gate unico. Dubbio → route conservativa. Fix rapido di bug già investigato → salta `mind-debugging`. Refactor vs migration → senza cambio stack = refactor. Copy vs pulizia → creare = `mind-copy`, pulire = `stop-slop`. Incident vs bug → produzione giù = `mind-incident`. Richiamo vs recall → prima `memory` search, poi `mind-recall`. Documenti vs codice → file .pdf/.docx/.xlsx/.pptx = `mind-documents`. Runner vs task singolo → un obiettivo/piano da portare a termine in autonomia = `mind-runner`; un singolo task = rotta specifica. Consulenza vs costruzione → "cosa mi consigli / come miglioreresti / è una buona idea" = `mind-consult` (subagent `sage`); se il consiglio sfocia in lavoro → rotta normale; se valuta il sistema → `mind-eval`; se è una decisione architetturale → `mind-architecture`. Pipeline vs rotta specifica → feature che attraversa UI+BE+integrazione+sicurezza con consegna unica = `mind-pipeline`; task di 1-2 domini = rotta dedicata; se la feature ha UI, il mockup va approvato dall'utente PRIMA del codice. Pipeline di dominio vs rotta singola → incidente/audit/migrazione/release/onboarding/ricerca/ETL/performance STRUTTURATO a stage (≥3 fasi, consegna unica) = pipeline di dominio; un intervento puntuale (singola vulnerabilità, singola migrazione, singola release, query dati, micro-ottimizzazione, bug di sviluppo) = rotta singola dedicata.
+**Casi limite**: UI+BE → rotta del dominio predominante, gate unico. Dubbio → route conservativa. Fix rapido di bug già investigato → salta `mind-debugging`. Refactor vs migration → senza cambio stack = refactor. Copy vs pulizia → creare = `mind-copy`, pulire = `stop-slop`. Incident vs bug → produzione giù = `mind-incident`. Richiamo vs recall → prima `memory` search, poi `mind-recall`. Documenti vs codice → file .pdf/.docx/.xlsx/.pptx = `mind-documents`. Runner vs task singolo → un obiettivo/piano da portare a termine in autonomia = `mind-runner`; un singolo task = rotta specifica. Consulenza vs costruzione → "cosa mi consigli / come miglioreresti / è una buona idea" = `mind-consult` (subagent `sage`); se il consiglio sfocia in lavoro → rotta normale; se valuta il sistema → `mind-eval`; se è una decisione architetturale → `mind-architecture`. Pipeline vs rotta specifica → feature che attraversa UI+BE+integrazione+sicurezza con consegna unica = `mind-pipeline`; task di 1-2 domini = rotta dedicata; se la feature ha UI, il mockup va approvato dall'utente PRIMA del codice. Pipeline di dominio vs rotta singola → incidente/audit/migrazione/release/onboarding/ricerca/ETL/performance STRUTTURATO a stage (≥3 fasi, consegna unica) = pipeline di dominio; un intervento puntuale (singola vulnerabilità, singola migrazione, singola release, query dati, micro-ottimizzazione, bug di sviluppo, singolo deploy, singolo endpoint) = rotta singola dedicata. Mobile vs web → app mobile cross-platform = `mind-mobile-pipeline`; solo web = `mind-pipeline`; solo release su store di app già pronta = `mind-release-pipeline`. Infra vs release → creare/modificare l'AMBIENTE = `mind-infra-pipeline`; pubblicare il CODICE in ambiente esistente = `mind-release`. Osservabilità vs incidente → costruire il monitoring = `mind-observability-pipeline`; incidente in corso senza visibilità = `mind-incident-pipeline` prima, poi observability come hardening. ML vs data → ciclo ML completo = `mind-ml-pipeline`; solo movimento/trasformazione dati = `mind-data-pipeline`; solo scelta libreria ML = `mind-research`. Rollout vs release → attivare GRADUALMENTE una feature già pronta (flag/canary/A-B, misurata) = `mind-feature-rollout-pipeline`; pubblicare una versione = `mind-release-pipeline` (la release include il flag default off, il rollout lo accende). Decommission vs migration → RIMUOVERE del tutto = `mind-decommission-pipeline`; SOSTITUIRE = `mind-migration-pipeline`; deprecation di un singolo endpoint = `mind-api`.
 
 ---
 
@@ -163,9 +163,9 @@ flowchart TB
     G2 --> M[memoria mind-memory<br/>decisioni + architettura + riepilogo]
 ```
 
-### 3ter. Pipeline di dominio (8)
+### 3ter. Pipeline di dominio (14)
 
-Oltre alla consegna di feature, il sistema ha 8 pipeline di dominio per interventi strutturati a stage (≥3 fasi, consegna unica). Un intervento puntuale usa la rotta singola dedicata, NON la pipeline. Ogni pipeline mantiene stato condiviso su file, gate tra gli stage e budget di chiamate.
+Oltre alla consegna di feature, il sistema ha 14 pipeline di dominio per interventi strutturati a stage (≥3 fasi, consegna unica). Un intervento puntuale usa la rotta singola dedicata, NON la pipeline. Ogni pipeline mantiene stato condiviso su file, gate tra gli stage e budget di chiamate.
 
 | Pipeline | Stage | Trigger |
 |---|---|---|
@@ -177,6 +177,12 @@ Oltre alla consegna di feature, il sistema ha 8 pipeline di dominio per interven
 | `mind-research-pipeline` | domanda+criteri → fonti (context7-mcp) → sintesi per opzione → comparazione (criteri×opzioni) → raccomandazione → validazione | ricerca approfondita con raccomandazione documentata |
 | `mind-data-pipeline` | estrazione → pulizia → validazione → trasformazione → caricamento (backup PRIMA, transazione, idempotente) → verifica pre/post → documentazione | task dati/ETL complesso |
 | `mind-performance-pipeline` | baseline (misura PRIMA) → profiling → collo di bottiglia → ottimizzazione (una variabile per volta) → verifica (stesso strumento) → monitoraggio | intervento performance strutturato |
+| `mind-mobile-pipeline` | stack (context7-mcp) → design mobile (frontend-design, HIG/M3) → contratti (mind-api) → FE mobile → BE → device/push/storage/offline → test (emulatori+device) → build+signing → release (rollback) → gate+memoria | app mobile cross-platform dallo stack allo store |
+| `mind-infra-pipeline` | scope (provider/budget/compliance) → provisioning IaC → rete/security → secrets → immagini/container → orchestrazione → DNS/cert → scaling/resilienza → costi → monitoring | setup ambiente, provisioning, deploy cloud |
+| `mind-observability-pipeline` | inventario → logging centralizzato → metriche (RED/USE) → tracing → alerting → dashboard/SLO → verifica → gate | osservabilità/monitoring/telemetria di un sistema |
+| `mind-ml-pipeline` | problema+metrica → dati (split) → cleaning/feature (leakage) → selezione modello → training (riproducibile) → eval (test set, fairness) → deploy servizio → monitoraggio drift | modello, predizione, classificazione, ML |
+| `mind-feature-rollout-pipeline` | flag design (default off) → metriche con baseline PRIMA → canary → A/B → espansione 25→50→100% → rollout completo (cleanup) → post-verifica | attivare gradualmente una feature già pronta, canary, A/B |
+| `mind-decommission-pipeline` | inventario consumatori → valutazione impatto → piano deprecation (periodo) → avvisi/docs → migrazione → shutdown controllato → cleanup → gate | ritirare/spegnere un servizio o feature attivo |
 
 ## 4. Agenti FMA — come vengono chiamati e quando
 
@@ -343,7 +349,7 @@ plugins/
   mind/          plugin orchestratore (bootstrap + registrazione skill)
   mind-memory/   plugin memoria locale-first (tool memory)
 skills/
-  mind/          using-mind (orchestratore) + routing.md + fma-agents.md + 37 skill di dominio
+  mind/          using-mind (orchestratore) + routing.md + fma-agents.md + 43 skill di dominio
   orchestrator/  wrapper storico del routing (fonte verità: using-mind/routing.md)
   + 8 skill custom (context7-mcp, design-md, design-system, ecosystem-health-check,
     execution-hygiene, frontend-design, motion, stop-slop)

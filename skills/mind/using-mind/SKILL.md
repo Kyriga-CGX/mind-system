@@ -19,6 +19,7 @@ Prima di rispondere o agire, identifica il tipo di task e scegli la rotta dalla 
 |---|---|
 | Nuova feature / lavoro creativo | `mind-brainstorming` → `mind-planning` → `mind-implementation` → `mind-verification` |
 | Feature end-to-end (UI + BE + integrazione + sicurezza, consegna unica) | `mind-pipeline` (stage: mockup→approvazione→contratti→FE→BE→integrazione→sicurezza→test→gate→memoria) |
+| App mobile cross-platform (dallo stack allo store, consegna unica) | `mind-mobile-pipeline` (stack→design mobile→contratti→FE→BE→device/push→test→build+signing→release→gate) |
 | UI (costruire o modificare) | `frontend-design` (direzione, consulta design-references) → `design-md` (crea DESIGN.md solo se manca) → `design-system` (enforce) → `motion` (solo se tocca animazioni) → `mind-verification` |
 | Animazione / motion / 3D | `motion` → `frontend-design` (solo se serve direzione) → `mind-verification` |
 | Prosa / testi / copy (pulizia esistente) | `stop-slop` |
@@ -40,16 +41,21 @@ Prima di rispondere o agire, identifica il tipo di task e scegli la rotta dalla 
 | Intervento performance strutturato (lentezza/carico/bundle/query) | `mind-performance-pipeline` (baseline→profiling→collo di bottiglia→ottimizzazione→verifica→monitoraggio) |
 | Dati / database / query / ETL / analisi | `mind-data` → (`mind-implementation` se c'è codice) → `mind-verification` |
 | Task dati/ETL complesso (movimento dati con trasformazioni) | `mind-data-pipeline` (estrazione→pulizia→validazione→trasformazione→caricamento→verifica→documentazione) |
+| Ciclo machine learning completo (dati→modello→servizio) | `mind-ml-pipeline` (problema+metrica→dati→feature→modello→training→eval→deploy→monitoraggio drift) |
 | Test strategy / scrittura test | `mind-testing` → `mind-verification` |
 | Documentazione (README/API/guide/DESIGN.md) | `mind-docs` → `mind-verification` |
 | Migrazione / upgrade / cambio stack | `mind-migration` → `mind-implementation` → `mind-verification` |
 | Migrazione complessa (stato A→B con rollback e cutover) | `mind-migration-pipeline` (analisi delta→piano incrementale→dry-run→migrazione a fasi→verifica→cutover→monitoraggio) |
+| Ritiro sicuro di servizio/feature attivo (rimozione totale) | `mind-decommission-pipeline` (inventario consumatori→deprecation→avvisi→migrazione→shutdown→cleanup) |
 | Refactoring (no cambio stack) | `mind-refactor` → `mind-verification` (→ `mind-debugging` se scopre bug, → `mind-migration` se serve upgrade) |
 | API / endpoint / contratti / consumo terze parti | `mind-api` → (`mind-security` se auth/dati sensibili) → `mind-implementation` → `mind-verification` |
 | Deploy / CI-CD / container / infrastruttura | `mind-devops` → `mind-verification` |
+| Infrastruttura cloud / ambiente end-to-end (provisioning→rete→secrets→container→deploy→DNS) | `mind-infra-pipeline` (scope→IaC→rete/security→secrets→immagini→orchestrazione→DNS/cert→scaling→costi→monitoraggio) |
+| Osservabilità di un sistema (log/metriche/tracing/alert/dashboard) | `mind-observability-pipeline` (inventario→logging→metriche→tracing→alerting→dashboard/SLO→verifica) |
 | Git workflow / branch / commit / worktree | `mind-git` → `mind-verification` |
 | Release / versioning / changelog / tag | `mind-release` → `mind-devops` (build/publish) → `mind-verification` |
 | Release completa a stage (chiusura ciclo feature→deploy) | `mind-release-pipeline` (analisi cambiamenti→versioning→changelog→build+test CI→tag→publish→rollback plan) |
+| Rilascio graduale di feature già pronta (flag/canary/A-B, misurazione) | `mind-feature-rollout-pipeline` (flag design→metriche+b baseline→canary→A/B→espansione→rollout completo→post-verifica) |
 | Piano multi-step | `mind-planning` → `mind-implementation` → `mind-verification` |
 | Obiettivo complesso / piano da eseguire per intero in autonomia (lavoro multi-sessione, "finisci da solo") | `mind-runner` (coda persistente + loop + checkpoint + gate verde) — piano da `mind-planning`, task via `mind-implementation`, gate via `mind-verification` |
 | Domanda libreria / framework / API | `context7-mcp` |
@@ -77,7 +83,7 @@ Prima di rispondere o agire, identifica il tipo di task e scegli la rotta dalla 
 12. `mind-runner` entra SOLO quando il task è un piano/obiettivo da eseguire per intero in autonomia (più task, possibilmente più sessioni). Un task singolo NON usa il runner: va dritto alla rotta specifica.
 13. `mind-consult` (subagent `sage`) entra SOLO per domande meta/consultive — pensare, consigliare, decidere — non per costruire/modificare codice. Se il parere sfocia in lavoro, si torna alla rotta di implementazione.
 14. `mind-pipeline` entra SOLO per feature end-to-end (≥3 domini in sequenza con consegna unica: UI+BE+integrazione). Un task singolo o di 1-2 domini usa la rotta specifica, NON la pipeline.
-15. Le pipeline di dominio (`mind-incident-pipeline`/`mind-security-audit-pipeline`/`mind-migration-pipeline`/`mind-release-pipeline`/`mind-onboarding-pipeline`/`mind-research-pipeline`/`mind-data-pipeline`/`mind-performance-pipeline`) entrano SOLO quando il task è strutturato a stage (risposta a incidente, audit completo, migrazione complessa, chiusura release, onboarding, ricerca approfondita, ETL complesso, intervento performance) e attraversa ≥3 fasi con consegna unica. Un intervento puntuale usa la rotta dedicata singola (es. `mind-incident`, `mind-security`, `mind-migration`, `mind-release`, `mind-research`, `mind-data`, `mind-performance`), NON la pipeline.
+15. Le pipeline di dominio (`mind-incident-pipeline`/`mind-security-audit-pipeline`/`mind-migration-pipeline`/`mind-release-pipeline`/`mind-onboarding-pipeline`/`mind-research-pipeline`/`mind-data-pipeline`/`mind-performance-pipeline`/`mind-mobile-pipeline`/`mind-infra-pipeline`/`mind-observability-pipeline`/`mind-ml-pipeline`/`mind-feature-rollout-pipeline`/`mind-decommission-pipeline`) entrano SOLO quando il task è strutturato a stage (risposta a incidente, audit completo, migrazione complessa, chiusura release, onboarding, ricerca approfondita, ETL complesso, intervento performance, app mobile, infrastruttura, osservabilità, ciclo ML, rollout graduale, ritiro servizio) e attraversa ≥3 fasi con consegna unica. Un intervento puntuale usa la rotta dedicata singola (es. `mind-incident`, `mind-security`, `mind-migration`, `mind-release`, `mind-research`, `mind-data`, `mind-performance`, `mind-devops`, `mind-ml`→`mind-data`, rollout singolo→`mind-release`), NON la pipeline.
 
 ## Gate e sequenza (regole di orchestrazione)
 
@@ -144,6 +150,12 @@ Mind fa comunicare le skill passando il **risultato** di una all'input della suc
 - **research-pipeline → research/context7-mcp/consult**: la ricerca usa `mind-research`/`context7-mcp` per le fonti, `mind-consult` (sage) per la validazione della raccomandazione; l'output va in `docs/research/`
 - **data-pipeline → data/implementation/verification**: il movimento dati usa `mind-data` per schema/query/validazione, backup prima delle modifiche, verifica pre/post in ogni fase
 - **performance-pipeline → performance/implementation/verification**: la diagnosi usa `mind-performance` (misura PRIMA), l'ottimizzazione è una variabile per volta via `mind-implementation`, la verifica col SAME strumento in `mind-verification`
+- **mobile-pipeline → frontend-design/api/implementation/release**: la pipeline mobile usa `frontend-design`+`design-system` per il design adattato, `mind-api` per i contratti BE, `mind-implementation` (subagent paralleli) per FE/BE, `mind-release-pipeline` per la release; lo store e il signing si chiudono prima del gate
+- **infra-pipeline → devops/security/observability**: la pipeline infra usa `mind-devops` per la parte IaC/deploy, `mind-security` per rete/secrets, e si chiude con `mind-observability-pipeline` minima prima del gate
+- **observability-pipeline → devops/incident-pipeline**: l'osservabilità usa `mind-devops` per l'integrazione, e il risultato (alerting funzionante) alimenta `mind-incident-pipeline` per la risposta
+- **ml-pipeline → data/api/performance/security**: la pipeline ML usa `mind-data` per dati/feature, `mind-api` per il servizio di inferenza, `mind-performance` per latenza, `mind-security` per exposure di dati; eval sul test set prima del gate
+- **feature-rollout-pipeline → release/observability/verification**: il rollout usa `mind-release` per la versione con flag, `mind-observability` per le metriche di rilascio, `mind-verification` a ogni step di espansione
+- **decommission-pipeline → api/docs/migration/verification**: il ritiro usa `mind-api` per la deprecation degli endpoint, `mind-docs` per gli avvisi, `mind-migration` se i consumatori devono spostarsi, `mind-verification` per confermare che nulla riferisce il servizio rimosso
 - **ogni rotta di implementazione → mind-verification**: nessun lavoro è completo senza evidenza di verifica
 
 ## Principi di esecuzione
