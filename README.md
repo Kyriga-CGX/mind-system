@@ -8,7 +8,7 @@ Sistema di skill completo per opencode: orchestrazione a 360° (routing intellig
 
 ## Struttura
 
-- `config/` — configurazione opencode (`opencode.jsonc`, `mind-memory.json`, `vibeguard.config.json`, `dcp.jsonc`, `AGENTS.md`) e `config/agents/` con i subagent custom: `sage.md` (Van Hohenheim — consulenza/ragionamento/strategia, read-only sul codice), `lust.md` (Lust — design QA, review visiva read-only) e `forge.md` (Sheska — maker dell'orchestrazione, forgia nuove skill/agenti per colmare lacune). Le chiavi API sono sostituite con placeholder `${VAR}`; i valori reali vanno nel file `.env` locale (vedi `.env.example`).
+- `config/` — configurazione opencode (`opencode.jsonc`, `mind-memory.json`, `vibeguard.config.json`, `dcp.jsonc`, `AGENTS.md`) e `config/agents/` con i subagent custom: `sage.md` (Van Hohenheim — consulenza/ragionamento/strategia, read-only sul codice), `lust.md` (Lust — design QA, review visiva read-only) e `forge.md` (Sheska — maker dell'orchestrazione, forgia nuove skill/agenti per colmare lacune). Le chiavi API sono sostituite con placeholder `{env:VAR}` (es. `CONTEXT7_API_KEY`), risolti dall'ambiente del processo all'avvio di opencode — NON `${VAR}` e NON auto-load di `.env` (feature non ancora nativa, vedi issue #10458).
 - `plugins/` — plugin locali fork personali: `mind.js` (orchestratore, inietta il bootstrap, registra le skill e traccia l'uso delle skill/subagent) e `mind-memory.js` (memoria locale-first). Vanno copiati **al livello top** di `~/.config/opencode/plugins/` (non in sottocartelle): opencode li auto-carica da lì, senza bisogno di voci `file:` nel config.
 - `skills/` — skill custom dell'agente: il fork `mind/` con l'orchestratore `using-mind` e 46 skill di dominio, più le skill storiche (context7-mcp, design-md, design-system, ecosystem-health-check, execution-hygiene, frontend-design, motion, orchestrator, stop-slop). Le directory node_modules sono escluse.
 - `docs/` — documentazione e note decisionali, incluso `system-diagram.md`.
@@ -501,8 +501,29 @@ flowchart TB
 
 L'orchestratore `using-mind` decide la rotta per ogni task e coordina la comunicazione tra skill (vedi `skills/mind/using-mind/routing.md`). Skill di dominio (46): brainstorming, planning, implementation (multi-subagent in parallelo con agenti FMA), verification, debugging, security, research, performance, data, testing, docs, migration, devops, refactor, api, release, explore, architecture, copy, incident, i18n, eval, **recall** (storico sessioni), **setup** (prima configurazione), **documents** (PDF/DOCX/XLSX/PPTX), **git** (workflow versionamento), **runner** (esecuzione autonoma di un piano/obiettivo con coda persistente e checkpoint), **consult** (consulenza/ragionamento/strategia via subagent Sage), **forge** (maker: forgia nuove skill/agenti per colmare lacune del sistema, via subagent Sheska), **pipeline** (consegna end-to-end di feature UI+BE+integrazione con stage, gate di approvazione e artefatti condivisi), **incident-pipeline** (risposta incidente/breach a stage), **security-audit-pipeline** (audit di sicurezza completo), **migration-pipeline** (migrazioni complesse con rollback e cutover), **release-pipeline** (chiusura release a stage), **onboarding-pipeline** (onboarding progetto nuovo), **research-pipeline** (ricerca approfondita documentata), **data-pipeline** (ETL complesso), **performance-pipeline** (intervento performance strutturato), **mobile-pipeline** (app mobile cross-platform dallo stack allo store), **infra-pipeline** (infrastruttura cloud/ambiente end-to-end), **observability-pipeline** (logging/metriche/tracing/alerting/dashboard), **ml-pipeline** (ciclo machine learning completo), **feature-rollout-pipeline** (rilascio graduale con flag/canary/A-B), **decommission-pipeline** (ritiro sicuro di servizi/feature), **design-pipeline** (design end-to-end: brief→audit→direzioni→DESIGN.md→mockup→componenti→motion→copy→FE→qualità visiva→gate→memoria, con 2 gate utente), **design-explore** (divergenza visiva: 2-3 direzioni distinte con auto-check anti-slop e scelta dell'utente).
 
-## Ripristino
+## Sync
 
-- Copia i file in `~/.config/opencode/` e `~/.agents/skills/`.
-- Riapplica i valori reali delle chiavi nel file `.env` o direttamente nei config.
-- Riavvia opencode (la config non è hot-reload).
+Il repo è la **source of truth**. Per allineare la config locale di opencode alla versione del repo, esegui dalla radice del repo:
+
+```powershell
+.\sync.ps1          # sincronizza plugin, skill, agenti e config
+.\sync.ps1 -WhatIf  # prova: mostra cosa copierebbe senza copiare nulla
+```
+
+Cosa copia `sync.ps1`:
+
+| Sorgente (repo) | Destinazione (locale) | Note |
+|---|---|---|
+| `plugins/*.js` | `~/.config/opencode/plugins/` | auto-load di opencode, top-level |
+| `skills/mind/*` | `~/.config/opencode/mind/skills/` | fork orchestratore (46 skill) |
+| `skills/<altre skill>/*` | `~/.agents/skills/` | skill esterne auto-caricate |
+| `config/agents/*.md` | `~/.config/opencode/agents/` | sage, lust, forge |
+| `config/{opencode.jsonc,mind-memory.json,vibeguard.config.json,dcp.jsonc,AGENTS.md}` | `~/.config/opencode/` | backup `.bak-<timestamp>` dei file locali pre-overwrite |
+
+**Variabili d'ambiente**: i segreti nella config sono placeholder `{env:VAR}` e devono essere presenti nell'ambiente del processo quando opencode parte (la config non è hot-reload e non c'è auto-load di `.env`). Su Windows:
+
+```powershell
+setx CONTEXT7_API_KEY "<valore>"   # poi riapri il terminale
+```
+
+Dopo un sync, **riavvia opencode**.

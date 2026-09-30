@@ -16,7 +16,7 @@
                                  "url":  "https://mcp.context7.com/mcp",
                                  "enabled":  true,
                                  "headers":  {
-                                                 "CONTEXT7_API_KEY":  "ctx7sk-21178279-27cc-433d-aa94-cf7e1179f06b"
+                                                 "CONTEXT7_API_KEY":  "{env:CONTEXT7_API_KEY}"
                                              }
                              },
                 "notion":  {
