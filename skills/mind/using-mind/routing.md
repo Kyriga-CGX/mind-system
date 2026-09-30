@@ -24,6 +24,7 @@ La tabella di routing è la **fonte unica** per instradare un task alla sequenza
 | Audit di sicurezza completo (sistema/area, pre-release, post-breach) | `mind-security-audit-pipeline` (scope→threat model→input→auth/authz→dipendenze→test attivi→report→remediation) |
 | Localizzazione / nuova lingua / traduzioni / i18n | `mind-i18n` → `mind-implementation` → `mind-testing` → `mind-verification` |
 | Valutare prompt / agent / skill del sistema | `mind-eval` (report) → l'orchestratore applica le modifiche |
+| Colmare una lacuna dell'orchestrazione (nessuna skill usata / richieste fuori-rotta / copertura mancante) | `mind-forge` (diagnosi→proposta con gate→crea skill/agente→registra nel routing→`mind-eval`) via subagent `forge` (Sheska) |
 | Riepilogo sessione di lavoro | `memory` tool (summarize) via `mind-memory` |
 | Bug / comportamento inatteso | `mind-debugging` → `mind-implementation` (TDD) → `mind-verification` |
 | Bug hunting proattivo / review difensiva | `mind-debugging` (sezione bug hunting) → `mind-testing` → `mind-verification` |
@@ -91,6 +92,7 @@ La tabella di routing è la **fonte unica** per instradare un task alla sequenza
 14. `mind-consult` (subagent `sage`) entra SOLO per domande meta/consultive — pensare, consigliare, decidere — non per costruire/modificare codice. Se il parere sfocia in lavoro, si torna alla rotta di implementazione.
 15. `mind-pipeline` entra SOLO per feature end-to-end (≥3 domini in sequenza con consegna unica: UI+BE+integrazione). Task singoli o 1-2 domini usano la rotta specifica, NON la pipeline.
 16. Le pipeline di dominio (`mind-incident-pipeline`/`mind-security-audit-pipeline`/`mind-migration-pipeline`/`mind-release-pipeline`/`mind-onboarding-pipeline`/`mind-research-pipeline`/`mind-data-pipeline`/`mind-performance-pipeline`/`mind-mobile-pipeline`/`mind-infra-pipeline`/`mind-observability-pipeline`/`mind-ml-pipeline`/`mind-feature-rollout-pipeline`/`mind-decommission-pipeline`) entrano SOLO per interventi strutturati a stage con ≥3 fasi e consegna unica. Un intervento puntuale usa la rotta singola dedicata (`mind-incident`/`mind-security`/`mind-migration`/`mind-release`/`mind-research`/`mind-data`/`mind-performance`/`mind-devops`), NON la pipeline.
+17. `mind-forge` (subagent `forge` = Sheska) entra SOLO per una lacuna di COPERTURA del sistema con evidenza (richiesta esplicita, registratore, richieste fuori-rotta). Una lacuna di ROUTING → correggi il routing; una di QUALITÀ → `mind-eval`. Non crea nulla senza approvazione utente.
 
 ## Casi limite
 
@@ -127,6 +129,8 @@ La tabella di routing è la **fonte unica** per instradare un task alla sequenza
 - **Design strutturato vs ritocco vs feature**: nuova UI/redesign/identità visiva/design system da zero con consegna visiva → `mind-design-pipeline`. Ritocco puntuale o modifica di una schermata esistente → rotta UI singola (`frontend-design` → `design-system` → `motion` se animazioni). Feature con UI + BE + endpoint → `mind-pipeline`. Solo token mancanti → `design-system` (`create.md`).
 - **Direzione già fissata vs da esplorare**: il brief fissa la direzione visiva → salta la divergenza, `frontend-design` + `design-md`/`design-system`. Il brief non la fissa e serve una scelta → `mind-design-explore` (2-3 direzioni + gate utente). Una sola direzione presentata all'utente = falsa scelta.
 - **Chi giudica il design**: chi implementa NON si auto-valuta esteticamente → review in contesto fresco con il subagent `lust` (read-only), poi gate finale `mind-verification`.
+- **Lacuna del sistema (forge)**: una capacità che manca all'orchestrazione (nessuna skill copre un caso ricorrente; il registratore `.mind/gaps/skills-used.json` mostra sessioni fuori-rotta o skill mai usate) → `mind-forge`: diagnosi con evidenza → proposta con gate utente → creazione della skill/agente → registrazione nel routing → `mind-eval`. MAI creare senza approvazione; MAI duplicare una skill esistente. Lacuna di ROUTING (la skill esiste ma non scatta) → correggi il routing, non creare; lacuna di QUALITÀ (scatta ma rende male) → `mind-eval`.
+- **Quale tipo di lacuna**: copertura (manca la skill) → nuovo pezzo; routing (skill ignorata) → correzione tabella; qualità (skill scadente) → `mind-eval`. Solo la copertura porta a forgiare.
 - **Infra vs release**: creare/modificare l'AMBIENTE (provisioning, rete, secrets, container, DNS) → `mind-infra-pipeline`. Pubblicare il CODICE applicativo in un ambiente già esistente → `mind-release`/`mind-release-pipeline`. Se non c'è ancora ambiente → `mind-infra-pipeline` prima, poi `mind-devops` per il deploy.
 - **Osservabilità vs incidente**: costruire il layer di monitoraggio (log/metriche/tracing/alert/dashboard) → `mind-observability-pipeline`. Incidente in corso in un sistema senza visibilità → `mind-incident-pipeline` (triage+mitigazione), poi `mind-observability-pipeline` come hardening.
 - **ML vs data**: ciclo ML completo (dati→feature→modello→eval→servizio) → `mind-ml-pipeline`. Solo movimento/trasformazione dati → `mind-data-pipeline`. Solo scelta libreria ML → `mind-research`/`context7-mcp`.
@@ -164,6 +168,7 @@ La tabella di routing è la **fonte unica** per instradare un task alla sequenza
 - `mind-design-explore` → `03-concepts.md` con 2-3 direzioni distinte (wireframe ASCII, token compatti, auto-check anti-slop, comparazione) + `03-scelta.md` con la scelta dell'utente e i concept scartati; fuori pipeline → `docs/design/YYYY-MM-DD-<topic>-concepts.md`
 - `mind-incident` → postmortem in `docs/incidents/YYYY-MM-DD-<slug>-postmortem.md` (azioni con owner+scadenza)
 - `mind-eval` → report in `docs/eval/YYYY-MM-DD-<target>-eval.md` + memoria
+- `mind-forge` → diagnosi in `.mind/gaps/report.md` + proposta pre-gate in `.mind/gaps/proposal-<nome>.md` + (dopo approvazione) nuova skill in `mind/skills/<nome>/SKILL.md` o agente in `agents/<nome>.md` + registrazione nel routing + verifica `mind-eval`
 - `mind-verification` → evidenza eseguita (output test/lint/build) e conferma
 
 ## Fonti esterne

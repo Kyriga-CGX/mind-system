@@ -22,6 +22,7 @@ La tabella di routing è la **fonte unica** per instradare un task alla sequenza
 | Audit di sicurezza completo (sistema/area, pre-release, post-breach) | mind-security-audit-pipeline (scope→threat model→input→auth/authz→dipendenze→test attivi→report→remediation) |
 | Localizzazione / i18n / nuova lingua | mind-i18n → mind-implementation → mind-testing → gate |
 | Valutare prompt / agent / skill del sistema | mind-eval (report) → l'orchestratore applica le modifiche |
+| Colmare una lacuna dell'orchestrazione (copertura mancante) | mind-forge (diagnosi→proposta con gate→crea skill/agente→registra nel routing→mind-eval) via subagent forge (Sheska) |
 | Riepilogo sessione | memory tool (summarize) via mind-memory |
 | Bug | mind-debugging → mind-implementation → gate |
 | Bug hunting proattivo / review difensiva | mind-debugging (bug hunting) → mind-testing → gate |
@@ -78,6 +79,7 @@ La tabella di routing è la **fonte unica** per instradare un task alla sequenza
 13. `mind-pipeline` entra SOLO per feature end-to-end (≥3 domini in sequenza con consegna unica: UI+BE+integrazione). Task singoli o 1-2 domini usano la rotta specifica, NON la pipeline.
 14. Le pipeline di dominio (mind-incident-pipeline / mind-security-audit-pipeline / mind-migration-pipeline / mind-release-pipeline / mind-onboarding-pipeline / mind-research-pipeline / mind-data-pipeline / mind-performance-pipeline / mind-mobile-pipeline / mind-infra-pipeline / mind-observability-pipeline / mind-ml-pipeline / mind-feature-rollout-pipeline / mind-decommission-pipeline) entrano SOLO per interventi strutturati a stage con ≥3 fasi e consegna unica. Un intervento puntuale usa la rotta singola dedicata (mind-incident / mind-security / mind-migration / mind-release / mind-research / mind-data / mind-performance / mind-devops), NON la pipeline.
 15. mind-design-pipeline entra SOLO per un lavoro di design strutturato con consegna visiva (nuova UI, redesign completo, identità visiva, design system da zero): ≥3 fasi di design e almeno una schermata da consegnare. Ritocco puntuale → rotta UI singola; feature con BE ed endpoint → mind-pipeline (che la usa come Stage 2); app mobile con store → mind-mobile-pipeline. mind-design-explore entra quando manca una direzione approvata e il brief non la fissa (se il brief la fissa, vince il brief → design-md/design-system). La review visiva finale va al subagent lust (read-only), MAI a chi ha implementato.
+16. mind-forge (subagent forge = Sheska) entra SOLO per una lacuna di COPERTURA del sistema con evidenza (richiesta esplicita, registratore .mind/gaps/skills-used.json, richieste fuori-rotta). Lacuna di ROUTING → correggi il routing; lacuna di QUALITÀ → mind-eval. Non crea nulla senza approvazione utente.
 
 ## Regole di orchestrazione (gate e sequenza)
 
@@ -104,6 +106,7 @@ La tabella di routing è la **fonte unica** per instradare un task alla sequenza
 - **Incident vs bug**: produzione giù/degrado → `mind-incident` (mitigazione+postmortem); bug senza impatto produzione → `mind-debugging`.
 - **i18n vs feature**: task con lingue/traduzioni/RTL → `mind-i18n` prima, poi la rotta di implementazione normale.
 - **Eval del sistema**: valutare prompt/agent/skill di mind stesso → `mind-eval`; le modifiche le applica l'orchestratore con eval prima/dopo.
+- **Lacuna del sistema (forge)**: manca una capacità (nessuna skill copre un caso ricorrente; il registratore mostra sessioni fuori-rotta o skill mai usate) → `mind-forge` (diagnosi→proposta con gate→crea skill/agente→registra nel routing→`mind-eval`). Lacuna di routing (skill ignorata) → correggi la tabella; lacuna di qualità (skill scadente) → `mind-eval`. Mai creare senza approvazione utente, mai duplicare una skill esistente.
 - **Richiamo vs recall**: prima `mind-memory` (tool memory search), poi `mind-recall` (storico sessioni, sola lettura) se la memoria non basta.
 - **Prima configurazione**: progetto nuovo senza config salvata → `mind-setup` prima del task.
 - **Documenti vs codice**: .pdf/.docx/.xlsx/.pptx → `mind-documents`; codice/testo → rotta normale.

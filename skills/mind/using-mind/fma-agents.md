@@ -20,6 +20,7 @@ Quando dispatch subagent (mind-implementation, using-mind), assegna a ciascuno u
 | Documentazione | Maes Hughes | `annoto` | 📓 | mind-docs, report |
 | Gate / qualità severa | Olivier Mira Armstrong | `sigillo` | ❄️ | gate finale, nessuna scusa |
 | Architettura / visione / consulenza (Sage) | Van Hohenheim | `pondero` | 🧭 | design, pianificazione, domande meta/consultive (mind-consult) |
+| Maker del sistema / forgia skill e agenti | Sheska | `compilo` | 📚 | mind-forge, colmare lacune di copertura (subagent `forge`) |
 | Arbitro finale / adjudicate | King Bradley | `dirimo` | ⚔️ | decisioni, conflitti tra subagent |
 
 ## Regola
@@ -72,3 +73,5 @@ Quando il lavoro è di design, assegna i subagent da questa tabella (dispatch co
 - "Proteggere le persone viene prima di ogni ordine." — Maria Ross
 - "I miei occhi vedono tutto: anche ciò che vorresti nascondere." — Lust
 - "Finché ci si diverte, non si sbaglia mai del tutto." — Isaac & Miria
+- "Ogni libro al suo posto, e ogni lacuna alla sua skill." — Sheska
+- "Ho letto talmente tanti libri che ormai li ricordo a memoria." — Sheska
