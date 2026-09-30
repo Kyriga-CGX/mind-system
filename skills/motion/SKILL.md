@@ -17,9 +17,10 @@ Quando ti viene chiesto di progettare o verificare un motion, segui questi sette
 2. **Consulta gli esempi di riferimento** — sfoglia `reference/motion-catalog.md` per i pattern già raccolti (micro-interazioni, pannelli, card, scroll, 3D), ognuno con timing, easing, tre strati e archetipo. Per esempi/tendenze più aggiornati vedi `reference/sources.md`. Solo poi scegli il livello.
 3. **Consulta la scala di priorità** — leggi `priority-ladder.md` e scegli **il livello più basso** che riesce a esprimere il motion. Mai saltare al 3D se il 2D può farlo.
 4. **Attiva la filosofia** — leggi `philosophy.md` per fissare **un solo** archetipo di personalità, distribuire i tre strati (primary/secondary/ambient), applicare la regola del 1/3 e la struttura setup→azione→risoluzione. Per i valori di durata reali usa la fonte `scripts/timing.js` come riferimento (vedi `philosophy.md`).
-5. **Coreografa** — orchestra primary, secondary e ambient. Leggi `priority-ladder.md` per i gate anti-slop e ricorda: niente flat, niente interpolazione lineare per movimento spaziale, niente ambient/secondario mancante.
-6. **Esegui la verifica** — segui `verify.md`: produci il report strutturato con l'audit tecnico (computed style/DOM/script) e marca esplicitamente come `NON VERIFICABILE VISIVAMENTE` ciò che non puoi verificare in automat.
-7. **Consegna e fai controllare** — presenta il report e chiedi all'utente di verificare il motion **nel browser**, perché la parte qualitativa non è verificabile dall'agente.
+5. **Applica i pattern di freschezza** — per una UI che deve "sentirsi viva" senza cadere nel banale, leggi `patterns.md` (luce/ambient reattiva, auto-atmosphere, un solo momento orchestrato al load) e applicali solo se coerenti con archetipo e brief.
+6. **Coreografa** — orchestra primary, secondary e ambient. Leggi `priority-ladder.md` per i gate anti-slop e ricorda: niente flat, niente interpolazione lineare per movimento spaziale, niente ambient/secondario mancante.
+7. **Esegui la verifica** — segui `verify.md`: produci il report strutturato con l'audit tecnico (computed style/DOM/script) e marca esplicitamente come `NON VERIFICABILE VISIVAMENTE` ciò che non puoi verificare in automat.
+8. **Consegna e fai controllare** — presenta il report e chiedi all'utente di verificare il motion **nel browser**, perché la parte qualitativa non è verificabile dall'agente.
 
 ## Ordine delle operazioni
 
@@ -27,6 +28,7 @@ Quando ti viene chiesto di progettare o verificare un motion, segui questi sette
 - Poi sfoglia `reference/motion-catalog.md` + `reference/sources.md` per esempi e tendenze già raccolti.
 - Poi consulta `priority-ladder.md` per la tecnologia (più bassa possibile).
 - Poi `philosophy.md` per archetipo, tre strati, timing e coreografia.
+- Poi `patterns.md` per i pattern di freschezza (ambient reattiva, auto-atmosphere, orchestrazione load unica).
 - Poi `verify.md` per l'audit e il report, e i gate anti-slop.
 
 ## Ambito

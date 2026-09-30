@@ -18,6 +18,8 @@ Per ciascuno rispondi **SÌ**/**NO** con una riga di motivazione basata sui valo
 - **Regola del 1/3** — verifica che il picco d'attenzione cada circa a un terzo della durata totale. Segnala se il momento più importante è coreografato altrove.
 - **`prefers-reduced-motion` gestito** — verifica che il motion rispetti l'`@media (prefers-reduced-motion: reduce)` (o un'API equivalente): o disattiva il motion o lo riduce a un cambiamento minimo. Un motion che ignora l'impostazione dell'accessibilità è un difetto.
 - **Nessun hex/px hardcoded che viola i token** — se il progetto ha un design system con token (vedi skill `design-system`), verifica che il motion non introduca hex o px di valore letterale fuori sistema. Lo stesso motion che va contro i token è uno slop: durate hardcoded arbitrari, colori non mappati.
+- **Orchestrazione load unica** (pattern F3, `patterns.md`) — se c'è un'animazione di caricamento, verifica che sia UNA coreografia coordinata (~900 ms, max ~1000 ms) poi silenzio; count-up, sparkline stroke-dashoffset e stagger (~40 ms/card) rispettano lo stagger budget < 500 ms. Segnala se gli effetti sono sparsi senza momento centrale.
+- **Ambient reattivo / auto-atmosphere** (pattern F1-F2, `patterns.md`) — se l'ambient risponde a focus/hover/ora del giorno, verifica che rispetti `prefers-reduced-motion` e `prefers-color-scheme` e che il crossfade sia 300-600 ms (luce) o lento (atmosfera). Un ambient sempre-on o un cambio tema secco senza crossfade è un difetto.
 
 ## Marcatura "NON VERIFICABILE VISIVAMENTE"
 
@@ -40,6 +42,8 @@ Al termine della verifica, produci un report strutturato. Copia questo template 
 - Stagger sotto i 500 ms: OK / OLTRE SOGLIA — <motivazione>
 - Regola del 1/3: OK / DA CORREGGERE — <motivazione>
 - prefers-reduced-motion gestito: SÌ / NO — <motivazione>
+- Orchestrazione load unica (pattern F3): OK / EFFETTI SPARSI — <motivazione>
+- Ambient reattivo / auto-atmosphere (F1-F2): OK / MANCANTE o SENZA RISPETTO ACCESSIBILITÀ — <motivazione>
 - Nessun hex/px hardcoded che viola i token: OK / VIOLAZIONE — <motivazione>
 
 ## Verifiche qualitative (solo visive)

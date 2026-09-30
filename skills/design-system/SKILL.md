@@ -18,6 +18,7 @@ Determina se il progetto corrente ha già un `DESIGN.md` alla root.
 3. **Riferisci le regole anti-slop** — leggi `anti-slop.md` quando rivedi o scrivi UI, per individuare i pattern di default che fanno sembrare un design generato da una AI.
 4. **Ottieni prima la direzione estetica** — prima di scrivere qualsiasi codice UI, invoca la skill `frontend-design`. Fornisce la direzione estetica distintiva e con un punto di vista che i token del DESIGN.md devono servire. Il design è un prerequisito del codice, mai un ripensamento.
 5. **Consulta le fonti di riferimento** — se serve ispirazione o direzione, leggi `frontend-design/design-references.md` (gallerie awwwards/refs.gallery/godly, tipografia fontsinuse/typewolf, colore huemint/Material 3, design system Refactoring UI/nngroup).
+6. **Applica i pattern di maturità** — per superare il layout "democratico" e rendere la UI viva e con gerarchia, leggi `patterns.md` (gerarchia bento asimmetrica, materialità vetro, striscia stato cockpit) e applica SOLO ciò che il brief e i token del DESIGN.md consentono.
 
 ## Ordine delle operazioni
 
