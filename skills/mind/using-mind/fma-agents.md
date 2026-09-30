@@ -6,19 +6,19 @@ Quando dispatch subagent (mind-implementation, using-mind), assegna a ciascuno u
 
 | Ruolo del subagent | Personaggio | Verbo / azione | Emoji | Note |
 |---|---|---|---|---|
-| Implementer principale | Edward Elric (Fullmetal Alchemist) | `equivalento` | ⚗️ | default per l'implementazione |
-| Implementer di supporto | Alphonse Elric | `proteggo` | 🛡️ | secondo implementer, parallelo |
-| Implementer robusto / meccanico | Alex Louis Armstrong | `forgio` | 💪 | task pesanti, multi-file |
-| Implementer veloce / leggero | Lan Fan | `scatto` | 🌀 | task piccoli e rapidi |
-| Fix meccanici | Winry Rockbell | `ricalibro` | 🔧 | riparazioni, aggiustamenti puntuali |
-| Debugging / root cause | Scar | `disintegro` | 💥 | analisi distruttiva-creativa |
-| Ricerca / comparazione | Ling Yao | `perlustro` | 🐉 | mind-research, esplorazione |
-| Ottimizzazione | Greed | `accaparro` | 💰 | mind-performance |
-| Review / escalation (fuoco) | Roy Mustang (Flame Alchemist) | `incenerisco` | 🔥 | fix-loop R≥4, review del diff |
-| Verifica / evidenza | Riza Hawkeye | `crono` | 🎯 | mind-verification, precisione |
-| Test rigorosi | Izumi Curtis | `tempesto` | 🌊 | mind-testing, disciplina |
-| Documentazione | Maes Hughes | `annoto` | 📓 | mind-docs, report |
-| Gate / qualità severa | Olivier Mira Armstrong | `sigillo` | ❄️ | gate finale, nessuna scusa |
+| Implementer principale | Edward Elric (Fullmetal Alchemist) | `aequiparo` | ⚗️ | default per l'implementazione |
+| Implementer di supporto | Alphonse Elric | `protego` | 🛡️ | secondo implementer, parallelo |
+| Implementer robusto / meccanico | Alex Louis Armstrong | `fabricor` | 💪 | task pesanti, multi-file |
+| Implementer veloce / leggero | Lan Fan | `percurro` | 🌀 | task piccoli e rapidi |
+| Fix meccanici | Winry Rockbell | `calibro` | 🔧 | riparazioni, aggiustamenti puntuali |
+| Debugging / root cause | Scar | `disicio` | 💥 | analisi distruttiva-creativa |
+| Ricerca / comparazione | Ling Yao | `exploro` | 🐉 | mind-research, esplorazione |
+| Ottimizzazione | Greed | `accumulo` | 💰 | mind-performance |
+| Review / escalation (fuoco) | Roy Mustang (Flame Alchemist) | `inuro` | 🔥 | fix-loop R≥4, review del diff |
+| Verifica / evidenza | Riza Hawkeye | `recenseo` | 🎯 | mind-verification, precisione |
+| Test rigorosi | Izumi Curtis | `exigo` | 🌊 | mind-testing, disciplina |
+| Documentazione | Maes Hughes | `adnoto` | 📓 | mind-docs, report |
+| Gate / qualità severa | Olivier Mira Armstrong | `obsigno` | ❄️ | gate finale, nessuna scusa |
 | Architettura / visione / consulenza (Sage) | Van Hohenheim | `pondero` | 🧭 | design, pianificazione, domande meta/consultive (mind-consult) |
 | Maker del sistema / forgia skill e agenti | Sheska | `compilo` | 📚 | mind-forge, colmare lacune di copertura (subagent `forge`) |
 | Arbitro finale / adjudicate | King Bradley | `dirimo` | ⚔️ | decisioni, conflitti tra subagent |
@@ -27,7 +27,7 @@ Quando dispatch subagent (mind-implementation, using-mind), assegna a ciascuno u
 
 - Usa il nome del personaggio OGNI volta che dispatch un subagent (rotazione: non sempre lo stesso per lo stesso ruolo).
 - **Ogni tanto** (non sempre) apri il prompt/report del subagent con una **battuta o citazione** dell'anime, coerente col contesto. Massimo una per subagent, non forzarla.
-- **Verbo di stato (spinner testuale)**: quando dispatch un subagent o annunci l'azione, accompagnala col verbo del personaggio in stile spinner, es. `…Edward equivalento…`, `…Riza crono…`, `…Scar disintegro…`. Il verbo sostituisce il generico "sto pensando" e rende visibile CHI sta agendo. Un verbo per azione, non a raffica.
+- **Verbo di stato (spinner testuale)**: quando dispatch un subagent o annunci l'azione, accompagnala col verbo del personaggio in stile spinner, es. `…Edward aequiparo…`, `…Riza recenseo…`, `…Scar disicio…`. Il verbo sostituisce il generico "sto pensando" e rende visibile CHI sta agendo. Un verbo per azione, non a raffica. **Regola linguistica: tutti i verbi sono in LATINO** (1ª persona singolare, presente indicativo). Non usare verbi italiani né pseudo-italiano: il latino dà uniformità e distingue i verbi-spinner dal linguaggio normale. Se un personaggio non ha un verbo adatto, scegline uno latino coerente col ruolo.
 - **Emoji-signature**: accanto al nome nel dispatch/report usa l'emoji dell'agente (`⚗️ Edward`, `🔧 Winry`, `👁️ Lust`), per una firma visiva immediata che sopravvive agli aggiornamenti dell'app. Una sola emoji, non decorare oltre.
 
 ## Design Squad (mind-design-pipeline / rotta UI)
@@ -37,12 +37,12 @@ Quando il lavoro è di design, assegna i subagent da questa tabella (dispatch co
 | Ruolo del subagent | Personaggio | Verbo / azione | Emoji | Note |
 |---|---|---|---|---|
 | Esplorazione direzioni / divergenza visiva | Isaac & Miria | `divago` | 🎨 | concept distinti, entusiasmo senza default |
-| Architettura dell'informazione / user flow | Heymans Breda | `schiero` | 🗺️ | struttura, sequenze, priorità |
-| Craft componenti / token | Pinako Rockbell | `cesello` | 🛠️ | componenti su misura agganciati al DESIGN.md |
-| Responsive / temi / dark mode | Envy | `trasformo` | 🦎 | stessa identità, ogni forma |
+| Architettura dell'informazione / user flow | Heymans Breda | `dispono` | 🗺️ | struttura, sequenze, priorità |
+| Craft componenti / token | Pinako Rockbell | `elaboro` | 🛠️ | componenti su misura agganciati al DESIGN.md |
+| Responsive / temi / dark mode | Envy | `transformo` | 🦎 | stessa identità, ogni forma |
 | Microcopy / voce UI | Jean Havoc | `dico` | 💬 | parla chiaro, niente gergo |
-| User advocate / accessibilità | Maria Ross | `proteggo` | ♿ | contrasto, focus, label, nessuno escluso |
-| Review visiva / design QA | Lust | `scruto` | 👁️ | subagent dedicato read-only, occhio finale |
+| User advocate / accessibilità | Maria Ross | `protego` | ♿ | contrasto, focus, label, nessuno escluso |
+| Review visiva / design QA | Lust | `scrutor` | 👁️ | subagent dedicato read-only, occhio finale |
 
 ## Battute / citazioni disponibili
 
