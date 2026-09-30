@@ -17,6 +17,8 @@ La tabella di routing è la **fonte unica** per instradare un task alla sequenza
 | Comprendere / esplorare codice sconosciuto / onboarding / impatto di un cambio | `mind-explore` (digest) → (`mind-docs` se il digest va documentato) → `mind-memory` (salva mappa) |
 | Decisione architetturale / ADR / trade-off di design | `mind-brainstorming` (spec) → `mind-architecture` (ADR) → `mind-planning` |
 | Incidente in produzione / servizio giù / postmortem | `mind-incident` (triage+mitigazione) → (`mind-debugging` root cause / `mind-security` se breach / `mind-devops` rollback) → `mind-docs` (postmortem) → `mind-verification` |
+| Incidente/breach complesso (risposta strutturata a stage) | `mind-incident-pipeline` (detection→triage→mitigazione→root cause→verifica stabilità→postmortem→hardening) — breach→domanda se report |
+| Audit di sicurezza completo (sistema/area, pre-release, post-breach) | `mind-security-audit-pipeline` (scope→threat model→input→auth/authz→dipendenze→test attivi→report→remediation) |
 | Localizzazione / nuova lingua / traduzioni / i18n | `mind-i18n` → `mind-implementation` → `mind-testing` → `mind-verification` |
 | Valutare prompt / agent / skill del sistema | `mind-eval` (report) → l'orchestratore applica le modifiche |
 | Riepilogo sessione di lavoro | `memory` tool (summarize) via `mind-memory` |
@@ -24,21 +26,27 @@ La tabella di routing è la **fonte unica** per instradare un task alla sequenza
 | Bug hunting proattivo / review difensiva | `mind-debugging` (sezione bug hunting) → `mind-testing` → `mind-verification` |
 | Sicurezza / breach / threat model / hardening | `mind-security` → `mind-implementation` (fix) → `mind-verification` |
 | Ricerca tecnica / scelta libreria-framework / comparazione | `mind-research` (→ `context7-mcp` per documentazione) |
+| Ricerca approfondita con evidenza e raccomandazione documentata | `mind-research-pipeline` (domanda+criteri→fonti→sintesi per opzione→comparazione→raccomandazione→validazione) |
 | Performance / lentezza / ottimizzazione | `mind-performance` (misura PRIMA) → `mind-implementation` → `mind-verification` |
+| Intervento performance strutturato (lentezza/carico/bundle/query) | `mind-performance-pipeline` (baseline→profiling→collo di bottiglia→ottimizzazione→verifica→monitoraggio) |
 | Dati / database / query / ETL / analisi | `mind-data` → (`mind-implementation` se c'è codice) → `mind-verification` |
+| Task dati/ETL complesso (movimento dati con trasformazioni) | `mind-data-pipeline` (estrazione→pulizia→validazione→trasformazione→caricamento→verifica→documentazione) |
 | Test strategy / scrittura test | `mind-testing` → `mind-verification` |
 | Documentazione (README/API/guide/DESIGN.md) | `mind-docs` → `mind-verification` |
 | Migrazione / upgrade / cambio stack | `mind-migration` → `mind-implementation` → `mind-verification` |
+| Migrazione complessa (stato A→B con rollback e cutover) | `mind-migration-pipeline` (analisi delta→piano incrementale→dry-run→migrazione a fasi→verifica→cutover→monitoraggio) |
 | Refactoring (no cambio stack) | `mind-refactor` → `mind-verification` (→ `mind-debugging` se scopre bug, → `mind-migration` se serve upgrade) |
 | API / endpoint / contratti / consumo terze parti | `mind-api` → (`mind-security` se auth/dati sensibili) → `mind-implementation` → `mind-verification` |
 | Deploy / CI-CD / container / infrastruttura | `mind-devops` → `mind-verification` |
 | Git workflow / branch / commit / worktree | `mind-git` → `mind-verification` |
 | Release / versioning / changelog / tag | `mind-release` → `mind-devops` (build/publish) → `mind-verification` |
+| Release completa a stage (chiusura ciclo feature→deploy) | `mind-release-pipeline` (analisi cambiamenti→versioning→changelog→build+test CI→tag→publish→rollback plan) |
 | Piano multi-step / spec pronto | `mind-planning` → `mind-implementation` → `mind-verification` |
 | Obiettivo complesso / piano da eseguire per intero in autonomia (multi-sessione, "finisci da solo") | `mind-runner` (coda persistente + loop + checkpoint + gate verde) — piano da `mind-planning`, task via `mind-implementation`, gate via `mind-verification` |
 | Domanda libreria / framework / API | `context7-mcp` |
 | Consulenza / ragionamento / strategia / confronto / valutazione (NON costruire) | `mind-consult` (via subagent `sage` = Van Hohenheim) → se sfocia in costruzione, rotta normale |
 | Init progetto | `ecosystem-health-check` → `mind` (routing) → `design-md`/`design-system` (solo se UI) |
+| Onboarding progetto nuovo / codebase sconosciuto (acquisizione contesto) | `mind-onboarding-pipeline` (setup→digest→convenzioni→architettura→baseline test→primi task) |
 | Review codice / PR | `mind-implementation` (review + fix-loop) / `mind-verification` |
 | Richiamo lavoro precedente | `memory` tool (search) via `mind-memory`, prima di rispondere |
 | Richiamo lavoro precedente (memoria non basta) | `mind-recall` (storico sessioni, sola lettura) → `mind-memory` (salva se duraturo) |
@@ -72,6 +80,7 @@ La tabella di routing è la **fonte unica** per instradare un task alla sequenza
 13. `mind-runner` entra SOLO per un piano/obiettivo da eseguire per intero in autonomia (più task, possibilmente più sessioni). Un task singolo NON usa il runner: va dritto alla rotta specifica.
 14. `mind-consult` (subagent `sage`) entra SOLO per domande meta/consultive — pensare, consigliare, decidere — non per costruire/modificare codice. Se il parere sfocia in lavoro, si torna alla rotta di implementazione.
 15. `mind-pipeline` entra SOLO per feature end-to-end (≥3 domini in sequenza con consegna unica: UI+BE+integrazione). Task singoli o 1-2 domini usano la rotta specifica, NON la pipeline.
+16. Le pipeline di dominio (`mind-incident-pipeline`/`mind-security-audit-pipeline`/`mind-migration-pipeline`/`mind-release-pipeline`/`mind-onboarding-pipeline`/`mind-research-pipeline`/`mind-data-pipeline`/`mind-performance-pipeline`) entrano SOLO per interventi strutturati a stage con ≥3 fasi e consegna unica. Un intervento puntuale usa la rotta singola dedicata (`mind-incident`/`mind-security`/`mind-migration`/`mind-release`/`mind-research`/`mind-data`/`mind-performance`), NON la pipeline.
 
 ## Casi limite
 
@@ -103,6 +112,7 @@ La tabella di routing è la **fonte unica** per instradare un task alla sequenza
 - **Consulenza vs costruzione**: "cosa mi consigli / come miglioreresti / è una buona idea / analizza questa situazione" (nessuna modifica richiesta) → `mind-consult` (subagent `sage`). Se il consiglio sfocia in un lavoro da costruire → rotta normale (`mind-brainstorming`/`mind-planning`). Se valuta il sistema stesso → `mind-eval`. Se è una decisione architetturale → `mind-architecture`.
 - **Pipeline vs rotta specifica**: una feature che attraversa UI+BE+integrazione+sicurezza con una consegna unica → `mind-pipeline` (stage con gate di approvazione e artefatti condivisi). Un task di 1-2 domini (solo UI, solo API, solo bug) → rotta dedicata. Se in dubbio: conta i domini attraversati; ≥3 in sequenza → pipeline.
 - **Mockup obbligatorio nella pipeline**: se la feature end-to-end ha una UI, il mockup (`frontend-design`) va approvato dall'utente PRIMA di scrivere codice; senza approvazione la pipeline si ferma allo Stage 2.
+- **Pipeline di dominio vs rotta singola**: un incidente/audit/migrazione/release/ricerca/ETL/performance STRUTTURATO a stage (risposta completa, consegna unica, ≥3 fasi) → pipeline di dominio (`mind-incident-pipeline`, `mind-security-audit-pipeline`, `mind-migration-pipeline`, `mind-release-pipeline`, `mind-onboarding-pipeline`, `mind-research-pipeline`, `mind-data-pipeline`, `mind-performance-pipeline`). Un intervento puntuale (singola vulnerabilità, singola migrazione, singola release, query dati, micro-ottimizzazione, bug di sviluppo) → rotta singola dedicata. In dubbio: conta le fasi necessarie; ≥3 sequenziali → pipeline.
 - **Proattività**: se noti un gap nei requisiti, un rischio o un miglioramento utile non richiesto → proponilo con il tool `question` PRIMA di procedere (o segnalalo durante il lavoro). Non ignorarlo, non implementarlo in silenzio fuori scope. Regole operative in using-mind/SKILL.md e nelle skill mind-planning/mind-implementation.
 
 ## Output attesi (catena)
@@ -117,6 +127,14 @@ La tabella di routing è la **fonte unica** per instradare un task alla sequenza
 - `mind-recall` → contesto recuperato dallo storico con fonte (id sessione + titolo)
 - `mind-setup` → working-set salvato in memoria (type=configuration)
 - `mind-pipeline` → consegna end-to-end in `.mind/delivery/<feature>/` (mockup approvato, contratti, FE/BE/integrazione/sicurezza/test) + gate `mind-verification` + memoria; gli artefatti di ogni stage sono il passaggio di consegna tra gli agenti
+- `mind-incident-pipeline` → timeline condivisa + mitigazione applicata + postmortem in `docs/incidents/YYYY-MM-DD-<slug>-postmortem.md` (azioni con owner+scadenza) + hardening; breach→report `mind-security` (su richiesta utente)
+- `mind-security-audit-pipeline` → report in `docs/security/YYYY-MM-DD-<sistema>-report.md` (findings per gravità, 4 tipologie con come replicarlo) + fix tracciati per gravità
+- `mind-migration-pipeline` → migrazione a fasi applicata con commit per fase + verifica dati/comportamento + cutover + monitoraggio post; rollback pronto in ogni fase
+- `mind-release-pipeline` → changelog aggiornato (Keep a Changelog) + versione semver + tag annotato + build/CI verdi + publish + rollback plan
+- `mind-onboarding-pipeline` → config (working-set in memoria) + digest + convenzioni + ADR + baseline test + primi task
+- `mind-research-pipeline` → report in `docs/research/YYYY-MM-DD-<topic>.md` (opzioni + comparazione + raccomandazione con fonti) + validazione
+- `mind-data-pipeline` → dati spostati/trasformati con backup prima + validazione pre/post + documentazione del flusso
+- `mind-performance-pipeline` → baseline prima/dopo + collo di bottiglia identificato + ottimizzazione applicata (una variabile per volta) + monitoraggio
 - `mind-incident` → postmortem in `docs/incidents/YYYY-MM-DD-<slug>-postmortem.md` (azioni con owner+scadenza)
 - `mind-eval` → report in `docs/eval/YYYY-MM-DD-<target>-eval.md` + memoria
 - `mind-verification` → evidenza eseguita (output test/lint/build) e conferma

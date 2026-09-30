@@ -17,6 +17,8 @@ La tabella di routing è la **fonte unica** per instradare un task alla sequenza
 | Comprendere / esplorare codice sconosciuto / onboarding / impatto cambio | mind-explore (digest) → (mind-docs se da documentare) → mind-memory |
 | Decisione architetturale / ADR | mind-brainstorming (spec) → mind-architecture (ADR) → mind-planning |
 | Incidente in produzione / postmortem | mind-incident (triage+mitigazione) → (mind-debugging / mind-security / mind-devops) → mind-docs (postmortem) → gate |
+| Incidente/breach complesso (risposta strutturata a stage) | mind-incident-pipeline (detection→triage→mitigazione→root cause→verifica stabilità→postmortem→hardening) |
+| Audit di sicurezza completo (sistema/area, pre-release, post-breach) | mind-security-audit-pipeline (scope→threat model→input→auth/authz→dipendenze→test attivi→report→remediation) |
 | Localizzazione / i18n / nuova lingua | mind-i18n → mind-implementation → mind-testing → gate |
 | Valutare prompt / agent / skill del sistema | mind-eval (report) → l'orchestratore applica le modifiche |
 | Riepilogo sessione | memory tool (summarize) via mind-memory |
@@ -24,21 +26,27 @@ La tabella di routing è la **fonte unica** per instradare un task alla sequenza
 | Bug hunting proattivo / review difensiva | mind-debugging (bug hunting) → mind-testing → gate |
 | Sicurezza / breach / threat model / hardening | mind-security → mind-implementation → gate |
 | Ricerca tecnica / scelta libreria | mind-research (→ context7-mcp per docs) |
+| Ricerca approfondita con evidenza e raccomandazione documentata | mind-research-pipeline (domanda+criteri→fonti→sintesi per opzione→comparazione→raccomandazione→validazione) |
 | Performance / ottimizzazione | mind-performance (misura PRIMA) → mind-implementation → gate |
+| Intervento performance strutturato (lentezza/carico/bundle/query) | mind-performance-pipeline (baseline→profiling→collo di bottiglia→ottimizzazione→verifica→monitoraggio) |
 | Dati / database / ETL / analisi | mind-data → (mind-implementation se codice) → gate |
+| Task dati/ETL complesso (movimento dati con trasformazioni) | mind-data-pipeline (estrazione→pulizia→validazione→trasformazione→caricamento→verifica→documentazione) |
 | Test strategy / scrittura test | mind-testing → gate |
 | Documentazione | mind-docs → gate |
 | Migrazione / upgrade / cambio stack | mind-migration → mind-implementation → gate |
+| Migrazione complessa (stato A→B con rollback e cutover) | mind-migration-pipeline (analisi delta→piano incrementale→dry-run→migrazione a fasi→verifica→cutover→monitoraggio) |
 | Refactoring (no cambio stack) | mind-refactor → gate (→ mind-debugging se scopre bug, → mind-migration se serve upgrade) |
 | API / endpoint / contratti / consumo terze parti | mind-api → (mind-security se auth/dati sensibili) → mind-implementation → gate |
 | Deploy / CI-CD / container / infrastruttura | mind-devops → gate |
 | Git workflow / branch / commit / worktree | mind-git → gate |
 | Release / versioning / changelog / tag | mind-release → mind-devops (build/publish) → gate |
+| Release completa a stage (chiusura ciclo feature→deploy) | mind-release-pipeline (analisi cambiamenti→versioning→changelog→build+test CI→tag→publish→rollback plan) |
 | Domanda libreria / framework | context7-mcp |
 | Consulenza / ragionamento / strategia / confronto / valutazione (NON costruire) | mind-consult (via subagent sage = Van Hohenheim) |
 | Esecuzione piano | mind-planning → mind-implementation + execution-hygiene |
 | Obiettivo complesso / piano da eseguire per intero in autonomia (multi-sessione) | mind-runner (coda persistente + loop + checkpoint + gate verde) |
 | Init progetto | ecosystem-health-check → orchestrator → design-md/DESIGN.md (solo se UI) |
+| Onboarding progetto nuovo / codebase sconosciuto (acquisizione contesto) | mind-onboarding-pipeline (setup→digest→convenzioni→architettura→baseline test→primi task) |
 | Review codice | mind-implementation (review/fix-loop) / mind-verification |
 | Richiamo lavoro precedente | memory tool (search) via mind-memory; se non basta → mind-recall (storico sessioni) |
 | Prima configurazione / progetto nuovo | mind-setup (domande una alla volta → working-set) → rotta del task |
@@ -60,6 +68,7 @@ La tabella di routing è la **fonte unica** per instradare un task alla sequenza
 11. `mind-runner` entra SOLO per un piano/obiettivo da eseguire per intero in autonomia (più task, possibilmente più sessioni). Un task singolo NON usa il runner.
 12. `mind-consult` (subagent `sage`) entra SOLO per domande meta/consultive — pensare, consigliare, decidere — non per costruire/modificare codice. Se il parere sfocia in lavoro, si torna alla rotta di implementazione.
 13. `mind-pipeline` entra SOLO per feature end-to-end (≥3 domini in sequenza con consegna unica: UI+BE+integrazione). Task singoli o 1-2 domini usano la rotta specifica, NON la pipeline.
+14. Le pipeline di dominio (mind-incident-pipeline / mind-security-audit-pipeline / mind-migration-pipeline / mind-release-pipeline / mind-onboarding-pipeline / mind-research-pipeline / mind-data-pipeline / mind-performance-pipeline) entrano SOLO per interventi strutturati a stage con ≥3 fasi e consegna unica. Un intervento puntuale usa la rotta singola dedicata (mind-incident / mind-security / mind-migration / mind-release / mind-research / mind-data / mind-performance), NON la pipeline.
 
 ## Regole di orchestrazione (gate e sequenza)
 
@@ -93,3 +102,4 @@ La tabella di routing è la **fonte unica** per instradare un task alla sequenza
 - **Runner vs task singolo**: piano/obiettivo da eseguire per intero in autonomia (più task, possibilmente più sessioni, "finisci da solo") → `mind-runner` (loop con coda persistente e checkpoint). Un singolo task → rotta specifica, NON il runner.
 - **Consulenza vs costruzione**: "cosa mi consigli / come miglioreresti / è una buona idea / analizza questa situazione" (nessuna modifica richiesta) → `mind-consult` (subagent `sage`). Se il consiglio sfocia in lavoro → rotta normale. Se valuta il sistema stesso → `mind-eval`. Se è una decisione architetturale → `mind-architecture`.
 - **Pipeline vs rotta specifica**: una feature che attraversa UI+BE+integrazione+sicurezza con una consegna unica → `mind-pipeline` (stage con gate di approvazione e artefatti condivisi in `.mind/delivery/<feature>/`). Un task di 1-2 domini (solo UI, solo API, solo bug) → rotta dedicata. Se la feature end-to-end ha una UI, il mockup va approvato dall'utente PRIMA del codice.
+- **Pipeline di dominio vs rotta singola**: incidente/audit/migrazione/release/onboarding/ricerca/ETL/performance STRUTTURATO a stage (consegna unica, ≥3 fasi) → pipeline di dominio (mind-incident-pipeline, mind-security-audit-pipeline, mind-migration-pipeline, mind-release-pipeline, mind-onboarding-pipeline, mind-research-pipeline, mind-data-pipeline, mind-performance-pipeline). Un intervento puntuale (singola vulnerabilità, singola migrazione, singola release, query dati, micro-ottimizzazione, bug di sviluppo) → rotta singola dedicata.

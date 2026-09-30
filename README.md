@@ -10,7 +10,7 @@ Sistema di skill completo per opencode: orchestrazione a 360° (routing intellig
 
 - `config/` — configurazione opencode (`opencode.jsonc`, `mind-memory.json`, `vibeguard.config.json`, `dcp.jsonc`, `AGENTS.md`). Le chiavi API sono sostituite con placeholder `${VAR}`; i valori reali vanno nel file `.env` locale (vedi `.env.example`).
 - `plugins/` — plugin locali fork personali: `mind` (orchestratore, inietta il bootstrap e registra le skill) e `mind-memory` (memoria locale-first). Vanno copiati in `~/.config/opencode/plugins/` e referenziati con `file:` nel config.
-- `skills/` — skill custom dell'agente: il fork `mind/` con l'orchestratore `using-mind` e 29 skill di dominio, più le skill storiche (context7-mcp, design-md, design-system, ecosystem-health-check, execution-hygiene, frontend-design, motion, orchestrator, stop-slop). Le directory node_modules sono escluse.
+- `skills/` — skill custom dell'agente: il fork `mind/` con l'orchestratore `using-mind` e 37 skill di dominio, più le skill storiche (context7-mcp, design-md, design-system, ecosystem-health-check, execution-hygiene, frontend-design, motion, orchestrator, stop-slop). Le directory node_modules sono escluse.
 - `docs/` — documentazione e note decisionali, incluso `system-diagram.md`.
 
 > La memoria supermemory non è più usata: sostituita dal plugin locale `mind-memory` (storage in `~/.local/share/opencode/mind-memory/memories.json`, cloud opzionale disattivato se non configurato).
@@ -86,18 +86,25 @@ sequenceDiagram
 | Bug hunting proattivo | `mind-debugging` (sezione bug hunting) → `mind-testing` → `mind-verification` | review difensiva |
 | Sicurezza / breach | `mind-security` → `mind-implementation` (fix) → `mind-verification` | auth, dati sensibili, rete |
 | Ricerca / scelta libreria | `mind-research` (→ `context7-mcp`) | comparazione con fonti |
+| Ricerca approfondita con evidenza | `mind-research-pipeline` (domanda+criteri→fonti→sintesi per opzione→comparazione→raccomandazione→validazione) | ricerca con raccomandazione documentata |
 | Performance | `mind-performance` (misura PRIMA) → `mind-implementation` → `mind-verification` | lentezza/carico |
+| Intervento performance strutturato | `mind-performance-pipeline` (baseline→profiling→collo di bottiglia→ottimizzazione→verifica→monitoraggio) | intervento strutturato su lentezza/carico/bundle/query |
 | Dati / database / ETL | `mind-data` → (`mind-implementation` se codice) → `mind-verification` | query/schema/dati |
+| Task dati/ETL complesso | `mind-data-pipeline` (estrazione→pulizia→validazione→trasformazione→caricamento→verifica→documentazione) | movimento dati con trasformazioni |
 | Test | `mind-testing` → `mind-verification` | strategia/scrittura test |
 | Documentazione | `mind-docs` → `mind-verification` | README/API/guide |
 | Migrazione / upgrade | `mind-migration` → `mind-implementation` → `mind-verification` | cambio stack/versioni |
+| Migrazione complessa (stato A→B) | `mind-migration-pipeline` (analisi delta→piano incrementale→dry-run→migrazione a fasi→verifica→cutover→monitoraggio) | migrazione con rollback e cutover |
 | Refactoring (no stack change) | `mind-refactor` → `mind-verification` (→ `mind-debugging`/`mind-migration` se emerge) | pulire/riorganizzare codice |
 | API / contratti | `mind-api` → (`mind-security` se auth) → `mind-implementation` → `mind-verification` | endpoint/consumo terze parti |
 | Deploy / CI-CD / infra | `mind-devops` → `mind-verification` | build/deploy/pipeline |
 | Release / versioning | `mind-release` → `mind-devops` → `mind-verification` | versione/changelog/tag |
+| Release completa a stage | `mind-release-pipeline` (analisi cambiamenti→versioning→changelog→build+test CI→tag→publish→rollback plan) | chiusura ciclo feature→deploy |
 | Comprendere codice sconosciuto | `mind-explore` (digest) → (`mind-docs` se da documentare) → `mind-memory` | onboarding/impatto cambio |
 | Decisione architetturale | `mind-brainstorming` (spec) → `mind-architecture` (ADR) → `mind-planning` | ADR, trade-off di design |
 | Incidente in produzione | `mind-incident` → (`mind-debugging`/`mind-security`/`mind-devops`) → `mind-docs` (postmortem) → `mind-verification` | servizio giù/degrado |
+| Incidente/breach complesso (risposta strutturata) | `mind-incident-pipeline` (detection→triage→mitigazione→root cause→verifica stabilità→postmortem→hardening) | incidente strutturato a stage, breach |
+| Audit di sicurezza completo | `mind-security-audit-pipeline` (scope→threat model→input→auth/authz→dipendenze→test attivi→report→remediation) | audit sistema/area, pre-release, post-breach |
 | Localizzazione / i18n | `mind-i18n` → `mind-implementation` → `mind-testing` → `mind-verification` | lingue/traduzioni/RTL |
 | Valutare prompt/agent/skill | `mind-eval` (report) → l'orchestratore applica le modifiche | testare il sistema stesso |
 | Piano multi-step | `mind-planning` → `mind-implementation` → `mind-verification` | piano pronto |
@@ -105,6 +112,7 @@ sequenceDiagram
 | Domanda libreria/framework | `context7-mcp` | domanda diretta |
 | Consulenza / ragionamento / strategia / confronto / valutazione (NON costruire) | `mind-consult` (via subagent `sage` = Van Hohenheim) | "cosa mi consigli", "come miglioreresti", decisioni |
 | Init progetto | `ecosystem-health-check` → `mind` (routing) → `design-md`/`design-system` (se UI) | nuovo progetto |
+| Onboarding progetto nuovo / codebase sconosciuto | `mind-onboarding-pipeline` (setup→digest→convenzioni→architettura→baseline test→primi task) | acquisizione contesto prima di lavorare |
 | Review codice | `mind-implementation` (review+fix-loop) / `mind-verification` | PR/review |
 | Richiamo lavoro precedente | `memory` tool (search) via `mind-memory` | "come avevamo fatto..." |
 | Richiamo con storico completo | `memory` search → `mind-recall` (storico sessioni, sola lettura) | la memoria non basta, serve lo storico |
@@ -126,8 +134,9 @@ sequenceDiagram
 9. `mind-runner` entra SOLO per un piano/obiettivo da eseguire per intero in autonomia (più task, possibilmente più sessioni). Un task singolo NON usa il runner.
 10. `mind-consult` (subagent `sage`) entra SOLO per domande meta/consultive — pensare, consigliare, decidere — non per costruire/modificare codice. Se il parere sfocia in lavoro, si torna alla rotta di implementazione.
 11. `mind-pipeline` entra SOLO per feature end-to-end (≥3 domini in sequenza con consegna unica: UI+BE+integrazione). Task singoli o 1-2 domini usano la rotta specifica, NON la pipeline.
+12. Le pipeline di dominio (incident-pipeline, security-audit-pipeline, migration-pipeline, release-pipeline, onboarding-pipeline, research-pipeline, data-pipeline, performance-pipeline) entrano SOLO per interventi strutturati a stage con ≥3 fasi e consegna unica. Un intervento puntuale usa la rotta singola dedicata (incident/security/migration/release/research/data/performance), NON la pipeline.
 
-**Casi limite**: UI+BE → rotta del dominio predominante, gate unico. Dubbio → route conservativa. Fix rapido di bug già investigato → salta `mind-debugging`. Refactor vs migration → senza cambio stack = refactor. Copy vs pulizia → creare = `mind-copy`, pulire = `stop-slop`. Incident vs bug → produzione giù = `mind-incident`. Richiamo vs recall → prima `memory` search, poi `mind-recall`. Documenti vs codice → file .pdf/.docx/.xlsx/.pptx = `mind-documents`. Runner vs task singolo → un obiettivo/piano da portare a termine in autonomia = `mind-runner`; un singolo task = rotta specifica. Consulenza vs costruzione → "cosa mi consigli / come miglioreresti / è una buona idea" = `mind-consult` (subagent `sage`); se il consiglio sfocia in lavoro → rotta normale; se valuta il sistema → `mind-eval`; se è una decisione architetturale → `mind-architecture`. Pipeline vs rotta specifica → feature che attraversa UI+BE+integrazione+sicurezza con consegna unica = `mind-pipeline`; task di 1-2 domini = rotta dedicata; se la feature ha UI, il mockup va approvato dall'utente PRIMA del codice.
+**Casi limite**: UI+BE → rotta del dominio predominante, gate unico. Dubbio → route conservativa. Fix rapido di bug già investigato → salta `mind-debugging`. Refactor vs migration → senza cambio stack = refactor. Copy vs pulizia → creare = `mind-copy`, pulire = `stop-slop`. Incident vs bug → produzione giù = `mind-incident`. Richiamo vs recall → prima `memory` search, poi `mind-recall`. Documenti vs codice → file .pdf/.docx/.xlsx/.pptx = `mind-documents`. Runner vs task singolo → un obiettivo/piano da portare a termine in autonomia = `mind-runner`; un singolo task = rotta specifica. Consulenza vs costruzione → "cosa mi consigli / come miglioreresti / è una buona idea" = `mind-consult` (subagent `sage`); se il consiglio sfocia in lavoro → rotta normale; se valuta il sistema → `mind-eval`; se è una decisione architetturale → `mind-architecture`. Pipeline vs rotta specifica → feature che attraversa UI+BE+integrazione+sicurezza con consegna unica = `mind-pipeline`; task di 1-2 domini = rotta dedicata; se la feature ha UI, il mockup va approvato dall'utente PRIMA del codice. Pipeline di dominio vs rotta singola → incidente/audit/migrazione/release/onboarding/ricerca/ETL/performance STRUTTURATO a stage (≥3 fasi, consegna unica) = pipeline di dominio; un intervento puntuale (singola vulnerabilità, singola migrazione, singola release, query dati, micro-ottimizzazione, bug di sviluppo) = rotta singola dedicata.
 
 ## Pipeline di consegna (`mind-pipeline`)
 
@@ -158,6 +167,21 @@ flowchart TB
     PL --> G2[gate finale unico<br/>mind-verification + execution-hygiene<br/>evidenza fresca su tutto il delta]
     G2 --> M[memoria mind-memory<br/>decisioni + architettura + riepilogo]
 ```
+
+## Pipeline di dominio (8)
+
+Oltre alla consegna di feature, il sistema ha **8 pipeline di dominio** per interventi strutturati a stage (≥3 fasi, consegna unica). Un intervento puntuale usa la rotta singola dedicata, NON la pipeline. Ogni pipeline mantiene stato condiviso su file, gate tra gli stage e budget di chiamate.
+
+| Pipeline | Stage | Trigger |
+|---|---|---|
+| `mind-incident-pipeline` | detection → triage (SEV1/2/3) → mitigazione (rollback→flag→workaround→fix) → root cause → verifica stabilità → postmortem → hardening | incidente/breach in produzione strutturato |
+| `mind-security-audit-pipeline` | scope → threat model STRIDE → analisi input → auth/authz → dipendenze → test attivi → report (4 tipologie) → remediation | audit sicurezza di un sistema/area, pre-release, post-breach |
+| `mind-migration-pipeline` | analisi delta → piano incrementale con rollback → dry-run → migrazione a fasi (commit per fase) → verifica dati/comportamento → cutover → monitoraggio post | migrazione complessa (stato A→B) |
+| `mind-release-pipeline` | analisi cambiamenti → semantic versioning → changelog (Keep a Changelog) → build+test CI → tag annotato → publish → rollback plan | chiusura ciclo feature→deploy |
+| `mind-onboarding-pipeline` | setup (domande una alla volta) → digest (timebox 30-45min) → convenzioni → architettura ADR → baseline test → primi task | progetto nuovo / codebase sconosciuto |
+| `mind-research-pipeline` | domanda+criteri → fonti (context7-mcp) → sintesi per opzione → comparazione (criteri×opzioni) → raccomandazione → validazione | ricerca approfondita con raccomandazione documentata |
+| `mind-data-pipeline` | estrazione → pulizia → validazione → trasformazione → caricamento (backup PRIMA, transazione, idempotente) → verifica pre/post → documentazione | task dati/ETL complesso |
+| `mind-performance-pipeline` | baseline (misura PRIMA) → profiling → collo di bottiglia → ottimizzazione (una variabile per volta) → verifica (stesso strumento) → monitoraggio | intervento performance strutturato |
 
 ## Agenti FMA — come vengono chiamati e quando
 
@@ -312,7 +336,7 @@ flowchart TD
 
 ## Skill mind
 
-L'orchestratore `using-mind` decide la rotta per ogni task e coordina la comunicazione tra skill (vedi `skills/mind/using-mind/routing.md`). Skill di dominio (29): brainstorming, planning, implementation (multi-subagent in parallelo con agenti FMA), verification, debugging, security, research, performance, data, testing, docs, migration, devops, refactor, api, release, explore, architecture, copy, incident, i18n, eval, **recall** (storico sessioni), **setup** (prima configurazione), **documents** (PDF/DOCX/XLSX/PPTX), **git** (workflow versionamento), **runner** (esecuzione autonoma di un piano/obiettivo con coda persistente e checkpoint), **consult** (consulenza/ragionamento/strategia via subagent Sage), **pipeline** (consegna end-to-end di feature UI+BE+integrazione con stage, gate di approvazione e artefatti condivisi).
+L'orchestratore `using-mind` decide la rotta per ogni task e coordina la comunicazione tra skill (vedi `skills/mind/using-mind/routing.md`). Skill di dominio (37): brainstorming, planning, implementation (multi-subagent in parallelo con agenti FMA), verification, debugging, security, research, performance, data, testing, docs, migration, devops, refactor, api, release, explore, architecture, copy, incident, i18n, eval, **recall** (storico sessioni), **setup** (prima configurazione), **documents** (PDF/DOCX/XLSX/PPTX), **git** (workflow versionamento), **runner** (esecuzione autonoma di un piano/obiettivo con coda persistente e checkpoint), **consult** (consulenza/ragionamento/strategia via subagent Sage), **pipeline** (consegna end-to-end di feature UI+BE+integrazione con stage, gate di approvazione e artefatti condivisi), **incident-pipeline** (risposta incidente/breach a stage), **security-audit-pipeline** (audit di sicurezza completo), **migration-pipeline** (migrazioni complesse con rollback e cutover), **release-pipeline** (chiusura release a stage), **onboarding-pipeline** (onboarding progetto nuovo), **research-pipeline** (ricerca approfondita documentata), **data-pipeline** (ETL complesso), **performance-pipeline** (intervento performance strutturato).
 
 ## Ripristino
 
