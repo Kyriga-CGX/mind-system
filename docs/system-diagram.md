@@ -490,5 +490,6 @@ skills/
   + 8 skill custom (context7-mcp, design-md, design-system, ecosystem-health-check,
     execution-hygiene, frontend-design, motion, stop-slop)
 config/agents/   sage.md (subagent Sage = Van Hohenheim, consulenza/ragionamento)
+                 lust.md (subagent Lust = design QA read-only, review visiva)
 docs/            questo documento e note decisionali
 ```

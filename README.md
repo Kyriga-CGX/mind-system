@@ -8,7 +8,7 @@ Sistema di skill completo per opencode: orchestrazione a 360° (routing intellig
 
 ## Struttura
 
-- `config/` — configurazione opencode (`opencode.jsonc`, `mind-memory.json`, `vibeguard.config.json`, `dcp.jsonc`, `AGENTS.md`). Le chiavi API sono sostituite con placeholder `${VAR}`; i valori reali vanno nel file `.env` locale (vedi `.env.example`).
+- `config/` — configurazione opencode (`opencode.jsonc`, `mind-memory.json`, `vibeguard.config.json`, `dcp.jsonc`, `AGENTS.md`) e `config/agents/` con i subagent custom: `sage.md` (Van Hohenheim — consulenza/ragionamento/strategia, read-only sul codice) e `lust.md` (Lust — design QA, review visiva read-only). Le chiavi API sono sostituite con placeholder `${VAR}`; i valori reali vanno nel file `.env` locale (vedi `.env.example`).
 - `plugins/` — plugin locali fork personali: `mind` (orchestratore, inietta il bootstrap e registra le skill) e `mind-memory` (memoria locale-first). Vanno copiati in `~/.config/opencode/plugins/` e referenziati con `file:` nel config.
 - `skills/` — skill custom dell'agente: il fork `mind/` con l'orchestratore `using-mind` e 45 skill di dominio, più le skill storiche (context7-mcp, design-md, design-system, ecosystem-health-check, execution-hygiene, frontend-design, motion, orchestrator, stop-slop). Le directory node_modules sono escluse.
 - `docs/` — documentazione e note decisionali, incluso `system-diagram.md`.
