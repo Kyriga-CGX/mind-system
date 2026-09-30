@@ -11,7 +11,7 @@ Il checkpoint è la **mappa anti-compressione** del lavoro. Quando la compressio
 Il checkpoint vive in un file **locale al progetto**, nella directory:
 
 ```
-.superpowers/checklist/<plan>.md
+.mind/checklist/<plan>.md
 ```
 
 Dove `<plan>` è il nome del piano o del task in corso.

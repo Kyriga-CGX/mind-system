@@ -18,6 +18,7 @@ Prima di rispondere o agire, identifica il tipo di task e scegli la rotta dalla 
 | Tipo di task | Rotta (in ordine) |
 |---|---|
 | Nuova feature / lavoro creativo | `mind-brainstorming` → `mind-planning` → `mind-implementation` → `mind-verification` |
+| Feature end-to-end (UI + BE + integrazione + sicurezza, consegna unica) | `mind-pipeline` (stage: mockup→approvazione→contratti→FE→BE→integrazione→sicurezza→test→gate→memoria) |
 | UI (costruire o modificare) | `frontend-design` (direzione, consulta design-references) → `design-md` (crea DESIGN.md solo se manca) → `design-system` (enforce) → `motion` (solo se tocca animazioni) → `mind-verification` |
 | Animazione / motion / 3D | `motion` → `frontend-design` (solo se serve direzione) → `mind-verification` |
 | Prosa / testi / copy (pulizia esistente) | `stop-slop` |
@@ -67,6 +68,7 @@ Prima di rispondere o agire, identifica il tipo di task e scegli la rotta dalla 
 11. Gli MCP si invocano SOLO on-demand, quando un agente deve fare una chiamata (es. `context7-mcp` per documentazione). MAI una call MCP all'avvio del programma: rallenta il boot.
 12. `mind-runner` entra SOLO quando il task è un piano/obiettivo da eseguire per intero in autonomia (più task, possibilmente più sessioni). Un task singolo NON usa il runner: va dritto alla rotta specifica.
 13. `mind-consult` (subagent `sage`) entra SOLO per domande meta/consultive — pensare, consigliare, decidere — non per costruire/modificare codice. Se il parere sfocia in lavoro, si torna alla rotta di implementazione.
+14. `mind-pipeline` entra SOLO per feature end-to-end (≥3 domini in sequenza con consegna unica: UI+BE+integrazione). Un task singolo o di 1-2 domini usa la rotta specifica, NON la pipeline.
 
 ## Gate e sequenza (regole di orchestrazione)
 
@@ -122,6 +124,9 @@ Mind fa comunicare le skill passando il **risultato** di una all'input della suc
 - **runner → implementation/verification/git/memory**: il loop di `mind-runner` esegue ogni task via `mind-implementation`, chiude con `mind-verification`, committa/pusha con `mind-git`, salva checkpoint con `mind-memory`; riprende da solo tra sessioni leggendo lo stato su file
 - **consult → research/context7-mcp/memory**: `mind-consult` raccoglie evidenze con `mind-research`/`context7-mcp`, legge il contesto da `mind-memory`, e salva la decisione presa in memoria
 - **consult → architecture/eval/brainstorming**: se la domanda è una decisione architetturale → `mind-architecture` (ADR); se valuta il sistema stesso → `mind-eval`; se il consiglio sfocia in costruzione → `mind-brainstorming`/`mind-planning`
+- **pipeline → artefatti → stage**: `mind-pipeline` coordina gli agenti tramite artefatti condivisi in `.mind/delivery/<feature>/` (mockup→contratti→FE→BE→integrazione→sicurezza→test). Ogni stage legge SOLO i file che gli servono; `state.json` mantiene intent utente, decisioni approvate, stage corrente e budget chiamate
+- **pipeline → approvazione utente**: il mockup (stage 2) e i contratti critici (stage 3) richiedono conferma esplicita dell'utente PRIMA del codice; le uniche interruzioni sono i gate di approvazione
+- **pipeline → consult**: se durante la pipeline emerge una decisione strategica (architettura/trade-off) → parere del Sage (`mind-consult`) prima di procedere
 - **ogni rotta di implementazione → mind-verification**: nessun lavoro è completo senza evidenza di verifica
 
 ## Principi di esecuzione

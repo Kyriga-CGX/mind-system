@@ -8,6 +8,7 @@ node_modules/
 
 # SDD ledgers / scratch
 .superpowers/
+.mind/
 
 # OS
 Thumbs.db

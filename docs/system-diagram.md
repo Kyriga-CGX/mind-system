@@ -68,6 +68,7 @@ sequenceDiagram
 | Tipo di task | Rotta (in ordine) | Si attiva quando... |
 |---|---|---|
 | Nuova feature / creativo | `mind-brainstorming` → `mind-planning` → `mind-implementation` → `mind-verification` | task nuovo, vago, da progettare |
+| Feature end-to-end (UI + BE + integrazione + sicurezza, consegna unica) | `mind-pipeline` (stage: mockup→approvazione→contratti→FE→BE→integrazione→sicurezza→test→gate→memoria; artefatti in `.mind/delivery/<feature>/`) | ≥3 domini in sequenza con una consegna |
 | Feature semplice ben definita | `mind-planning` → `mind-implementation` → `mind-verification` | requisiti già chiari |
 | UI (costruire/modificare) | `frontend-design` → `design-md` (solo se manca DESIGN.md) → `design-system` → `motion` (solo animazioni) → `mind-verification` | tocca interfaccia/grafica |
 | UI (solo ritocco stile) | `design-system` → `mind-verification` | piccola modifica stile |
@@ -117,10 +118,41 @@ sequenceDiagram
 8. `mind-setup` è il gate iniziale su progetto nuovo; `mind-recall` è il fallback del richiamo (dopo `memory` search); gli MCP si invocano SOLO on-demand, mai all'avvio.
 9. `mind-runner` entra SOLO per un piano/obiettivo da eseguire per intero in autonomia (più task, possibilmente più sessioni). Un task singolo NON usa il runner.
 10. `mind-consult` (subagent `sage`) entra SOLO per domande meta/consultive — pensare, consigliare, decidere — non per costruire/modificare codice. Se il parere sfocia in lavoro, si torna alla rotta di implementazione.
+11. `mind-pipeline` entra SOLO per feature end-to-end (≥3 domini in sequenza con consegna unica: UI+BE+integrazione). Task singoli o 1-2 domini usano la rotta specifica, NON la pipeline.
 
-**Casi limite**: UI+BE → rotta del dominio predominante, gate unico. Dubbio → route conservativa. Fix rapido di bug già investigato → salta `mind-debugging`. Refactor vs migration → senza cambio stack = refactor. Copy vs pulizia → creare = `mind-copy`, pulire = `stop-slop`. Incident vs bug → produzione giù = `mind-incident`. Richiamo vs recall → prima `memory` search, poi `mind-recall`. Documenti vs codice → file .pdf/.docx/.xlsx/.pptx = `mind-documents`. Runner vs task singolo → un obiettivo/piano da portare a termine in autonomia = `mind-runner`; un singolo task = rotta specifica. Consulenza vs costruzione → "cosa mi consigli / come miglioreresti / è una buona idea" = `mind-consult` (subagent `sage`); se il consiglio sfocia in lavoro → rotta normale; se valuta il sistema → `mind-eval`; se è una decisione architetturale → `mind-architecture`.
+**Casi limite**: UI+BE → rotta del dominio predominante, gate unico. Dubbio → route conservativa. Fix rapido di bug già investigato → salta `mind-debugging`. Refactor vs migration → senza cambio stack = refactor. Copy vs pulizia → creare = `mind-copy`, pulire = `stop-slop`. Incident vs bug → produzione giù = `mind-incident`. Richiamo vs recall → prima `memory` search, poi `mind-recall`. Documenti vs codice → file .pdf/.docx/.xlsx/.pptx = `mind-documents`. Runner vs task singolo → un obiettivo/piano da portare a termine in autonomia = `mind-runner`; un singolo task = rotta specifica. Consulenza vs costruzione → "cosa mi consigli / come miglioreresti / è una buona idea" = `mind-consult` (subagent `sage`); se il consiglio sfocia in lavoro → rotta normale; se valuta il sistema → `mind-eval`; se è una decisione architetturale → `mind-architecture`. Pipeline vs rotta specifica → feature che attraversa UI+BE+integrazione+sicurezza con consegna unica = `mind-pipeline`; task di 1-2 domini = rotta dedicata; se la feature ha UI, il mockup va approvato dall'utente PRIMA del codice.
 
 ---
+
+## 3bis. Pipeline di consegna (`mind-pipeline`)
+
+Per le feature end-to-end (UI + BE + integrazione + sicurezza) l'orchestratore usa una pipeline a stage con approvazioni ai punti critici e artefatti condivisi in `.mind/delivery/<feature>/`. Gli agenti comunicano SCRIVENDO/LEGGENDO i file della cartella (mai rigirandosi l'intera conversazione).
+
+```mermaid
+flowchart TB
+    P[plugin mind - bootstrap iniettato a ogni turno] --> O[using-mind - ORCHESTRATORE<br/>analizza la richiesta]
+    O --> D{Che tipo di task?}
+    D -->|Feature end-to-end<br/>UI + BE + integrazione| PL[FASE 1: mind-pipeline]
+    D -->|Task specifico 1-2 domini| SR[rotta dedicata<br/>debugging / api / security /<br/>performance / research ...]
+    SR --> G2[gate finale unico]
+    subgraph PL[FASE 2: mind-pipeline - stage]
+        direction TB
+        S1[01 Brief - intent utente] --> S2[02 Design + MOCKUP - frontend-design]
+        S2 --> A1{Approvazione utente}
+        A1 -->|no| S2
+        A1 -->|si| S3[03 Contratti API - mind-api<br/>+ threat model mind-security]
+        S3 --> S4[04 Implementazione FE - subagent]
+        S3 --> S5[05 Implementazione BE - subagent]
+        S4 --> S6[06 Integrazione endpoint]
+        S5 --> S6
+        S6 --> S7[07 Sicurezza - mind-security]
+        S7 --> S8[08 Test - mind-testing]
+        S8 --> S9[09 Gate - mind-verification]
+        S9 --> S10[10 Memoria - mind-memory]
+    end
+    PL --> G2[gate finale unico<br/>mind-verification + execution-hygiene<br/>evidenza fresca su tutto il delta]
+    G2 --> M[memoria mind-memory<br/>decisioni + architettura + riepilogo]
+```
 
 ## 4. Agenti FMA — come vengono chiamati e quando
 
@@ -287,7 +319,7 @@ plugins/
   mind/          plugin orchestratore (bootstrap + registrazione skill)
   mind-memory/   plugin memoria locale-first (tool memory)
 skills/
-  mind/          using-mind (orchestratore) + routing.md + fma-agents.md + 28 skill di dominio
+  mind/          using-mind (orchestratore) + routing.md + fma-agents.md + 29 skill di dominio
   orchestrator/  wrapper storico del routing (fonte verità: using-mind/routing.md)
   + 8 skill custom (context7-mcp, design-md, design-system, ecosystem-health-check,
     execution-hygiene, frontend-design, motion, stop-slop)

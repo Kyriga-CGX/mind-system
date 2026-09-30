@@ -7,6 +7,7 @@ La tabella di routing è la **fonte unica** per instradare un task alla sequenza
 | Tipo di task | Rotta (in ordine) |
 |---|---|
 | Nuova feature / lavoro creativo | `mind-brainstorming` → `mind-planning` → `mind-implementation` → `mind-verification` |
+| Feature end-to-end (UI + BE + integrazione + sicurezza, consegna unica) | `mind-pipeline` (stage: mockup→approvazione→contratti→FE→BE→integrazione→sicurezza→test→gate→memoria; artefatti in `.mind/delivery/<feature>/`) |
 | Feature semplice ben definita | `mind-planning` → `mind-implementation` → `mind-verification` |
 | UI (costruire o modificare) | `frontend-design` (direzione, consulta design-references) → `design-md` (crea DESIGN.md solo se manca) → `design-system` (enforce) → `motion` (solo se tocca animazioni) → `mind-verification` |
 | UI (solo ritocco stile esistente) | `design-system` (enforce) → `mind-verification` |
@@ -70,6 +71,7 @@ La tabella di routing è la **fonte unica** per instradare un task alla sequenza
 12. Gli MCP si invocano SOLO on-demand, quando un agente deve fare una chiamata (es. `context7-mcp`). MAI una call MCP all'avvio del programma.
 13. `mind-runner` entra SOLO per un piano/obiettivo da eseguire per intero in autonomia (più task, possibilmente più sessioni). Un task singolo NON usa il runner: va dritto alla rotta specifica.
 14. `mind-consult` (subagent `sage`) entra SOLO per domande meta/consultive — pensare, consigliare, decidere — non per costruire/modificare codice. Se il parere sfocia in lavoro, si torna alla rotta di implementazione.
+15. `mind-pipeline` entra SOLO per feature end-to-end (≥3 domini in sequenza con consegna unica: UI+BE+integrazione). Task singoli o 1-2 domini usano la rotta specifica, NON la pipeline.
 
 ## Casi limite
 
@@ -99,6 +101,8 @@ La tabella di routing è la **fonte unica** per instradare un task alla sequenza
 - **Git vs implementazione**: task di versionamento (commit/branch/worktree/PR) → `mind-git`. Il parallelismo dei subagent di mind-implementation usa i worktree di mind-git. Non confondere: git gestisce COME versionare, implementation COSA costruire.
 - **Runner vs task singolo**: un piano/obiettivo da eseguire per intero in autonomia (più task, possibilmente più sessioni, "finisci da solo") → `mind-runner` (loop con coda persistente e checkpoint). Un singolo task o una singola feature → rotta specifica, NON il runner.
 - **Consulenza vs costruzione**: "cosa mi consigli / come miglioreresti / è una buona idea / analizza questa situazione" (nessuna modifica richiesta) → `mind-consult` (subagent `sage`). Se il consiglio sfocia in un lavoro da costruire → rotta normale (`mind-brainstorming`/`mind-planning`). Se valuta il sistema stesso → `mind-eval`. Se è una decisione architetturale → `mind-architecture`.
+- **Pipeline vs rotta specifica**: una feature che attraversa UI+BE+integrazione+sicurezza con una consegna unica → `mind-pipeline` (stage con gate di approvazione e artefatti condivisi). Un task di 1-2 domini (solo UI, solo API, solo bug) → rotta dedicata. Se in dubbio: conta i domini attraversati; ≥3 in sequenza → pipeline.
+- **Mockup obbligatorio nella pipeline**: se la feature end-to-end ha una UI, il mockup (`frontend-design`) va approvato dall'utente PRIMA di scrivere codice; senza approvazione la pipeline si ferma allo Stage 2.
 - **Proattività**: se noti un gap nei requisiti, un rischio o un miglioramento utile non richiesto → proponilo con il tool `question` PRIMA di procedere (o segnalalo durante il lavoro). Non ignorarlo, non implementarlo in silenzio fuori scope. Regole operative in using-mind/SKILL.md e nelle skill mind-planning/mind-implementation.
 
 ## Output attesi (catena)
@@ -112,6 +116,7 @@ La tabella di routing è la **fonte unica** per instradare un task alla sequenza
 - `mind-explore` → Codebase Digest (docs/ o README) + mappa salvata in memoria
 - `mind-recall` → contesto recuperato dallo storico con fonte (id sessione + titolo)
 - `mind-setup` → working-set salvato in memoria (type=configuration)
+- `mind-pipeline` → consegna end-to-end in `.mind/delivery/<feature>/` (mockup approvato, contratti, FE/BE/integrazione/sicurezza/test) + gate `mind-verification` + memoria; gli artefatti di ogni stage sono il passaggio di consegna tra gli agenti
 - `mind-incident` → postmortem in `docs/incidents/YYYY-MM-DD-<slug>-postmortem.md` (azioni con owner+scadenza)
 - `mind-eval` → report in `docs/eval/YYYY-MM-DD-<target>-eval.md` + memoria
 - `mind-verification` → evidenza eseguita (output test/lint/build) e conferma

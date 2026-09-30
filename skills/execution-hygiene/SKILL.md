@@ -37,7 +37,7 @@ Regola di fondo: **se esiste già un esempio o una soluzione nota, usala.** La s
 
 ### DURANTE: esecuzione e tracciamento
 
-Mentre lavori, tieni traccia dello stato in un file di checkpoint dedicato nella directory `.superpowers/checklist/<plan>.md`.
+Mentre lavori, tieni traccia dello stato in un file di checkpoint dedicato nella directory `.mind/checklist/<plan>.md`.
 
 - Segna ogni voce durante l'avanzamento, non solo alla fine.
 - Usa il **format del checkpoint** definito in `checklist.md`.

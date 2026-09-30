@@ -31,7 +31,7 @@ Durante il lavoro, se noti un problema o un'opportunità NON previsti nel piano:
 
 ## Setup
 
-1. Crea il ledger: `.superpowers/sdd/<plan-basename>/ledger.md`
+1. Crea il ledger: `.mind/sdd/<plan-basename>/ledger.md`
 2. Determina le unità di lavoro indipendenti dal piano
 3. Identifica i conflitti tra unità (stessi file, stesse interfacce) — le unità in conflitto NON vanno in parallelo: esegui prima il loro upstream o raggruppale
 4. **Pre-flight scan**: se due task toccano gli stessi file, chiedi all'utente come procedere (batch di domande, non una alla volta)

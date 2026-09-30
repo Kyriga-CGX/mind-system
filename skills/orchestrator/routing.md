@@ -9,6 +9,7 @@ La tabella di routing è la **fonte unica** per instradare un task alla sequenza
 | Tipo di task | Rotta |
 |---|---|
 | Nuova feature / lavoro creativo | mind-brainstorming → mind-planning → mind-implementation → mind-verification |
+| Feature end-to-end (UI + BE + integrazione + sicurezza, consegna unica) | mind-pipeline (stage: mockup→approvazione→contratti→FE→BE→integrazione→sicurezza→test→gate→memoria; artefatti in `.mind/delivery/<feature>/`) |
 | Costruire o modificare UI | frontend-design (direzione, consulta design-references) → design-md (solo se manca DESIGN.md) → design-system (enforce) → motion (solo se tocca animazioni) → gate |
 | Animazione / motion / 3D | motion → frontend-design (solo se serve direzione) → gate |
 | Prosa / testi / copy (pulizia esistente) | stop-slop |
@@ -58,6 +59,7 @@ La tabella di routing è la **fonte unica** per instradare un task alla sequenza
 10. Gli MCP si invocano SOLO on-demand (es. `context7-mcp`), MAI una call MCP all'avvio del programma.
 11. `mind-runner` entra SOLO per un piano/obiettivo da eseguire per intero in autonomia (più task, possibilmente più sessioni). Un task singolo NON usa il runner.
 12. `mind-consult` (subagent `sage`) entra SOLO per domande meta/consultive — pensare, consigliare, decidere — non per costruire/modificare codice. Se il parere sfocia in lavoro, si torna alla rotta di implementazione.
+13. `mind-pipeline` entra SOLO per feature end-to-end (≥3 domini in sequenza con consegna unica: UI+BE+integrazione). Task singoli o 1-2 domini usano la rotta specifica, NON la pipeline.
 
 ## Regole di orchestrazione (gate e sequenza)
 
@@ -90,3 +92,4 @@ La tabella di routing è la **fonte unica** per instradare un task alla sequenza
 - **Git vs implementazione**: versionamento (commit/branch/worktree/PR) → `mind-git`; parallelismo dei subagent usa i worktree di mind-git.
 - **Runner vs task singolo**: piano/obiettivo da eseguire per intero in autonomia (più task, possibilmente più sessioni, "finisci da solo") → `mind-runner` (loop con coda persistente e checkpoint). Un singolo task → rotta specifica, NON il runner.
 - **Consulenza vs costruzione**: "cosa mi consigli / come miglioreresti / è una buona idea / analizza questa situazione" (nessuna modifica richiesta) → `mind-consult` (subagent `sage`). Se il consiglio sfocia in lavoro → rotta normale. Se valuta il sistema stesso → `mind-eval`. Se è una decisione architetturale → `mind-architecture`.
+- **Pipeline vs rotta specifica**: una feature che attraversa UI+BE+integrazione+sicurezza con una consegna unica → `mind-pipeline` (stage con gate di approvazione e artefatti condivisi in `.mind/delivery/<feature>/`). Un task di 1-2 domini (solo UI, solo API, solo bug) → rotta dedicata. Se la feature end-to-end ha una UI, il mockup va approvato dall'utente PRIMA del codice.
