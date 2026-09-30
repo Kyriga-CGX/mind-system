@@ -9,7 +9,7 @@ Sistema di skill completo per opencode: orchestrazione a 360° (routing intellig
 ## Struttura
 
 - `config/` — configurazione opencode (`opencode.jsonc`, `mind-memory.json`, `vibeguard.config.json`, `dcp.jsonc`, `AGENTS.md`) e `config/agents/` con i subagent custom: `sage.md` (Van Hohenheim — consulenza/ragionamento/strategia, read-only sul codice), `lust.md` (Lust — design QA, review visiva read-only) e `forge.md` (Sheska — maker dell'orchestrazione, forgia nuove skill/agenti per colmare lacune). Le chiavi API sono sostituite con placeholder `${VAR}`; i valori reali vanno nel file `.env` locale (vedi `.env.example`).
-- `plugins/` — plugin locali fork personali: `mind` (orchestratore, inietta il bootstrap e registra le skill) e `mind-memory` (memoria locale-first). Vanno copiati in `~/.config/opencode/plugins/` e referenziati con `file:` nel config.
+- `plugins/` — plugin locali fork personali: `mind.js` (orchestratore, inietta il bootstrap, registra le skill e traccia l'uso delle skill/subagent) e `mind-memory.js` (memoria locale-first). Vanno copiati **al livello top** di `~/.config/opencode/plugins/` (non in sottocartelle): opencode li auto-carica da lì, senza bisogno di voci `file:` nel config.
 - `skills/` — skill custom dell'agente: il fork `mind/` con l'orchestratore `using-mind` e 46 skill di dominio, più le skill storiche (context7-mcp, design-md, design-system, ecosystem-health-check, execution-hygiene, frontend-design, motion, orchestrator, stop-slop). Le directory node_modules sono escluse.
 - `docs/` — documentazione e note decisionali, incluso `system-diagram.md`.
 
@@ -67,7 +67,7 @@ sequenceDiagram
     O->>S: skill successiva della rotta (catena)
 ```
 
-- Il plugin **mind** fa solo 2 cose: registra la dir skill in `config.skills.paths` e inietta il bootstrap nel system prompt a ogni turno. Nessuna rete, nessun update-check (motivo: niente lentezza all'avvio).
+- Il plugin **mind** fa 3 cose: registra la dir skill in `config.skills.paths`, inietta il bootstrap nel system prompt a ogni turno e traccia l'uso di skill/subagent in `~/.config/opencode/mind/gaps/skills-used.json` (registratore per il gate di sessione di mind-forge). Nessuna rete, nessun update-check (motivo: niente lentezza all'avvio).
 - Il plugin **mind-memory** è locale-first: legge `mind-memory.json` (cloud opzionale), storage in `~/.local/share/opencode/mind-memory/memories.json`.
 
 ## Struttura dell'orchestratore
