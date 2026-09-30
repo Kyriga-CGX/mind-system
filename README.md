@@ -70,6 +70,38 @@ sequenceDiagram
 - Il plugin **mind** fa solo 2 cose: registra la dir skill in `config.skills.paths` e inietta il bootstrap nel system prompt a ogni turno. Nessuna rete, nessun update-check (motivo: niente lentezza all'avvio).
 - Il plugin **mind-memory** è locale-first: legge `mind-memory.json` (cloud opzionale), storage in `~/.local/share/opencode/mind-memory/memories.json`.
 
+## Struttura dell'orchestratore
+
+L'orchestratore è la skill `using-mind` (cartella `skills/mind/using-mind/`), iniettata a ogni turno dal plugin `mind`. È composto da 3 file con responsabilità separate:
+
+| File | Responsabilità |
+|---|---|
+| `SKILL.md` | regole di routing, precedenze, gate e sequenza, comunicazione tra skill, principi, proattività |
+| `routing.md` | tabella rotte completa, casi limite, output attesi per ogni rotta, fonti esterne |
+| `fma-agents.md` | agenti (personaggi FMA), ruolo per ogni subagent, battute anime |
+
+Ogni richiesta viene classificata PRIMA in una di **5 macro-vie**, poi instradata alla rotta/pipeline specifica:
+
+```mermaid
+flowchart TD
+    IN[Richiesta utente] --> P[Plugin mind<br/>bootstrap using-mind]
+    P --> O[using-mind<br/>identifica il task]
+    O --> D{Macro-via?}
+    D -->|1. Feature end-to-end<br/>>= 3 domini, consegna unica| M1[Delivery pipeline<br/>mind-pipeline]
+    D -->|2. Intervento strutturato<br/>>= 3 fasi, consegna unica| M2[Pipeline di dominio<br/>14 pipeline]
+    D -->|3. Task puntuale| M3[Rotta singola dedicata<br/>skill mind-*]
+    D -->|4. Meta: consiglio / valutazione<br/>NON costruire| M4[mind-consult / mind-eval<br/>/ mind-architecture]
+    D -->|5. Obiettivo lungo in autonomia<br/>più task, più sessioni| M5[mind-runner]
+    M1 --> G[Gate finale unico<br/>mind-verification + execution-hygiene]
+    M2 --> G
+    M3 --> G
+    M4 --> G
+    M5 --> G
+    G --> MEM[(mind-memory)]
+```
+
+Regole d'oro: le macro-vie 1 e 2 non scattano mai per task puntuali (→ 3); la 4 mai per costruire codice (→ 3); la 5 mai per un singolo task (→ 3). In caso di dubbio → rotta conservativa.
+
 ## Routing completo (come si attiva ogni skill)
 
 | Tipo di task | Rotta (in ordine) | Si attiva quando... |
@@ -330,6 +362,20 @@ flowchart TD
 | `mind-incident` | `debugging`/`security`/`devops`/`docs` | root cause / breach / rollback / postmortem |
 | `mind-i18n` | `implementation`/`testing`/`verification` | chiavi/struttura → test per lingua → evidenza |
 | `mind-eval` | orchestratore | report → modifiche sistema (eval prima/dopo) |
+| `mind-incident-pipeline` | `incident`/`debugging`/`security`/`devops`/`docs` | timeline + postmortem + hardening (artefatti condivisi) |
+| `mind-security-audit-pipeline` | `security`/`implementation` | findings per gravità → fix tracciati (report 4 tipologie) |
+| `mind-migration-pipeline` | `migration`/`implementation`/`verification` | fasi con commit + verifica dati + cutover |
+| `mind-release-pipeline` | `release`/`devops`/`verification` | changelog+semver+tag → build/CI → gate pre-tag |
+| `mind-onboarding-pipeline` | `explore`/`docs`/`setup` | digest timeboxato + ADR + mappa in memory |
+| `mind-research-pipeline` | `research`/`context7-mcp`/`consult` | output documentato in `docs/research/` |
+| `mind-data-pipeline` | `data`/`implementation`/`verification` | backup prima + verifica pre/post |
+| `mind-performance-pipeline` | `performance`/`implementation`/`verification` | stesso strumento di misura prima/dopo |
+| `mind-mobile-pipeline` | `frontend-design`/`api`/`implementation`/`release` | app buildata+firmata → store |
+| `mind-infra-pipeline` | `devops`/`security`/`observability` | ambiente IaC + rete/secrets + monitoring |
+| `mind-observability-pipeline` | `devops`/`incident-pipeline` | log/metriche/tracing/alert → dashboard+SLO |
+| `mind-ml-pipeline` | `data`/`api`/`performance`/`security` | modello valutato + servizio + drift |
+| `mind-feature-rollout-pipeline` | `release`/`observability`/`verification` | feature attiva con flag+canary misurati |
+| `mind-decommission-pipeline` | `api`/`docs`/`migration`/`verification` | servizio rimosso senza consumatori attivi |
 | `mind-planning` | `mind-runner` | piano (header + task) → coda persistente |
 | `mind-runner` | `mind-implementation`/`mind-verification`/`mind-git`/`mind-memory` | loop: task→gate→commit+push→checkpoint, ripresa tra sessioni |
 | `design-system`/`motion` | `frontend-design` | delega direzione estetica |
@@ -345,6 +391,40 @@ flowchart TD
 5. **Delivery in fasi** per feature grandi.
 6. **Design debt check** post-build (rotta UI: DESIGN.md aggiornato).
 7. **Nessuna affermazione di completamento senza evidenza fresca** (`mind-verification`).
+
+## Flussi integrati
+
+Tutti i flussi convergono su un'unica architettura: **orchestratore → esecuzione → gate → memoria**. Le pipeline non sono flussi separati: si appoggiano alle stesse skill e rotte, aggiungendo stato condiviso su file e gate tra gli stage. Il runner riusa le stesse skill in un loop con checkpoint.
+
+```mermaid
+flowchart TB
+    subgraph ORC[ORCHESTRATORE - using-mind]
+        B[plugin mind<br/>bootstrap ogni turno] --> R[tabella routing + precedenze]
+    end
+    subgraph ESEC[ESECUZIONE]
+        R --> R1[rotta singola<br/>mind-* + skill custom]
+        R --> R2[pipeline di dominio<br/>stage + artefatti in .mind/]
+        R --> R3[delivery pipeline<br/>.mind/delivery/<feature>/]
+        R --> R4[runner<br/>.mind/run/<run-id>/]
+    end
+    subgraph GATE[GATE FINALE]
+        R1 --> V[mind-verification<br/>evidenza fresca]
+        R2 --> V
+        R3 --> V
+        R4 --> V
+    end
+    subgraph MEM[MEMORIA]
+        V --> MA[mind-memory<br/>tool memory]
+        R4 --> MB[checkpoint state.json]
+    end
+    MA --> R
+    MB --> R
+```
+
+- **Le pipeline usano le stesse skill**: `mind-incident-pipeline` chiama internamente `mind-incident`, `mind-debugging`, `mind-devops`; `mind-migration-pipeline` usa `mind-migration` + `mind-verification`; ogni pipeline termina sul gate `mind-verification` e salva in memoria.
+- **La memoria attraversa tutto**: preferenze e contesto (scope user/project), decisioni, pattern, errori superati, riepiloghi; ogni rotta scrive e ogni rotta può rileggere (recall).
+- **Il runner riparte dai file**: a ogni ciclo legge `state.json` + `ledger.md` di `.mind/run/<run-id>/`, quindi può essere ripreso in sessioni diverse senza perdere il piano.
+- **Gli agenti FMA sono il layer di esecuzione**: l'orchestratore dispatcha i subagent (Edward, Alphonse, Armstrong, Lan Fan...) sulle unità indipendenti; i ruoli specializzati (Scar, Winry, Ling, Greed...) entrano al bisogno; nel gate operano Riza Hawkeye (verifica), Olivier (qualità), Mustang (escalation), Bradley (arbitrato).
 
 ## Skill mind
 
