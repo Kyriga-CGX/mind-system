@@ -13,6 +13,8 @@ Prima di rispondere o agire, identifica il tipo di task e scegli la rotta dalla 
 
 **Prima configurazione (gate iniziale)**: al primo messaggio di un progetto nuovo (o se in memoria non esiste una configurazione salvata per questo progetto/utente), NON instradare subito il task: annuncia "prima di partire dobbiamo fare una prima configurazione" ed esegui `mind-setup` (domande una alla volta → salvataggio working-set in memoria). Poi riprendi la rotta normale.
 
+**Lacuna del sistema (gate di sessione)**: al primo messaggio di una **sessione nuova**, leggi `.mind/gaps/skills-used.json` (registratore del plugin). Se una o più sessioni recenti hanno `consecutiveNoSkill >= threshold`, proponi UNA volta: *"Nelle ultime sessioni N richieste non hanno attivato nessuna skill mind. Vuoi che mind-forge analizzi la lacuna?"*. Sì → rotta `mind-forge` (FASE 1). No → prosegui normalmente. Non ripetere la proposta nella stessa sessione; non blocca il lavoro.
+
 ## Tabella di routing (tutte le skill)
 
 | Tipo di task | Rotta (in ordine) |

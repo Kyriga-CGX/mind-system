@@ -20,29 +20,31 @@ const extractAndStripFrontmatter = (content) => {
 
 let _bootstrapCache;
 
-const mindSkillsDir = () => {
+const configDir = () => {
   const home = os.homedir();
   const envDir = process.env.OPENCODE_CONFIG_DIR;
-  const configDir = envDir ? path.resolve(envDir) : path.join(home, '.config', 'opencode');
-  return path.join(configDir, 'mind', 'skills');
+  return envDir ? path.resolve(envDir) : path.join(home, '.config', 'opencode');
 };
 
-const gapsFilePath = () => {
-  const home = os.homedir();
-  const envDir = process.env.OPENCODE_CONFIG_DIR;
-  const configDir = envDir ? path.resolve(envDir) : path.join(home, '.config', 'opencode');
-  return path.join(configDir, 'mind', 'gaps', 'skills-used.json');
-};
+const mindSkillsDir = () => path.join(configDir(), 'mind', 'skills');
+
+const gapsFilePath = () => path.join(configDir(), 'mind', 'gaps', 'skills-used.json');
+
+const THRESHOLD_NO_SKILL = 3;
+const MAX_SESSIONS = 200;
+
+const emptyGaps = () => ({ sessions: [], threshold: THRESHOLD_NO_SKILL });
 
 const readGaps = () => {
   try {
     const p = gapsFilePath();
-    if (!fs.existsSync(p)) return { sessions: [] };
+    if (!fs.existsSync(p)) return emptyGaps();
     const parsed = JSON.parse(fs.readFileSync(p, 'utf8'));
-    if (!parsed || !Array.isArray(parsed.sessions)) return { sessions: [] };
+    if (!parsed || !Array.isArray(parsed.sessions)) return emptyGaps();
+    if (typeof parsed.threshold !== 'number') parsed.threshold = THRESHOLD_NO_SKILL;
     return parsed;
   } catch {
-    return { sessions: [] };
+    return emptyGaps();
   }
 };
 
@@ -56,24 +58,87 @@ const writeGaps = (data) => {
   }
 };
 
-const recordTurn = (sessionID, skillName) => {
+const isMindSkill = (name) => typeof name === 'string' && (name.startsWith('mind') || name === 'using-mind');
+
+const getEntry = (data, sessionID) => {
+  let entry = data.sessions.find((s) => s.sessionID === sessionID);
+  if (!entry) {
+    entry = {
+      sessionID,
+      turns: 0,
+      skills: {},
+      subagents: {},
+      noSkillTurns: 0,
+      consecutiveNoSkill: 0,
+      usedThisTurn: false,
+      updatedAt: new Date().toISOString(),
+    };
+    data.sessions.push(entry);
+  }
+  if (typeof entry.turns !== 'number') entry.turns = 0;
+  if (!entry.skills) entry.skills = {};
+  if (!entry.subagents) entry.subagents = {};
+  if (typeof entry.noSkillTurns !== 'number') entry.noSkillTurns = 0;
+  if (typeof entry.consecutiveNoSkill !== 'number') entry.consecutiveNoSkill = 0;
+  if (typeof entry.usedThisTurn !== 'boolean') entry.usedThisTurn = false;
+  return entry;
+};
+
+const prune = (data) => {
+  if (data.sessions.length > MAX_SESSIONS) {
+    data.sessions = data.sessions.slice(-MAX_SESSIONS);
+  }
+};
+
+// Nuovo turno utente: chiude il precedente e apre il nuovo.
+const recordTurnStart = (sessionID) => {
   if (!sessionID) return;
   try {
     const data = readGaps();
-    let entry = data.sessions.find((s) => s.sessionID === sessionID);
-    if (!entry) {
-      entry = { sessionID, skills: {}, noSkillTurns: 0, updatedAt: new Date().toISOString() };
-      data.sessions.push(entry);
-    }
-    entry.updatedAt = new Date().toISOString();
-    if (skillName) {
-      entry.skills[skillName] = (entry.skills[skillName] || 0) + 1;
+    const entry = getEntry(data, sessionID);
+    entry.turns += 1;
+    if (!entry.usedThisTurn) {
+      entry.noSkillTurns += 1;
+      entry.consecutiveNoSkill += 1;
     } else {
-      entry.noSkillTurns = (entry.noSkillTurns || 0) + 1;
+      entry.consecutiveNoSkill = 0;
     }
-    if (data.sessions.length > 200) {
-      data.sessions = data.sessions.slice(-200);
-    }
+    entry.usedThisTurn = false;
+    entry.updatedAt = new Date().toISOString();
+    prune(data);
+    writeGaps(data);
+  } catch {
+    // ignora
+  }
+};
+
+// Una skill mind è stata caricata nel turno corrente.
+const recordSkill = (sessionID, skillName) => {
+  if (!sessionID || !isMindSkill(skillName)) return;
+  try {
+    const data = readGaps();
+    const entry = getEntry(data, sessionID);
+    entry.skills[skillName] = (entry.skills[skillName] || 0) + 1;
+    entry.usedThisTurn = true;
+    entry.updatedAt = new Date().toISOString();
+    prune(data);
+    writeGaps(data);
+  } catch {
+    // ignora
+  }
+};
+
+// Un subagent è stato dispatchato nel turno corrente (task tool).
+const recordSubagent = (sessionID, subagentType) => {
+  if (!sessionID) return;
+  try {
+    const data = readGaps();
+    const entry = getEntry(data, sessionID);
+    const key = subagentType || 'unknown';
+    entry.subagents[key] = (entry.subagents[key] || 0) + 1;
+    entry.usedThisTurn = true;
+    entry.updatedAt = new Date().toISOString();
+    prune(data);
     writeGaps(data);
   } catch {
     // ignora
@@ -122,22 +187,27 @@ export default {
             output.system.unshift(bootstrap);
           }
         }
+      },
+      'chat.message': async (input) => {
+        try {
+          if (input?.sessionID) recordTurnStart(input.sessionID);
+        } catch {
+          // best-effort
+        }
+      },
+      'tool.execute.after': async (input) => {
         try {
           const sessionID = input?.sessionID;
-          if (sessionID) {
-            const joined = (output.system || []).join('\n');
-            const skillMatch = joined.match(/<available_skills>([\s\S]*?)<\/available_skills>/);
-            const loaded = [];
-            if (skillMatch) {
-              for (const m of skillMatch[1].matchAll(/<name>([^<]+)<\/name>/g)) {
-                loaded.push(m[1].trim());
-              }
-            }
-            const mindLoaded = loaded.filter((n) => n.startsWith('mind') || n === 'using-mind');
-            recordTurn(sessionID, mindLoaded.length > 0 ? mindLoaded.join(',') : null);
+          if (!sessionID) return;
+          if (input.tool === 'skill') {
+            const name = input?.args?.name;
+            recordSkill(sessionID, name);
+          } else if (input.tool === 'task') {
+            const subagentType = input?.args?.subagent_type || input?.args?.subagentType;
+            recordSubagent(sessionID, subagentType);
           }
         } catch {
-          // registratore best-effort
+          // best-effort
         }
       }
     };

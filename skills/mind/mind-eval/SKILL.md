@@ -46,6 +46,11 @@ Per ogni criterio: definisci pass/fail **o** scala 1–5 con ancoraggi concreti.
   - casi negativi (task che NON devono attivare la skill).
 - Per ogni caso: **input + golden answer** (output atteso) o criteri di passaggio. **La golden answer si scrive PRIMA dell'esecuzione**, mai a posteriori.
 - Se esistono sessioni/memorie reali, prendi i casi da lì (→ mind-memory).
+- **Eval set pronto per il routing**: `mind-eval/routing-eval-set.md` (20 casi + 3 negativi) verifica che l'orchestratore scelga la rotta giusta. Usalo quando valuti using-mind o dopo una modifica al routing.
+
+### Eval set di routing (using-mind)
+
+Per la rotta dell'orchestratore usa il file `routing-eval-set.md`: 20 casi tipici + 3 negativi, con rotta attesa (golden) per ciascuno. Soglia: ≥ 18/20 corrette e zero negativi aggirati. Se sotto soglia → correzione di **routing** (using-mind), non una nuova skill.
 
 | # | Caso | Input | Golden answer / criteri |
 |---|------|-------|-------------------------|

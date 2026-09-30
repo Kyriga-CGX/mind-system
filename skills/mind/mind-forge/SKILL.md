@@ -38,19 +38,49 @@ mind-forge è il **fabbro** del sistema: diagnostica dove l'orchestrazione non c
 
 ## Il registratore (input di mind-forge)
 
-Il plugin `mind` registra l'uso del sistema in `.mind/gaps/skills-used.json` (contatore per sessione delle skill caricate via tool `skill` e segnali di sessioni senza skill). mind-forge **legge** quel file: non è un loop, è un registratore che accumula evidenza nel tempo.
+Il plugin `mind` registra l'uso reale del sistema in `.mind/gaps/skills-used.json`. Il registratore osserva (via hook `tool.execute.after`) quando il tool `skill` carica una skill mind e quando il tool `task` dispatcha un subagent, più un contatore di turni:
 
-Forma attesa del file:
+- `turns`: turni utente della sessione.
+- `skills`: conteggio delle skill mind caricate (per nome).
+- `subagents`: conteggio dei dispatch subagent (per tipo).
+- `noSkillTurns`: turni in cui NON è stata caricata nessuna skill mind né dispatchato un subagent.
+- `consecutiveNoSkill`: turni consecutivi senza skill (si azzera al primo turno "pieno").
+- `usedThisTurn`: flag interno del turno corrente.
+
+mind-forge **legge** quel file: non è un loop, è un registratore che accumula evidenza nel tempo.
 
 ```json
 {
   "sessions": [
-    { "sessionID": "ses_...", "skills": { "using-mind": 3, "mind-debugging": 1 }, "noSkillTurns": 12, "updatedAt": "2026-..." }
-  ]
+    {
+      "sessionID": "ses_...",
+      "turns": 18,
+      "skills": { "mind-debugging": 2, "mind-verification": 3 },
+      "subagents": { "general": 4 },
+      "noSkillTurns": 11,
+      "consecutiveNoSkill": 4,
+      "usedThisTurn": false,
+      "updatedAt": "2026-..."
+    }
+  ],
+  "threshold": 3
 }
 ```
 
-Se il file non esiste → nessun dato: mind-forge lavora solo su richieste esplicite e su `mind-recall`.
+**Soglia e segnale forte**: `consecutiveNoSkill >= threshold` (default 3) su sessioni recenti = lacuna di copertura probabile. È l'input che l'orchestratore usa per proporre forge all'avvio di una sessione nuova.
+
+Se il file non esiste o `sessions` è vuoto → nessun dato: mind-forge lavora solo su richieste esplicite e su `mind-recall`.
+
+## Trigger (arriva da using-mind, all'avvio sessione)
+
+L'orchestratore, **all'avvio di una sessione nuova**, controlla il registratore: se trova una o più sessioni recenti con `consecutiveNoSkill >= threshold`, propone all'utente:
+
+> "Nelle ultime sessioni N richieste non hanno attivato nessuna skill mind. Vuoi che mind-forge analizzi la lacuna?"
+
+- Sì → si entra in FASE 1 (diagnosi).
+- No → si prosegue normalmente; la proposta non si ripete fino alla sessione successiva.
+
+La proposta è **una sola per sessione** e non blocca il lavoro. mind-forge non parte mai da solo: è sempre l'orchestratore a offrirlo.
 
 ## FASE 0 — SCOPE
 
@@ -62,7 +92,7 @@ Se il file non esiste → nessun dato: mind-forge lavora solo su richieste espli
 
 Raccogli evidenza da tre fonti:
 
-- [ ] **Registratore** `.mind/gaps/skills-used.json`: quali skill esistono ma non vengono mai caricate; sessioni con molti turni e zero skill.
+- [ ] **Registratore** `.mind/gaps/skills-used.json`: sessioni con `consecutiveNoSkill >= threshold` (turni di fila senza nessuna skill mind né subagent) = il segnale più forte; quali skill esistono ma non vengono mai caricate; sessioni con molti `turns` e `noSkillTurns` alto.
 - [ ] **mind-recall**: cerca nelle sessioni passate richieste in cui l'orchestrazione ha improvvisato (nessuna rotta chiara) o ha fatto lavoro manuale ripetibile.
 - [ ] **Richieste fuori-rotta**: casi in cui l'utente ha dovuto spiegare a mano una procedura che dovrebbe essere una skill.
 
