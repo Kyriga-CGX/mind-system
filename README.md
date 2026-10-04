@@ -183,7 +183,7 @@ Regola d'oro: mai fix sui sintomi. Il test che fallisce è l'input del fix, non 
 ```mermaid
 flowchart TB
     R[richiesta UI] --> DIR[frontend-design: personalità, signature, restraint]
-    DIR --> TOK[design-system: DESIGN.md + token var(--*) + anti-slop 9 check]
+    DIR --> TOK[design-system: DESIGN.md + token CSS + anti-slop]
     TOK --> MO{motion serve?}
     MO -->|sì| MOT[motion: livello più basso che basta, mai 3D di default]
     MO -->|no| QA
