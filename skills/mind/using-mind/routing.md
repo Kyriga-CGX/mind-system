@@ -1,180 +1,105 @@
-# Routing mind
+# routing.md — tabella completa (v2)
 
-La tabella di routing è la **fonte unica** per instradare un task alla sequenza di skill corretta. Quando sei in dubbio sul tipo di task, usa la route conservativa (vedi Casi limite).
+Formato rigido, parsabile anche da modelli piccoli (Qwen/DeepSeek):
+`INTENT=<intent> → STAGE=<fasi in ordine> → GATE=verification`
 
-## Tabella di routing completa
+## Tabella 7 intenti
 
-| Tipo di task | Rotta (in ordine) |
-|---|---|
-| Nuova feature / lavoro creativo | `mind-brainstorming` → `mind-planning` → `mind-implementation` → `mind-verification` |
-| Feature end-to-end (UI + BE + integrazione + sicurezza, consegna unica) | `mind-pipeline` (stage: mockup→approvazione→contratti→FE→BE→integrazione→sicurezza→test→gate→memoria; artefatti in `.mind/delivery/<feature>/`) |
-| App mobile cross-platform (dallo stack allo store, consegna unica) | `mind-mobile-pipeline` (stack→design mobile→contratti→FE→BE→device/push→test→build+signing→release→gate) |
-| Design strutturato: nuova UI, redesign completo, identità visiva, design system da zero | `mind-design-pipeline` (brief→audit→direzioni→DESIGN.md→mockup→componenti→motion→copy→FE→qualità visiva→gate→memoria; artefatti in `.mind/design/<progetto>/`; 2 gate utente) |
-| Scelta della direzione estetica (servono 2-3 concept prima di costruire) | `mind-design-explore` (direzioni distinte + auto-check anti-slop C1-C9 + comparazione + scelta utente via tool `question`) |
-| Feature semplice ben definita | `mind-planning` → `mind-implementation` → `mind-verification` |
-| UI (costruire o modificare) | `frontend-design` (direzione, consulta design-references) → `design-md` (crea DESIGN.md solo se manca) → `design-system` (enforce) → `motion` (solo se tocca animazioni) → `mind-verification` |
-| UI (solo ritocco stile esistente) | `design-system` (enforce) → `mind-verification` |
-| Animazione / motion / 3D | `motion` → `frontend-design` (solo se serve direzione) → `mind-verification` |
-| Prosa / testi / copy (pulizia esistente) | `stop-slop` |
-| Copywriting / contenuti / landing / email | `mind-copy` → `stop-slop` → (`frontend-design` se in UI) → `mind-verification` |
-| Comprendere / esplorare codice sconosciuto / onboarding / impatto di un cambio | `mind-explore` (digest) → (`mind-docs` se il digest va documentato) → `mind-memory` (salva mappa) |
-| Decisione architetturale / ADR / trade-off di design | `mind-brainstorming` (spec) → `mind-architecture` (ADR) → `mind-planning` |
-| Incidente in produzione / servizio giù / postmortem | `mind-incident` (triage+mitigazione) → (`mind-debugging` root cause / `mind-security` se breach / `mind-devops` rollback) → `mind-docs` (postmortem) → `mind-verification` |
-| Incidente/breach complesso (risposta strutturata a stage) | `mind-incident-pipeline` (detection→triage→mitigazione→root cause→verifica stabilità→postmortem→hardening) — breach→domanda se report |
-| Audit di sicurezza completo (sistema/area, pre-release, post-breach) | `mind-security-audit-pipeline` (scope→threat model→input→auth/authz→dipendenze→test attivi→report→remediation) |
-| Localizzazione / nuova lingua / traduzioni / i18n | `mind-i18n` → `mind-implementation` → `mind-testing` → `mind-verification` |
-| Valutare prompt / agent / skill del sistema | `mind-eval` (report) → l'orchestratore applica le modifiche |
-| Colmare una lacuna dell'orchestrazione (nessuna skill usata / richieste fuori-rotta / copertura mancante) | `mind-forge` (diagnosi→proposta con gate→crea skill/agente→registra nel routing→`mind-eval`) via subagent `forge` (Sheska) |
-| Riepilogo sessione di lavoro | `memory` tool (summarize) via `mind-memory` |
-| Bug / comportamento inatteso | `mind-debugging` → `mind-implementation` (TDD) → `mind-verification` |
-| Bug hunting proattivo / review difensiva | `mind-debugging` (sezione bug hunting) → `mind-testing` → `mind-verification` |
-| Sicurezza / breach / threat model / hardening | `mind-security` → `mind-implementation` (fix) → `mind-verification` |
-| Ricerca tecnica / scelta libreria-framework / comparazione | `mind-research` (→ `context7-mcp` per documentazione) |
-| Ricerca approfondita con evidenza e raccomandazione documentata | `mind-research-pipeline` (domanda+criteri→fonti→sintesi per opzione→comparazione→raccomandazione→validazione) |
-| Performance / lentezza / ottimizzazione | `mind-performance` (misura PRIMA) → `mind-implementation` → `mind-verification` |
-| Intervento performance strutturato (lentezza/carico/bundle/query) | `mind-performance-pipeline` (baseline→profiling→collo di bottiglia→ottimizzazione→verifica→monitoraggio) |
-| Dati / database / query / ETL / analisi | `mind-data` → (`mind-implementation` se c'è codice) → `mind-verification` |
-| Task dati/ETL complesso (movimento dati con trasformazioni) | `mind-data-pipeline` (estrazione→pulizia→validazione→trasformazione→caricamento→verifica→documentazione) |
-| Ciclo machine learning completo (dati→modello→servizio) | `mind-ml-pipeline` (problema+metrica→dati→feature→modello→training→eval→deploy→monitoraggio drift) |
-| Test strategy / scrittura test | `mind-testing` → `mind-verification` |
-| Documentazione (README/API/guide/DESIGN.md) | `mind-docs` → `mind-verification` |
-| Migrazione / upgrade / cambio stack | `mind-migration` → `mind-implementation` → `mind-verification` |
-| Migrazione complessa (stato A→B con rollback e cutover) | `mind-migration-pipeline` (analisi delta→piano incrementale→dry-run→migrazione a fasi→verifica→cutover→monitoraggio) |
-| Ritiro sicuro di servizio/feature attivo (rimozione totale) | `mind-decommission-pipeline` (inventario consumatori→deprecation→avvisi→migrazione→shutdown→cleanup) |
-| Refactoring (no cambio stack) | `mind-refactor` → `mind-verification` (→ `mind-debugging` se scopre bug, → `mind-migration` se serve upgrade) |
-| API / endpoint / contratti / consumo terze parti | `mind-api` → (`mind-security` se auth/dati sensibili) → `mind-implementation` → `mind-verification` |
-| Deploy / CI-CD / container / infrastruttura | `mind-devops` → `mind-verification` |
-| Infrastruttura cloud / ambiente end-to-end (provisioning→rete→secrets→container→deploy→DNS) | `mind-infra-pipeline` (scope→IaC→rete/security→secrets→immagini→orchestrazione→DNS/cert→scaling→costi→monitoraggio) |
-| Osservabilità di un sistema (log/metriche/tracing/alert/dashboard) | `mind-observability-pipeline` (inventario→logging→metriche→tracing→alerting→dashboard/SLO→verifica) |
-| Git workflow / branch / commit / worktree | `mind-git` → `mind-verification` |
-| Release / versioning / changelog / tag | `mind-release` → `mind-devops` (build/publish) → `mind-verification` |
-| Release completa a stage (chiusura ciclo feature→deploy) | `mind-release-pipeline` (analisi cambiamenti→versioning→changelog→build+test CI→tag→publish→rollback plan) |
-| Rilascio graduale di feature già pronta (flag/canary/A-B, misurazione) | `mind-feature-rollout-pipeline` (flag design→metriche+b baseline→canary→A/B→espansione→rollout completo→post-verifica) |
-| Piano multi-step / spec pronto | `mind-planning` → `mind-implementation` → `mind-verification` |
-| Obiettivo complesso / piano da eseguire per intero in autonomia (multi-sessione, "finisci da solo") | `mind-runner` (coda persistente + loop + checkpoint + gate verde) — piano da `mind-planning`, task via `mind-implementation`, gate via `mind-verification` |
-| Domanda libreria / framework / API | `context7-mcp` |
-| Consulenza / ragionamento / strategia / confronto / valutazione (NON costruire) | `mind-consult` (via subagent `sage` = Van Hohenheim) → se sfocia in costruzione, rotta normale |
-| Init progetto | `ecosystem-health-check` → `mind` (routing) → `design-md`/`design-system` (solo se UI) |
-| Onboarding progetto nuovo / codebase sconosciuto (acquisizione contesto) | `mind-onboarding-pipeline` (setup→digest→convenzioni→architettura→baseline test→primi task) |
-| Review codice / PR | `mind-implementation` (review + fix-loop) / `mind-verification` |
-| Richiamo lavoro precedente | `memory` tool (search) via `mind-memory`, prima di rispondere |
-| Richiamo lavoro precedente (memoria non basta) | `mind-recall` (storico sessioni, sola lettura) → `mind-memory` (salva se duraturo) |
-| Salvataggio preferenza/contesto | `memory` tool (add) via `mind-memory` |
-| Prima configurazione / progetto nuovo | `mind-setup` (domande una alla volta → working-set in memoria) → rotta del task |
-| Documenti (PDF/DOCX/XLSX/PPTX) | `mind-documents` → (`mind-copy` per il testo) → (`mind-verification` se consegna) |
-17. `mind-design-pipeline` entra SOLO per un lavoro di design strutturato con consegna visiva (nuova UI, redesign completo, identità visiva, design system da zero): ≥3 fasi di design e almeno una schermata da consegnare. Ritocco puntuale (un colore, una card, un componente) → rotta UI singola; feature con BE ed endpoint → `mind-pipeline` (che chiama questa pipeline come suo Stage 2); app mobile con store → `mind-mobile-pipeline`. `mind-design-explore` entra quando manca una direzione approvata e il brief non la fissa; se il brief fissa la direzione visiva, le parole del brief vincono → `design-md`/`design-system`. La review visiva finale va al subagent `lust` (read-only), MAI a chi ha implementato.
+```
+INTENT=costruire     → STAGE=brainstorming,spec → planning → implementation → GATE=verification
+INTENT=design-ui     → STAGE=design-track(direzione,tokens,motion?,qa) → GATE=verification
+INTENT=fixare        → STAGE=debugging(root-cause) → implementation(TDD) → GATE=verification
+INTENT=esplorare     → STAGE=explore(digest) → docs? → memory-save → GATE=none (read-only)
+INTENT=decidere      → STAGE=consult/research → ADR/piano → implementation-solo-se-approvato → GATE=verification
+INTENT=rilasciare    → STAGE=release/devops/incident(vedi sotto) → GATE=verification
+INTENT=scrivere      → STAGE=dominio(docs/copy/i18n/data) → GATE=verification
+```
 
-## Regole di orchestrazione (gate e sequenza)
+Un esempio per intent (quello che riduce gli errori su DeepSeek/Qwen):
 
-1. **Review intermedia obbligatoria** tra `mind-planning` → `mind-implementation`: prima di dispatch dei subagent, rileggi il piano contro lo spec (coerenza requisiti, task completi, niente placeholder). Se il piano diverge dallo spec approvato, torna a `mind-planning` prima di implementare.
-2. **Regression check nel gate**: quando si MODIFICA codice esistente, il gate `mind-verification` include verificare che il comportamento precedente continui a funzionare (test esistenti, build, flow chiave), non solo che il nuovo codice passi.
-3. **Auto-scrittura in memoria**: a fine rotta di implementazione, salva in `mind-memory` (tool `memory` add) i risultati utili (pattern applicati, decisioni, errori superati, architettura del progetto) — non solo se richiesto.
-4. **Controllo conflitti file pre-dispatch**: in `mind-implementation`, PRIMA di lanciare i subagent in parallelo, mappa i file toccati da ogni unità; se due unità scrivono lo stesso file, separale (o serializza) prima del dispatch.
-5. **Delivery in fasi per feature grandi**: in `mind-planning`, se la feature è grande, offri esplicitamente fasi (fase 1 funzionante → fasi successive) invece di un piano monolitico.
-6. **Design debt check post-build**: dopo una rotta UI (frontend-design/design-system/motion), verifica che il CSS generato non cancelli selettori e che `DESIGN.md` resti aggiornato rispetto al codice reale.
-7. **Artefatti come link cliccabili**: ogni file citato all'utente (mockup, screenshot, report, spec, digest, documento) va presentato come hyperlink markdown `file://` assoluto, es. `[apri mockup](file:///F:/OpenCode%20Project/.../docs/mockups/nome.html)`; nell'app desktop opencode si apre con **Ctrl+click** (Cmd su macOS). Path assoluto, slash `/`, spazi come `%20`. Mai path nudi da cercare a mano.
-8. **Gate di sessione per la lacuna del sistema**: al primo messaggio di una sessione nuova, leggi `.mind/gaps/skills-used.json`; se una sessione recente ha `consecutiveNoSkill >= threshold`, proponi UNA volta a fine risposta di usare `mind-forge` per analizzare la lacuna. Sì → rotta `mind-forge`; No → prosegui. Non ripetere nella stessa sessione e non bloccare il lavoro.
+- `costruire`: "aggiungi login OAuth" → spec → piano → 2 subagent (FE/BE, file disgiunti) → verification (test verdi).
+- `design-ui`: "card pricing con hover" → direzione → token → motion? (sì, hover) → QA → verification.
+- `fixare`: "crash su checkout" → root cause + test che fallisce → fix → verification + regression.
+- `esplorare`: "come funziona l'auth?" → digest → risposta + memoria. Nessun codice.
+- `decidere`: "quale ORM?" → research con fonti → raccomandazione → piano solo se approvi.
+- `rilasciare`: "v1.2.0" → changelog → tag → build CI verde → publish (+ rollback pronto).
+- `scrivere`: "README API" → docs dal codice reale → verification (link e comandi verificati).
 
-## Precedenze
+## Dettaglio Rotte (skill precise per intent)
 
-1. `mind` è l'entry point: ha precedenza su tutte le altre skill.
-2. Process skill prima, skill di contenuto dopo: `mind-brainstorming`/`mind-debugging` impostano l'approccio, poi le skill di dominio eseguono.
-3. `frontend-design` (direzione estetica) va PRIMA di `design-system` (enforce) e di `motion`.
-4. `design-md` va PRIMA di `design-system` SOLO se il progetto non ha `DESIGN.md`.
-5. `motion` entra nella rotta SOLO se il task tocca animazioni.
-6. `mind-verification` ed `execution-hygiene` sono SEMPRE il gate finale, mai prima delle skill di contenuto.
-7. Le istruzioni utente (AGENTS.md, richieste dirette) prevalgono sulle skill.
-8. `mind-security` va PRIMA di qualsiasi implementazione quando il task tocca dati sensibili, auth, pagamenti o rete (threat model prima di scrivere codice).
-9. `mind-migration`/`mind-performance`/`mind-data`/`mind-refactor`/`mind-api`/`mind-release`/`mind-explore`/`mind-architecture`/`mind-copy`/`mind-incident`/`mind-i18n`/`mind-eval` entrano SOLO se il task tocca quel dominio specifico.
-10. `mind-recall` è il fallback del richiamo: prima `memory` search (veloce), poi `mind-recall` (storico) se la memoria non basta.
-11. `mind-setup` è il gate iniziale su progetto nuovo: prima la configurazione (working-set), poi il task.
-12. Gli MCP si invocano SOLO on-demand, quando un agente deve fare una chiamata (es. `context7-mcp`). MAI una call MCP all'avvio del programma.
-13. `mind-runner` entra SOLO per un piano/obiettivo da eseguire per intero in autonomia (più task, possibilmente più sessioni). Un task singolo NON usa il runner: va dritto alla rotta specifica.
-14. `mind-consult` (subagent `sage`) entra SOLO per domande meta/consultive — pensare, consigliare, decidere — non per costruire/modificare codice. Se il parere sfocia in lavoro, si torna alla rotta di implementazione.
-15. `mind-pipeline` entra SOLO per feature end-to-end (≥3 domini in sequenza con consegna unica: UI+BE+integrazione). Task singoli o 1-2 domini usano la rotta specifica, NON la pipeline.
-16. Le pipeline di dominio (`mind-incident-pipeline`/`mind-security-audit-pipeline`/`mind-migration-pipeline`/`mind-release-pipeline`/`mind-onboarding-pipeline`/`mind-research-pipeline`/`mind-data-pipeline`/`mind-performance-pipeline`/`mind-mobile-pipeline`/`mind-infra-pipeline`/`mind-observability-pipeline`/`mind-ml-pipeline`/`mind-feature-rollout-pipeline`/`mind-decommission-pipeline`) entrano SOLO per interventi strutturati a stage con ≥3 fasi e consegna unica. Un intervento puntuale usa la rotta singola dedicata (`mind-incident`/`mind-security`/`mind-migration`/`mind-release`/`mind-research`/`mind-data`/`mind-performance`/`mind-devops`), NON la pipeline.
-17. `mind-forge` (subagent `forge` = Sheska) entra SOLO per una lacuna di COPERTURA del sistema con evidenza (richiesta esplicita, registratore, richieste fuori-rotta). Una lacuna di ROUTING → correggi il routing; una di QUALITÀ → `mind-eval`. Non crea nulla senza approvazione utente.
+```
+costruire:  mind-brainstorming → mind-planning → mind-implementation → mind-verification
+design-ui:  Design Track (vedi sotto) → mind-verification
+fixare:     mind-debugging → mind-implementation → mind-verification
+esplorare:  mind-explore → mind-docs? → memory (nessun gate, read-only)
+decidere:   mind-consult (sage) / mind-architecture (ADR) / mind-research (+context7-mcp) → piano solo se approvato
+rilasciare: mind-release → mind-devops (build/publish) | incidente → mind-incident → debugging/security/devops → mind-docs (postmortem) → mind-verification
+scrivere:   mind-docs | mind-copy → stop-slop | mind-i18n | mind-data → mind-verification
+```
 
-## Casi limite
+## Regola pipeline vs singola (unica)
 
-- **Task UI+BE**: segui la rotta del dominio predominante; il gate finale copre l'intero delta.
-- **Dubbio sul tipo di task**: route conservativa (creativo → `mind-brainstorming`; bug → `mind-debugging`; domanda → `context7-mcp`). Se la rotta si rivela sbagliata, rifalla sul tipo reale.
-- **Task misto UI + copy**: prima la rotta UI, poi `stop-slop` sui testi; gate unico finale.
-- **Fix rapido di un bug già investigato**: la root cause è nota e c'è un test che fallisce → salta `mind-debugging`, vai direttamente a `mind-implementation` (TDD). Se il fix fallisce, torna a `mind-debugging`.
-- **Task misto sicurezza + feature**: se la feature tocca auth/dati sensibili/pagamenti/rete, apri con `mind-security` (threat model) PRIMA di `mind-brainstorming`/`mind-planning`, poi rientra nella rotta standard.
-- **Performance segnalata come "lento"**: NON ottimizzare a naso. `mind-performance` misura PRIMA (baseline), identifica il collo di bottiglia, poi implementa.
-- **Refactor vs migration**: "rifattorizza/pulisci/riorganizza/semplifica il codice" SENZA cambio stack → `mind-refactor` (comportamento invariato, rete di sicurezza di test). Upgrade di versioni, cambio framework/architettura/stack → `mind-migration`. Se durante il refactor emerge un bug → richiama `mind-debugging`; se emerge la necessità di un upgrade → richiama `mind-migration`.
-- **Task API**: creare/modificare endpoint, contratti, versioning, consumo terze parti → `mind-api`. Se l'API espone auth, dati sensibili o pagamenti → apri con `mind-security` (threat model) prima del contratto. Modifica di un'API esistente consumata altrove → considera breaking change e coordina con `mind-migration`.
-- **Release a fine ciclo**: dopo una feature completata e verificata, se l'utente chiede release/versione/changelog/tag → `mind-release` (semantic versioning + changelog + tag annotato), che si appoggia a `mind-devops` per build/publish; il gate `mind-verification` (build+test verdi) precede il tag.
-- **Task misto dati + feature**: prima `mind-data` per schema/query verificate, poi la rotta standard; il gate finale copre l'intero delta.
-- **Task misto sicurezza + feature**: se la feature tocca auth/dati sensibili/pagamenti/rete, apri con `mind-security` (threat model) PRIMA di `mind-brainstorming`/`mind-planning`, poi rientra nella rotta standard.
-- **Task misto UI + copy**: prima la rotta UI, poi `stop-slop` sui testi; gate unico finale.
-- **Esplorazione vs implementazione**: "capisci/spiega/valuta impatto di questo codice" (nessuna modifica) → `mind-explore` (digest). Se dall'esplorazione emerge un lavoro → nuova rotta normale con il digest come input.
-- **ADR vs feature**: una decisione architetturale (scelta DB, architettura, pattern) → `mind-architecture` (ADR registrato in docs/adr/) dopo la spec di `mind-brainstorming` e prima di `mind-planning`. Micro-decisioni di implementazione NON richiedono ADR.
-- **Copy creation vs pulizia**: creare testi nuovi (landing/email/CTA) → `mind-copy`; pulire testi esistenti dai pattern AI → `stop-slop`. Se il copy vive in una UI, coordina con `frontend-design`.
-- **Incident vs bug**: servizio giù/degrado in produzione (triage+mitigazione+postmortem) → `mind-incident`. Bug di funzionamento senza impatto produzione → `mind-debugging` normale.
-- **i18n vs feature**: il task tocca lingue/traduzioni/plurale/date-RTL → `mind-i18n` prima, poi la rotta di implementazione normale.
-- **Eval del sistema**: valutare i prompt/agent/skill di mind stesso (non codice app) → `mind-eval`; il report guida l'orchestratore a modificare il sistema con eval prima/dopo.
-- **Clarificazione prima della rotta**: non fare domande di chiarimento prima di aver scelto la rotta; la skill scelta guida l'esplorazione (es. `mind-brainstorming` fa domande una alla volta).
-- **Gate finale**: il gate `mind-verification` (evidenza fresca di verifica, nessuna affermazione senza prova) si applica a ogni rotta di implementazione. `execution-hygiene` fornisce le regole operative (checkpoint, registro, qualità) lungo la rotta.
-- **Richiamo vs recall**: prima cerca in `mind-memory` (tool `memory` search, veloce). Se la memoria non contiene il contesto (o serve storico completo), usa `mind-recall` (query read-only sul DB locale, cita sempre id sessione + titolo). Non invertire l'ordine.
-- **Prima configurazione**: al primo messaggio di un progetto nuovo senza configurazione salvata, apri con `mind-setup` (annuncio + domande una alla volta + working-set in memoria), poi instrada il task. Non lavorare prima della configurazione.
-- **Documenti vs codice**: file .pdf/.docx/.xlsx/.pptx → `mind-documents` (creare/modificare/leggere + verifica visiva). Codice o testo semplice → rotta normale. Il testo dentro un documento → `mind-copy` se serve copywriting.
-- **Git vs implementazione**: task di versionamento (commit/branch/worktree/PR) → `mind-git`. Il parallelismo dei subagent di mind-implementation usa i worktree di mind-git. Non confondere: git gestisce COME versionare, implementation COSA costruire.
-- **Runner vs task singolo**: un piano/obiettivo da eseguire per intero in autonomia (più task, possibilmente più sessioni, "finisci da solo") → `mind-runner` (loop con coda persistente e checkpoint). Un singolo task o una singola feature → rotta specifica, NON il runner.
-- **Consulenza vs costruzione**: "cosa mi consigli / come miglioreresti / è una buona idea / analizza questa situazione" (nessuna modifica richiesta) → `mind-consult` (subagent `sage`). Se il consiglio sfocia in un lavoro da costruire → rotta normale (`mind-brainstorming`/`mind-planning`). Se valuta il sistema stesso → `mind-eval`. Se è una decisione architetturale → `mind-architecture`.
-- **Pipeline vs rotta specifica**: una feature che attraversa UI+BE+integrazione+sicurezza con una consegna unica → `mind-pipeline` (stage con gate di approvazione e artefatti condivisi). Un task di 1-2 domini (solo UI, solo API, solo bug) → rotta dedicata. Se in dubbio: conta i domini attraversati; ≥3 in sequenza → pipeline.
-- **Mockup obbligatorio nella pipeline**: se la feature end-to-end ha una UI, il mockup (`frontend-design`) va approvato dall'utente PRIMA di scrivere codice; senza approvazione la pipeline si ferma allo Stage 2.
-- **Pipeline di dominio vs rotta singola**: un incidente/audit/migrazione/release/ricerca/ETL/performance STRUTTURATO a stage (risposta completa, consegna unica, ≥3 fasi) → pipeline di dominio (`mind-incident-pipeline`, `mind-security-audit-pipeline`, `mind-migration-pipeline`, `mind-release-pipeline`, `mind-onboarding-pipeline`, `mind-research-pipeline`, `mind-data-pipeline`, `mind-performance-pipeline`, `mind-mobile-pipeline`, `mind-infra-pipeline`, `mind-observability-pipeline`, `mind-ml-pipeline`, `mind-feature-rollout-pipeline`, `mind-decommission-pipeline`). Un intervento puntuale (singola vulnerabilità, singola migrazione, singola release, query dati, micro-ottimizzazione, bug di sviluppo, singolo deploy, singolo endpoint) → rotta singola dedicata. In dubbio: conta le fasi necessarie; ≥3 sequenziali → pipeline.
-- **Mobile vs web**: un'app mobile cross-platform end-to-end (stack→design→FE→BE→device→store) → `mind-mobile-pipeline`. Solo web → `mind-pipeline`. Solo mockup/design mobile → `frontend-design`/`design-system`. Solo release su store di un'app già pronta → `mind-release-pipeline`.
-- **Design strutturato vs ritocco vs feature**: nuova UI/redesign/identità visiva/design system da zero con consegna visiva → `mind-design-pipeline`. Ritocco puntuale o modifica di una schermata esistente → rotta UI singola (`frontend-design` → `design-system` → `motion` se animazioni). Feature con UI + BE + endpoint → `mind-pipeline`. Solo token mancanti → `design-system` (`create.md`).
-- **Direzione già fissata vs da esplorare**: il brief fissa la direzione visiva → salta la divergenza, `frontend-design` + `design-md`/`design-system`. Il brief non la fissa e serve una scelta → `mind-design-explore` (2-3 direzioni + gate utente). Una sola direzione presentata all'utente = falsa scelta.
-- **Chi giudica il design**: chi implementa NON si auto-valuta esteticamente → review in contesto fresco con il subagent `lust` (read-only), poi gate finale `mind-verification`.
-- **Lacuna del sistema (forge)**: una capacità che manca all'orchestrazione (nessuna skill copre un caso ricorrente; il registratore `.mind/gaps/skills-used.json` mostra sessioni fuori-rotta o skill mai usate) → `mind-forge`: diagnosi con evidenza → proposta con gate utente → creazione della skill/agente → registrazione nel routing → `mind-eval`. MAI creare senza approvazione; MAI duplicare una skill esistente. Lacuna di ROUTING (la skill esiste ma non scatta) → correggi il routing, non creare; lacuna di QUALITÀ (scatta ma rende male) → `mind-eval`.
-- **Quale tipo di lacuna**: copertura (manca la skill) → nuovo pezzo; routing (skill ignorata) → correzione tabella; qualità (skill scadente) → `mind-eval`. Solo la copertura porta a forgiare.
-- **Infra vs release**: creare/modificare l'AMBIENTE (provisioning, rete, secrets, container, DNS) → `mind-infra-pipeline`. Pubblicare il CODICE applicativo in un ambiente già esistente → `mind-release`/`mind-release-pipeline`. Se non c'è ancora ambiente → `mind-infra-pipeline` prima, poi `mind-devops` per il deploy.
-- **Osservabilità vs incidente**: costruire il layer di monitoraggio (log/metriche/tracing/alert/dashboard) → `mind-observability-pipeline`. Incidente in corso in un sistema senza visibilità → `mind-incident-pipeline` (triage+mitigazione), poi `mind-observability-pipeline` come hardening.
-- **ML vs data**: ciclo ML completo (dati→feature→modello→eval→servizio) → `mind-ml-pipeline`. Solo movimento/trasformazione dati → `mind-data-pipeline`. Solo scelta libreria ML → `mind-research`/`context7-mcp`.
-- **Rollout vs release**: attivare GRADUALMENTE una feature già pronta (flag/canary/A-B, misurata) → `mind-feature-rollout-pipeline`. Pubblicare una versione → `mind-release-pipeline`. La release include il flag (default off); il rollout lo accende.
-- **Decommission vs migration**: RIMUOVERE del tutto un servizio/feature → `mind-decommission-pipeline`. SOSTITUIRE con un nuovo sistema → `mind-migration-pipeline`. Deprecation di un singolo endpoint → `mind-api`.
-- **Proattività**: se noti un gap nei requisiti, un rischio o un miglioramento utile non richiesto → proponilo con il tool `question` PRIMA di procedere (o segnalalo durante il lavoro). Non ignorarlo, non implementarlo in silenzio fuori scope. Regole operative in using-mind/SKILL.md e nelle skill mind-planning/mind-implementation.
+```
+pipeline SOLO SE (consegna unica E ≥3 stage E stato su file .mind/delivery/<nome>/state.json)
+ALTRIMENTI rotta singola.
+```
 
-## Output attesi (catena)
+Le pipeline di dominio (data, mobile, infra, observability, ml, rollout, decommission, incident, audit, migration, release, onboarding, research, performance, design, feature) sono **varianti dello STAGE**, non voci di routing: si usano quando il task attraversa ≥3 fasi con consegna unica e stato su file. Un intervento puntuale usa sempre la rotta singola del dominio (es. `mind-incident`, `mind-security`, `mind-migration`, `mind-release`, `mind-research`, `mind-data`, `mind-performance`, `mind-devops`).
 
-- `mind-brainstorming` → spec approvato in `docs/specs/YYYY-MM-DD-<topic>-design.md`
-- `mind-architecture` → ADR in `docs/adr/ADR-<NNN>-<slug>.md` + indice README
-- `mind-planning` → piano in `docs/plans/YYYY-MM-DD-<topic>.md` con header e task
-- `mind-runner` → coda `.mind/run/<run-id>/queue.json` + ledger + state; obiettivo chiuso solo a gate `mind-verification` verde su tutti i task
-- `mind-consult` → parere strutturato (opzioni → raccomandazione → passo concreto) + decisione salvata in memoria
-- `mind-implementation` → codice + test che passano + ledger
-- `mind-explore` → Codebase Digest (docs/ o README) + mappa salvata in memoria
-- `mind-recall` → contesto recuperato dallo storico con fonte (id sessione + titolo)
-- `mind-setup` → working-set salvato in memoria (type=configuration)
-- `mind-pipeline` → consegna end-to-end in `.mind/delivery/<feature>/` (mockup approvato, contratti, FE/BE/integrazione/sicurezza/test) + gate `mind-verification` + memoria; gli artefatti di ogni stage sono il passaggio di consegna tra gli agenti
-- `mind-incident-pipeline` → timeline condivisa + mitigazione applicata + postmortem in `docs/incidents/YYYY-MM-DD-<slug>-postmortem.md` (azioni con owner+scadenza) + hardening; breach→report `mind-security` (su richiesta utente)
-- `mind-security-audit-pipeline` → report in `docs/security/YYYY-MM-DD-<sistema>-report.md` (findings per gravità, 4 tipologie con come replicarlo) + fix tracciati per gravità
-- `mind-migration-pipeline` → migrazione a fasi applicata con commit per fase + verifica dati/comportamento + cutover + monitoraggio post; rollback pronto in ogni fase
-- `mind-release-pipeline` → changelog aggiornato (Keep a Changelog) + versione semver + tag annotato + build/CI verdi + publish + rollback plan
-- `mind-onboarding-pipeline` → config (working-set in memoria) + digest + convenzioni + ADR + baseline test + primi task
-- `mind-research-pipeline` → report in `docs/research/YYYY-MM-DD-<topic>.md` (opzioni + comparazione + raccomandazione con fonti) + validazione
-- `mind-data-pipeline` → dati spostati/trasformati con backup prima + validazione pre/post + documentazione del flusso
-- `mind-performance-pipeline` → baseline prima/dopo + collo di bottiglia identificato + ottimizzazione applicata (una variabile per volta) + monitoraggio
-- `mind-mobile-pipeline` → app mobile buildata e firmata (store) in `.mind/mobile/<app>/` + test su emulatori/device + release + gate `mind-verification`
-- `mind-infra-pipeline` → ambiente in `.mind/infra/<ambiente>/` (IaC, rete, secrets, container, DNS) + verifica deploy + monitoring + costi
-- `mind-observability-pipeline` → logging/metriche/tracing/alerting attivi + dashboard/SLO + test che un alert scatta davvero
-- `mind-ml-pipeline` → modello valutato (metrica su test set) + servizio di inferenza + monitoraggio drift in `.mind/ml/<progetto>/`
-- `mind-feature-rollout-pipeline` → feature attiva in produzione con flag+canary/A-B misurati in `.mind/rollout/<feature>/` + metriche di rilascio + cleanup rami morti
-- `mind-decommission-pipeline` → servizio/feature rimosso del tutto (shutdown + cleanup + verifica che nulla lo riferisca) in `.mind/decommission/<servizio>/`
-- `mind-design-pipeline` → UI consegnata con direzione approvata, DESIGN.md aggiornato, mockup approvato, componenti tokenizzati, qualità visiva verificata (C1-C9 + a11y AA + responsive) in `.mind/design/<progetto>/` + gate `mind-verification`
-- `mind-design-explore` → `03-concepts.md` con 2-3 direzioni distinte (wireframe ASCII, token compatti, auto-check anti-slop, comparazione) + `03-scelta.md` con la scelta dell'utente e i concept scartati; fuori pipeline → `docs/design/YYYY-MM-DD-<topic>-concepts.md`
-- `mind-incident` → postmortem in `docs/incidents/YYYY-MM-DD-<slug>-postmortem.md` (azioni con owner+scadenza)
-- `mind-eval` → report in `docs/eval/YYYY-MM-DD-<target>-eval.md` + memoria
-- `mind-forge` → diagnosi in `.mind/gaps/report.md` + proposta pre-gate in `.mind/gaps/proposal-<nome>.md` + (dopo approvazione) nuova skill in `mind/skills/<nome>/SKILL.md` o agente in `agents/<nome>.md` + registrazione nel routing + verifica `mind-eval`
-- `mind-verification` → evidenza eseguita (output test/lint/build) e conferma
+Solo due approvazioni utente bloccano una pipeline: mockup e contratti critici. Il resto fila senza interruzioni.
 
-## Fonti esterne
+## Matrice lacune (forge vs eval vs routing)
 
-- **Grafica/UI**: `frontend-design/design-references.md` — gallerie (awwwards, refs.gallery, godly, land-book, siteinspire), tipografia (fontsinuse, typewolf, practicaltypography), colore (huemint, coolors, Material 3), design system (M3, HIG, Refactoring UI, nngroup). Consultalo quando serve direzione estetica.
-- **Motion**: `motion/reference/sources.md` + `motion/reference/motion-catalog.md`.
-- **Librerie/framework**: `context7-mcp` (MCP Context7).
-- Le fonti sono riferimento, mai copia pedissequa: adatta un principio al brief.
+```
+routing sbagliato (skill giusta esiste, scelta errata) → correggi questo routing.md
+skill brutta (scatta ma rende male)                    → mind-eval (report + fix)
+caso non coperto (nessuna skill gestisce il caso)      → mind-forge (proposta + gate utente, mai creare senza approvazione)
+```
+
+## Design Track (quello costruito insieme — first-class)
+
+```
+DESIGN-TRACK:
+  1. direzione  → frontend-design (personalità, signature element, restraint; prima cerca preferenze in memoria)
+  2. strumento  → design-system (create.md → enforce.md → anti-slop.md: 9 check binari,
+                  token var(--*), WCAG 4.5:1, catalogo ~80 brand OKLch, DESIGN.md source of truth)
+  3. movimento  → motion SOLO se animato (ladder CSS→WAAPI→Motion→GSAP→SVG→Three.js,
+                  mai saltare al 3D; 3 strati primary/secondary/ambient; stagger <500ms)
+  4. QA         → Design QA a occhi freschi (subagent read-only: token rispettati?
+                  anti-slop pass? motion giustificato dal brief? Se FAIL → torna a enforce)
+```
+
+## Handoff principali (solo 7, il resto vive nelle skill)
+
+```
+brainstorming → planning → implementation → verification
+debugging → implementation → verification
+research/consult → planning/ADR → implementation (se approvato)
+explore → docs/memory
+design-track → implementation → verification
+incident → debugging/security/devops → docs (postmortem)
+release → devops → verification
+```
+
+Regola handoff: ogni skill passa il suo **risultato** come input alla successiva (spec→piano, piano→dispatch, root cause+test→fix, threat model→fix, raccomandazione+fonti→piano). Se il risultato manca o è placeholder, si torna alla skill precedente invece di proseguire.
+
+## Budget e stop (numeri, non parole)
+
+- Default: max 3 subagent paralleli, max 10 iterazioni loop, stop a 3 fail consecutivi.
+- Parallelo solo se file disgiunti (stesso file = serializza); mappa i file prima del dispatch.
+- Runner autonomo (`mind-runner`): coda su file + checkpoint + ripresa tra sessioni; halt obbligatorio ai limiti sopra.
+- MCP solo on-demand (es. `context7-mcp` per docs), mai all'avvio.
+
+## Memoria: search → recall → salva
+
+```
+PRIMA: memory search (veloce) → se non basta: mind-recall (storico sessioni, read-only)
+DOPO:  salva pattern/decisioni/errori (previo consenso per dati durevoli da recall)
+SE VUOTA/CORROTTA: procedi con default + segnala, mai bloccare.
+```
+
+## Casi particolari
+
+- **Task UI+BE**: rotta del dominio predominante; il gate copre l'intero delta.
+- **Dubbio sul tipo**: route conservativa (creativo→costruire, anomalia→fixare, domanda→decidere); se sbagliata, rifalla.
+- **Skill in dubbio**: scegli quella più vicina al gate (verifica), richiama l'altra se serve.
