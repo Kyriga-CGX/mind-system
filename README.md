@@ -35,7 +35,7 @@ Il plugin `mind` inietta il bootstrap a ogni turno (con guardia anti-duplicazion
 
 ## Struttura
 
-- `skills/mind/` — il fork mind: orchestratore `using-mind` (`SKILL.md` + `routing.md` + `fma-agents.md`) e 46 skill di dominio
+- `skills/mind/` — il fork mind: orchestratore `using-mind` (`SKILL.md` + `routing.md` + `fma-agents.md`) e 47 skill di dominio
 - `skills/<altre>` — skill storiche: context7-mcp, design-md, design-system, ecosystem-health-check, execution-hygiene, frontend-design, motion, orchestrator, stop-slop
 - `plugins/` — `mind.js` (bootstrap + registrazione skill + tracciamento uso) e `mind-memory.js` (memoria locale-first). Vanno al top di `~/.config/opencode/plugins/`
 - `config/` — `opencode.jsonc`, `mind-memory.json`, `AGENTS.md` + subagent custom (`agents/sage.md`, `lust.md`, `forge.md`). Chiavi come `{env:VAR}` dall'ambiente all'avvio
@@ -54,7 +54,7 @@ setx CONTEXT7_API_KEY "<valore>"   # poi riapri il terminale e riavvia opencode
 
 ## I 7 intenti
 
-> I 7 intenti sono le **porte d'ingresso**, non il sistema: dietro ci sono 47 skill, 16 pipeline, 23 agenti e 1 gate. Niente � stato rimosso dalla v1 � la ricchezza � nel catalogo qui sotto.
+> I 7 intenti sono le **porte d'ingresso**, non il sistema: dietro ci sono 48 skill, 16 pipeline, 23 agenti e 1 gate. Niente � stato rimosso dalla v1 � la ricchezza � nel catalogo qui sotto.
 
 | # | Intent | Rotta | Esempio |
 |---|---|---|---|
@@ -91,6 +91,7 @@ Se ambiguo: route conservativa (creativo→costruire, anomalia→fixare, domanda
 | `mind-performance` | Misura PRIMA, ottimizza dove indica il profiler, rimisura | lentezza, bundle, query lente, latenza |
 | `mind-data` | Query, schema, ETL, backup/restore, data quality | DB, dataset, report, import/export |
 | `mind-migration` | Upgrade e cambi stack incrementali con rollback | versioni, framework, migrazioni codice |
+| `mind-breach` | Red-team autorizzato: recon, probe, catene di attacco, report con PoC (gate auth sempre) | audit pre-rilascio, bug bounty, pentest |
 
 ### Design e grafica: direzione → token → motion → QA
 
@@ -176,9 +177,11 @@ flowchart TD
     TH --> FIX
     PROD{Produzione giù?} -->|sì| INC[mind-incident: triage → mitigazione → root cause → postmortem]
     INC --> G
+    AUDIT{Assessment offensivo?} -->|si| BR[mind-breach: gate auth, probe, report]
+    BR -->|report per gravita| FIX
 ```
 
-Regola d'oro: mai fix sui sintomi. Il test che fallisce è l'input del fix, non un optional.
+Regola d'oro: mai fix sui sintomi. mind-breach parte SOLO con gate autorizzazione verde, altrimenti STOP. Il test che fallisce è l'input del fix, non un optional.
 
 ### Grafica: dalla direzione alla QA
 
@@ -290,6 +293,7 @@ Ogni skill passa il suo **risultato** come input alla successiva; se manca o è 
 | planning | implementation | piano (header + task) |
 | debugging | implementation | root cause + test che fallisce |
 | security | implementation | threat model e vettori |
+| breach | security/implementation/incident | findings + PoC verso fix; gia sfruttato verso triage |
 | research | planning/implementation | raccomandazione con fonti |
 | performance | implementation | baseline + collo di bottiglia |
 | data | implementation | schema/query verificate |

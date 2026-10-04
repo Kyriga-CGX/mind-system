@@ -31,6 +31,8 @@ Un esempio per intent (quello che riduce gli errori su DeepSeek/Qwen):
 costruire:  mind-brainstorming → mind-planning → mind-implementation → mind-verification
 design-ui:  Design Track (vedi sotto) → mind-verification
 fixare:     mind-debugging → mind-implementation → mind-verification
+            assessment offensivo ? mind-breach (gate auth SEMPRE) ? mind-security ? implementation ? verification
+            assessment offensivo (solo target autorizzati, gate auth SEMPRE)
 esplorare:  mind-explore → mind-docs? → memory (nessun gate, read-only)
 decidere:   mind-consult (sage) / mind-architecture (ADR) / mind-research (+context7-mcp) → piano solo se approvato
 rilasciare: mind-release → mind-devops (build/publish) | incidente → mind-incident → debugging/security/devops → mind-docs (postmortem) → mind-verification
@@ -74,6 +76,7 @@ DESIGN-TRACK:
 ```
 brainstorming → planning → implementation → verification
 debugging → implementation → verification
+breach ? security/implementation ? verification (re-test: il PoC deve fallire)
 research/consult → planning/ADR → implementation (se approvato)
 explore → docs/memory
 design-track → implementation → verification
