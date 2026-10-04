@@ -54,7 +54,7 @@ setx CONTEXT7_API_KEY "<valore>"   # poi riapri il terminale e riavvia opencode
 
 ## I 7 intenti
 
-> I 7 intenti sono le **porte d'ingresso**, non il sistema: dietro ci sono 47 skill, 16 pipeline, 23 agenti e 1 gate. Niente e stato rimosso dalla v1 — la ricchezza e nel catalogo qui sotto.
+> I 7 intenti sono le **porte d'ingresso**, non il sistema: dietro ci sono 47 skill, 16 pipeline, 23 agenti e 1 gate. Niente è stato rimosso dalla v1 — la ricchezza è nel catalogo qui sotto.
 
 | # | Intent | Rotta | Esempio |
 |---|---|---|---|
