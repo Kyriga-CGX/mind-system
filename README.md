@@ -325,3 +325,26 @@ Ogni skill passa il suo **risultato** come input alla successiva; se manca o è 
 
 - Il repo è la source of truth: si lavora qui, `sync.ps1` allinea il locale.
 - Rollback: ogni release è un tag — la [v1.0](../../releases/tag/v1.0) resta scaricabile con il suo zip.
+
+## Appendice — da v1 a v2: dove è finito tutto
+
+La v1 aveva ~50 righe di routing e 17 precedenze nel prompt. Niente è sparito: è stato riclassificato su due livelli (8 intenti nel prompt, dettaglio in `routing.md`).
+
+### Rotte
+
+| Intent v2 | Voci v1 assorbite |
+|---|---|
+| costruire | nuova feature, ADR, refactor, API, git, piano multi-step, review, testing |
+| design-ui | design-pipeline, design-explore, UI, motion, copy |
+| fixare | bug, bug-hunting, security, performance, data, migration |
+| esplorare | explore |
+| decidere | research, research-pipeline, context7, consult |
+| rilasciare | incident, incident-pipeline, audit, devops, release, release-pipeline, rollout, mind-pipeline, mobile, data/perf/ml/infra/observability/migration/decommission/onboarding-pipeline |
+| scrivere | stop-slop, docs, documents, i18n |
+| trasversali | eval, forge, runner, memory, recall, setup, init |
+
+Le voci pipeline vivono in una sezione dedicata con la regola unica "solo se consegna unica + ≥3 stage + stato su file".
+
+### Precedenze
+
+Tenute 5: istruzioni utente, security-first, direzione-design, una-rotta-per-task (nuova), gate finale. Le altre 12: 10 diventate regole operative nel punto giusto (es. "pipeline solo se..." invece di 3 precedenze), 2 assorbite (mind-first è già nel ruolo di entry-point).
