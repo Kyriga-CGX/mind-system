@@ -237,6 +237,7 @@ Regola unica: pipeline **solo** se consegna unica + ≥3 stage + stato su file (
 | `mind-decommission-pipeline` | inventario→impatto→deprecation→avvisi→migrazione→shutdown→cleanup | ritiro servizio/feature |
 | `mind-design-pipeline` | brief→audit→direzioni→DESIGN.md→mockup→componenti→motion→copy→FE→QA→gate→memoria | design strutturato (2 gate utente) |
 | `mind-stack-watch` | inventario→osserva→filtra→proponi→report | monitoraggio novità integrabili (solo su richiesta) |
+| `mind-breach-pipeline` | scope→recon→SAST→probe→catene→report→retest | assessment offensivo bounty (gate auth sempre) |
 
 ## Agenti FMA (chi esegue)
 

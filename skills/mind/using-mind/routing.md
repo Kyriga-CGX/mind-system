@@ -31,7 +31,7 @@ Un esempio per intent (quello che riduce gli errori su DeepSeek/Qwen):
 costruire:  mind-brainstorming → mind-planning → mind-implementation → mind-verification
 design-ui:  Design Track (vedi sotto) → mind-verification
 fixare:     mind-debugging → mind-implementation → mind-verification
-            assessment offensivo → mind-breach (gate auth SEMPRE) → mind-security → implementation → mind-verification
+            assessment offensivo → mind-breach (gate auth SEMPRE) → mind-security → implementation → mind-verification | assessment multi-sessione/bounty → mind-breach-pipeline (scope→…→retest, stato su file)
 esplorare:  mind-explore → mind-docs? → memory (nessun gate, read-only)
 decidere:   mind-consult (sage) / mind-architecture (ADR) / mind-research (+context7-mcp) / mind-stack-watch (watch novità stack, solo su richiesta + inventario) → piano solo se approvato
 rilasciare: mind-release → mind-devops (build/publish) | incidente → mind-incident → debugging/security/devops → mind-docs (postmortem) → mind-verification
@@ -45,7 +45,7 @@ pipeline SOLO SE (consegna unica E ≥3 stage E stato su file .mind/delivery/<no
 ALTRIMENTI rotta singola.
 ```
 
-Le pipeline di dominio (data, mobile, infra, observability, ml, rollout, decommission, incident, audit, migration, release, onboarding, research, performance, design, feature, stack-watch) sono **varianti dello STAGE**, non voci di routing: si usano quando il task attraversa ≥3 fasi con consegna unica e stato su file. Un intervento puntuale usa sempre la rotta singola del dominio (es. `mind-incident`, `mind-security`, `mind-migration`, `mind-release`, `mind-research`, `mind-data`, `mind-performance`, `mind-devops`).
+Le pipeline di dominio (data, mobile, infra, observability, ml, rollout, decommission, incident, audit, migration, release, onboarding, research, performance, design, feature, stack-watch, breach) sono **varianti dello STAGE**, non voci di routing: si usano quando il task attraversa ≥3 fasi con consegna unica e stato su file. Un intervento puntuale usa sempre la rotta singola del dominio (es. `mind-incident`, `mind-security`, `mind-migration`, `mind-release`, `mind-research`, `mind-data`, `mind-performance`, `mind-devops`).
 
 Solo due approvazioni utente bloccano una pipeline: mockup e contratti critici. Il resto fila senza interruzioni.
 
