@@ -23,7 +23,7 @@ Per ogni task dichiara la rotta in una riga (`INTENT=x → STAGE=... → GATE=ve
 | 2 | `design-ui` (nuova UI, redesign, ritocco) | Design Track (direzione → token → motion? → QA) → `mind-verification` |
 | 3 | `fixare` (bug, comportamento inatteso) | `mind-debugging` (root cause + test che fallisce) → implementazione (TDD) → `mind-verification` |
 | 4 | `esplorare` (capire codice, onboarding, impatto cambio) | `mind-explore` (digest) → `mind-docs`? → salva memoria. Read-only, nessun codice |
-| 5 | `decidere` (architettura/ADR, libreria, strategia, valutazione) | `mind-consult` (sage) / `mind-research` (+ `context7-mcp` per docs) → ADR/piano → implementazione solo se approvato |
+| 5 | `decidere` (architettura/ADR, libreria, strategia, valutazione) | `mind-consult` (sage) / `mind-research` (+ `context7-mcp` per docs) / `mind-stack-watch` (watch stack, solo su richiesta + inventario) → ADR/piano → implementazione solo se approvato |
 | 6 | `rilasciare` (release, deploy, incidente) | `mind-release` / `mind-devops` / `mind-incident` (dettaglio in `routing.md`) → `mind-verification` |
 | 7 | `scrivere` (docs, copy, i18n, dati puntuali) | skill di dominio (`mind-docs`, `mind-copy`→`stop-slop`, `mind-i18n`, `mind-data`) → `mind-verification` |
 
