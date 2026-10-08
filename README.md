@@ -189,15 +189,18 @@ Regola d'oro: mai fix sui sintomi. mind-breach parte SOLO con gate autorizzazion
 flowchart TD
     REQ[programma bounty / assessment] --> AUTH{auth-gate verde? target+scope+limiti+contatto}
     AUTH -->|no| STOP[STOP, nessun probe]
-    AUTH -->|sì| SC[Stage 1 SCOPE: policy in/out dalla piattaforma]
+    AUTH -->|sì| SC[Stage 1 SCOPE: policy in/out + payout map + finestra/rate-limit]
+    SC -->|asset nuovo o scope ampliato| FB[first-blood: priorità massima]
 
     SC --> RJS[recon JS-bundle: endpoint nascosti, segreti client]
     SC --> RAPI[recon API: mappa endpoint + matrice auth endpoint×ruolo]
     SC --> RCVE[recon versioni: SBOM + CVE via OSV/Advisory]
     SC --> RCFG[recon config: header, TLS, CORS, permessi]
     SC --> RPR[recon priori: report disclosed stesso stack → dove paga]
+    SC & FB --> RDU[recon duplicati: report noti + CVE → il dupe non paga]
+    SC --> RDI[recon diff release: solo superfici nuove in probe]
 
-    RJS & RAPI & RCVE & RCFG & RPR --> SA[Stage 3 SAST: injection, auth, IDOR, crypto, business-logic]
+    RJS & RAPI & RCVE & RCFG & RPR & RDU & RDI --> SA[Stage 3 SAST: injection, auth, IDOR, crypto, business-logic]
     SA -->|niente codice| PR
     SA -->|pattern trovati| PR[Stage 4 PROBE]
 
@@ -214,8 +217,8 @@ flowchart TD
     SAFE -->|salto a exploit reale| ESC[STOP: decide l'umano]
     SAFE -->|no| CA[Stage 5 CATENE su vettori confermati]
 
-    CA --> RC[Stage 6 REPORT: CVSS + PoC + remediation + CWE]
-    RC --> INV[invio piattaforma: steps-to-reproduce + impact]
+    CA --> RC[Stage 6 REPORT: CVSS + PoC + impatto per la severity che merita]
+    RC --> INV[invio piattaforma: steps-to-reproduce + impact + PoC one-click]
     INV --> FX[mind-implementation: fix TDD, PoC = regression test]
     FX --> RT[Stage 7 RETEST: il PoC originale deve fallire]
     RT -->|ancora verde| FX

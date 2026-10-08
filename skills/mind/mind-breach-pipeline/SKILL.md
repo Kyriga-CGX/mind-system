@@ -44,11 +44,11 @@ Cartella: `.mind/breach/<target>/` (target = slug kebab-case).
 ## Stage (in ordine)
 
 ### Stage 1 — SCOPE
-- [ ] Importa la policy del programma (HackerOne, Bugcrowd, Intigriti, YesWeHack o delega privata): asset in/out, esclusioni, limiti. Scrivi `01-scope.md` + `auth-gate.md` + `state.json`.
+- [ ] Importa la policy del programma (HackerOne, Bugcrowd, Intigriti, YesWeHack o delega privata): asset in/out, esclusioni, limiti. Mappa payout per asset (tabelle del programma): attacca prima dove il rapporto $/ora è più alto. Finestra temporale e rate-limit espliciti in `auth-gate.md`. Scrivi `01-scope.md` + `auth-gate.md` + `state.json`.
 **Gate**: scope non ambiguo; un solo NO nel checklist auth → STOP.
 
 ### Stage 2 — RECON (passiva)
-- [ ] Attack surface senza contatto invasivo: endpoint/API, JS-bundle (endpoint nascosti, segreti client), header/TLS/CORS, versioni e CVE (OSV/Advisory), secrets esposti. Priori da report disclosed (stesso stack): attacca prima dove statisticamente paga. Scrivi `02-recon.md`.
+- [ ] Attack surface senza contatto invasivo: endpoint/API, JS-bundle (endpoint nascosti, segreti client), header/TLS/CORS, versioni e CVE (OSV/Advisory), secrets esposti. Priori da report disclosed (stesso stack): attacca prima dove statisticamente paga. First-blood: programmi/asset nuovi o scope appena ampliato = meno competizione, priorità massima. Diff release: solo superfici nuove vanno in probe, il resto è già coperto. Check duplicati prima di ogni probe (report noti, CVE): il duplicato non paga. Scrivi `02-recon.md`.
 **Gate**: ogni voce con fonte; niente ipotesi senza marcatura.
 
 ### Stage 3 — SAST (se codice disponibile)
@@ -57,7 +57,7 @@ Cartella: `.mind/breach/<target>/` (target = slug kebab-case).
 **Skip logic**: niente codice → stage saltato, registrato in `state.json`.
 
 ### Stage 4 — PROBE (solo con gate auth verde)
-- [ ] Scope enforcement prima di ogni probe. Vettori leggeri e reversibili: auth bypass logici, injection non distruttive, IDOR con account di test propri, XSS reflected innocue, upload in lettura, fuzz semantico API (casi edge di logica da schema/comportamento: stati impossibili, transizioni saltate). Un vettore alla volta. Scrivi `04-probe.md`.
+- [ ] Scope enforcement prima di ogni probe. Vettori leggeri e reversibili: auth bypass logici, injection non distruttive, IDOR con account di test propri, XSS reflected innocue, upload in lettura, fuzz semantico API (casi edge di logica da schema/comportamento: stati impossibili, transizioni saltate). Un vettore alla volta, dentro finestra e rate-limit. Logga comando grezzo + risposta di ogni probe (evidenza per contestazioni). Scrivi `04-probe.md`.
 **Gate**: ogni probe con evidenza; STOP a dati reali di terzi, rischio scrittura, comportamento imprevisto.
 
 ### Stage 5 — CATENE
@@ -65,7 +65,7 @@ Cartella: `.mind/breach/<target>/` (target = slug kebab-case).
 **Gate**: nessuna catena su vettori `NON-CONFERMATO`.
 
 ### Stage 6 — REPORT
-- [ ] Findings per gravità (critica/alta/media/bassa, con CVSS dove richiesto dalla piattaforma), ognuno: titolo, dove, PoC riproducibile, impatto, remediation, riferimenti OWASP/CWE. Formato steps-to-reproduce + impact pronto all'invio. Scrivi `06-report.md`.
+- [ ] Findings per gravità (critica/alta/media/bassa, con CVSS dove richiesto dalla piattaforma), ognuno: titolo, dove, PoC riproducibile, impatto, remediation, riferimenti OWASP/CWE. Impatto scritto per la severity che merita (scenario reale peggiore, onesto, con PoC one-click per il triager): la severity assegnata decide il payout. Formato steps-to-reproduce + impact pronto all'invio. Scrivi `06-report.md`.
 **Gate**: zero finding senza PoC nel corpo; `NON-CONFERMATO` solo in appendice.
 
 ### Stage 7 — RETEST
