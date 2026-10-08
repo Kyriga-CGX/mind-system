@@ -13,6 +13,7 @@ description: Pipeline di assessment offensivo a stage per bug bounty e red-team 
 4. **Stato su file**: ogni assessment vive in `.mind/breach/<target>/` con `state.json`; gli stage comunicano solo via file.
 5. **Nessun report senza PoC**: ogni finding ha PoC riproducibile o è `NON-CONFERMATO` in appendice.
 6. **Disclosure responsabile**: critici subito al committente/piattaforma in privato; mai pubblici prima del fix concordato.
+7. **Escalation umana**: quando un vettore confermato può diventare exploit reale (da lettura a scrittura, da singolo a massivo), STOP e chiedi all'utente. Il salto di impatto è sempre decisione umana, mai dell'AI.
 
 ## Quando si attiva
 
@@ -47,7 +48,7 @@ Cartella: `.mind/breach/<target>/` (target = slug kebab-case).
 **Gate**: scope non ambiguo; un solo NO nel checklist auth → STOP.
 
 ### Stage 2 — RECON (passiva)
-- [ ] Attack surface senza contatto invasivo: endpoint/API, JS-bundle (endpoint nascosti, segreti client), header/TLS/CORS, versioni e CVE (OSV/Advisory), secrets esposti. Scrivi `02-recon.md`.
+- [ ] Attack surface senza contatto invasivo: endpoint/API, JS-bundle (endpoint nascosti, segreti client), header/TLS/CORS, versioni e CVE (OSV/Advisory), secrets esposti. Priori da report disclosed (stesso stack): attacca prima dove statisticamente paga. Scrivi `02-recon.md`.
 **Gate**: ogni voce con fonte; niente ipotesi senza marcatura.
 
 ### Stage 3 — SAST (se codice disponibile)
@@ -56,7 +57,7 @@ Cartella: `.mind/breach/<target>/` (target = slug kebab-case).
 **Skip logic**: niente codice → stage saltato, registrato in `state.json`.
 
 ### Stage 4 — PROBE (solo con gate auth verde)
-- [ ] Scope enforcement prima di ogni probe. Vettori leggeri e reversibili: auth bypass logici, injection non distruttive, IDOR con account di test propri, XSS reflected innocue, upload in lettura. Un vettore alla volta. Scrivi `04-probe.md`.
+- [ ] Scope enforcement prima di ogni probe. Vettori leggeri e reversibili: auth bypass logici, injection non distruttive, IDOR con account di test propri, XSS reflected innocue, upload in lettura, fuzz semantico API (casi edge di logica da schema/comportamento: stati impossibili, transizioni saltate). Un vettore alla volta. Scrivi `04-probe.md`.
 **Gate**: ogni probe con evidenza; STOP a dati reali di terzi, rischio scrittura, comportamento imprevisto.
 
 ### Stage 5 — CATENE
@@ -79,6 +80,7 @@ Cartella: `.mind/breach/<target>/` (target = slug kebab-case).
 4. **Probe serializzati**: mai parallelo sullo stesso target; max 3 subagent solo su vettori/file disgiunti.
 5. **Fix loop**: ≤3 tentativi per stage; poi riformula o scala a `mind-consult`.
 6. **KB pattern**: ogni finding confermato diventa pattern riusabile in memoria.
+7. **KB negativa**: ogni duplicato/rigetto diventa "non riprovare così" — niente rate-limit bruciati sugli stessi vicoli ciechi.
 
 ## Anti-pattern
 

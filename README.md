@@ -195,8 +195,9 @@ flowchart TD
     SC --> RAPI[recon API: mappa endpoint + matrice auth endpoint×ruolo]
     SC --> RCVE[recon versioni: SBOM + CVE via OSV/Advisory]
     SC --> RCFG[recon config: header, TLS, CORS, permessi]
+    SC --> RPR[recon priori: report disclosed stesso stack → dove paga]
 
-    RJS & RAPI & RCVE & RCFG --> SA[Stage 3 SAST: injection, auth, IDOR, crypto, business-logic]
+    RJS & RAPI & RCVE & RCFG & RPR --> SA[Stage 3 SAST: injection, auth, IDOR, crypto, business-logic]
     SA -->|niente codice| PR
     SA -->|pattern trovati| PR[Stage 4 PROBE]
 
@@ -206,9 +207,11 @@ flowchart TD
     CHK -->|sì| VI[injection non distruttive]
     CHK -->|sì| VD[IDOR con account di test propri]
     CHK -->|sì| VX[XSS reflected / open redirect / upload lettura]
+    CHK -->|sì| VF[fuzz semantico API: stati impossibili, transizioni]
 
-    VA & VI & VD & VX --> SAFE{dati terzi? scrittura? imprevisto?}
+    VA & VI & VD & VX & VF --> SAFE{dati terzi? scrittura? imprevisto?}
     SAFE -->|sì| HALT[STOP immediato]
+    SAFE -->|salto a exploit reale| ESC[STOP: decide l'umano]
     SAFE -->|no| CA[Stage 5 CATENE su vettori confermati]
 
     CA --> RC[Stage 6 REPORT: CVSS + PoC + remediation + CWE]
@@ -218,6 +221,7 @@ flowchart TD
     RT -->|ancora verde| FX
     RT -->|rosso + fix| DONE[chiuso]
     RT -->|rischio accettato scritto| DONE
+    INV -->|duplicato / rigetto| NEG[KB negativa: non riprovare così]
 ```
 
 Stato in `.mind/breach/<target>/`, matrice auth endpoint×ruolo, mai payload distruttivi.
