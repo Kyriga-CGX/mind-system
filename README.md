@@ -187,16 +187,37 @@ Regola d'oro: mai fix sui sintomi. mind-breach parte SOLO con gate autorizzazion
 
 ```mermaid
 flowchart TD
-    REQ[programma bounty / assessment] --> AUTH{auth-gate verde?}
+    REQ[programma bounty / assessment] --> AUTH{auth-gate verde? target+scope+limiti+contatto}
     AUTH -->|no| STOP[STOP, nessun probe]
-    AUTH -->|sì| SC[Stage 1 SCOPE: policy in/out]
-    SC --> RC[Stage 2 RECON passiva + JS-bundle]
-    RC --> SA[Stage 3 SAST, se codice]
-    SA --> PR[Stage 4 PROBE: scope check + un vettore alla volta]
-    PR --> CA[Stage 5 CATENE su vettori confermati]
-    CA --> RE[Stage 6 REPORT bounty-ready con PoC]
-    RE --> RT[Stage 7 RETEST post-fix]
-    RT -->|verde o rischio accettato| DONE[chiuso]
+    AUTH -->|sì| SC[Stage 1 SCOPE: policy in/out dalla piattaforma]
+
+    SC --> RJS[recon JS-bundle: endpoint nascosti, segreti client]
+    SC --> RAPI[recon API: mappa endpoint + matrice auth endpoint×ruolo]
+    SC --> RCVE[recon versioni: SBOM + CVE via OSV/Advisory]
+    SC --> RCFG[recon config: header, TLS, CORS, permessi]
+
+    RJS & RAPI & RCVE & RCFG --> SA[Stage 3 SAST: injection, auth, IDOR, crypto, business-logic]
+    SA -->|niente codice| PR
+    SA -->|pattern trovati| PR[Stage 4 PROBE]
+
+    PR --> CHK{in scope?}
+    CHK -->|no| ABORT[abort: fuori scope = ban]
+    CHK -->|sì| VA[auth bypass logici]
+    CHK -->|sì| VI[injection non distruttive]
+    CHK -->|sì| VD[IDOR con account di test propri]
+    CHK -->|sì| VX[XSS reflected / open redirect / upload lettura]
+
+    VA & VI & VD & VX --> SAFE{dati terzi? scrittura? imprevisto?}
+    SAFE -->|sì| HALT[STOP immediato]
+    SAFE -->|no| CA[Stage 5 CATENE su vettori confermati]
+
+    CA --> RC[Stage 6 REPORT: CVSS + PoC + remediation + CWE]
+    RC --> INV[invio piattaforma: steps-to-reproduce + impact]
+    INV --> FX[mind-implementation: fix TDD, PoC = regression test]
+    FX --> RT[Stage 7 RETEST: il PoC originale deve fallire]
+    RT -->|ancora verde| FX
+    RT -->|rosso + fix| DONE[chiuso]
+    RT -->|rischio accettato scritto| DONE
 ```
 
 Stato in `.mind/breach/<target>/`, matrice auth endpoint×ruolo, mai payload distruttivi.
