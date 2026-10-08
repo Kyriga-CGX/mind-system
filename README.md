@@ -183,6 +183,24 @@ flowchart TD
 
 Regola d'oro: mai fix sui sintomi. mind-breach parte SOLO con gate autorizzazione verde, altrimenti STOP. Il test che fallisce è l'input del fix, non un optional.
 
+### Assessment offensivo / bug bounty (pipeline)
+
+```mermaid
+flowchart TD
+    REQ[programma bounty / assessment] --> AUTH{auth-gate verde?}
+    AUTH -->|no| STOP[STOP, nessun probe]
+    AUTH -->|sì| SC[Stage 1 SCOPE: policy in/out]
+    SC --> RC[Stage 2 RECON passiva + JS-bundle]
+    RC --> SA[Stage 3 SAST, se codice]
+    SA --> PR[Stage 4 PROBE: scope check + un vettore alla volta]
+    PR --> CA[Stage 5 CATENE su vettori confermati]
+    CA --> RE[Stage 6 REPORT bounty-ready con PoC]
+    RE --> RT[Stage 7 RETEST post-fix]
+    RT -->|verde o rischio accettato| DONE[chiuso]
+```
+
+Stato in `.mind/breach/<target>/`, matrice auth endpoint×ruolo, mai payload distruttivi.
+
 ### Grafica: dalla direzione alla QA
 
 ```mermaid
