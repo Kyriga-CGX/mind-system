@@ -15,6 +15,20 @@ Prendi sempre il **livello più basso** che riesce a esprimere il motion richies
 | 5 | **SVG / Canvas 2D** | Per disegni vettoriali animati, tracciati, grafici, particelle 2D, o quando devi animare forme che non sono DOM né CSS. |
 | 6 | **Three.js / WebGL** | Ultima istanza. Solo quando serve una **scena**, un vero oggetto tridimensionale, una camera, uno shader o un volume che il 2D non può esprimere. Mai per "smartphone che fluttua" o card che ruotano. |
 
+## Regola Motion-vs-GSAP (livello 3 contro livello 4)
+
+I livelli 3 e 4 si contendono la stessa fascia (motion JS coreografato). Default: **Motion**. Sali a **GSAP** solo se serve almeno uno di questi:
+
+- Timeline con molti punti di sincronizzazione, scrub su scroll complesso (`ScrollTrigger`/`ScrollSmoother` avanzato), pin multipli.
+- Morph SVG pesante (`MorphSVG`), `SplitText`, `DrawSVG` o easing custom che WAAPI/Motion non esprimono.
+- Decine di elementi sincronizzati con controllo fine e performante (orchestrazione oltre lo stagger budget).
+
+Resta su **Motion** per: spring/micro-interazioni, gesture, layout animations, reveal allo scroll (`inView`/`whileInView`), transizioni di route. Per lo scroll semplice preferisci in ordine: CSS scroll-driven (`animation-timeline`) → Motion `inView` → GSAP.
+
+**Peso:** Motion è tree-shakable (il singolo hook sta intorno a ~1 kb; il pack React intero ~45 kb gzip); esiste anche un bundle mini da ~2,3 kb via CDN per casi semplici (`motion/mini`). GSAP core ~27 kb gzip. Il peso non decide da solo, ma a parità di espressione vince il più leggero.
+
+**Accessibilità standard:** in ecosistema Motion usa `useReducedMotion` (o l'equivalente per vanilla/Vue) come implementazione di default del rispetto di `prefers-reduced-motion` (vedi `verify.md`).
+
 ## La ladder rule
 
 > **Mai** saltare al 3D se il 2D può farlo.
