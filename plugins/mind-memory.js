@@ -226,7 +226,7 @@ export default {
             switch (mode) {
               case 'help':
                 return {
-                  text: [
+                  output: [
                     'mind-memory: memoria persistente locale (file JSON) + cloud opzionale.',
                     '- search <query> [scope] [limit]: cerca memorie rilevanti',
                     '- add <content> [scope=user|project] [type] [title]: salva una memoria',
@@ -238,7 +238,7 @@ export default {
                 };
 
               case 'add': {
-                if (!args.content) return { text: 'Errore: content richiesto per mode=add.' };
+                if (!args.content) return { output: 'Errore: content richiesto per mode=add.' };
                 const local = addLocal({
                   content: args.content,
                   scope: args.scope,
@@ -255,17 +255,17 @@ export default {
                   });
                 }
                 return {
-                  text: `Memoria salvata localmente (id ${local.id}).` + (cloud.success ? ' Sincronizzata sul cloud.' : '')
+                  output: `Memoria salvata localmente (id ${local.id}).` + (cloud.success ? ' Sincronizzata sul cloud.' : '')
                 };
               }
 
               case 'search': {
                 const query = args.query || args.content || '';
-                if (!query) return { text: 'Errore: query richiesta per mode=search.' };
+                if (!query) return { output: 'Errore: query richiesta per mode=search.' };
                 const local = searchLocal(query, args.scope, limit);
                 if (!cloudConfigured) {
                   return {
-                    text:
+                    output:
                       local.length === 0
                         ? 'Nessuna memoria locale trovata.'
                         : local.map((m) => `[${m.id}] (${m.scope}/${m.type}) ${m.content}`).join('\n')
@@ -278,7 +278,7 @@ export default {
                     : 'Nessuna memoria cloud trovata.'
                   : '';
                 return {
-                  text: [local.length ? local.map((m) => `[${m.id}] (${m.scope}/${m.type}) ${m.content}`).join('\n') : 'Nessuna memoria locale.', cloudText]
+                  output: [local.length ? local.map((m) => `[${m.id}] (${m.scope}/${m.type}) ${m.content}`).join('\n') : 'Nessuna memoria locale.', cloudText]
                     .filter(Boolean)
                     .join('\n')
                 };
@@ -290,7 +290,7 @@ export default {
                   .sort((a, b) => b.updatedAt - a.updatedAt)
                   .slice(0, limit);
                 return {
-                  text: items.length
+                  output: items.length
                     ? items.map((m) => `[${m.id}] (${m.scope}/${m.type}) ${m.content}`).join('\n')
                     : 'Nessuna memoria salvata.'
                 };
@@ -298,14 +298,14 @@ export default {
 
               case 'profile': {
                 if (!cloudConfigured) {
-                  return { text: 'Profilo non disponibile (cloud non configurato).' };
+                  return { output: 'Profilo non disponibile (cloud non configurato).' };
                 }
                 const cloud = await cloudRequest('/v1/profile', {});
-                return { text: cloud.success ? JSON.stringify(cloud.data, null, 2) : 'Profilo non disponibile.' };
+                return { output: cloud.success ? JSON.stringify(cloud.data, null, 2) : 'Profilo non disponibile.' };
               }
 
               case 'summarize': {
-                if (!args.content) return { text: 'Errore: content richiesto per mode=summarize.' };
+                if (!args.content) return { output: 'Errore: content richiesto per mode=summarize.' };
                 const local = addLocal({
                   content: args.content,
                   scope: args.scope || 'project',
@@ -322,19 +322,19 @@ export default {
                   });
                 }
                 return {
-                  text: `Riepilogo di sessione salvato (id ${local.id}).` + (cloud.success ? ' Sincronizzato sul cloud.' : '')
+                  output: `Riepilogo di sessione salvato (id ${local.id}).` + (cloud.success ? ' Sincronizzato sul cloud.' : '')
                 };
               }
 
               case 'forget': {
                 const id = args.content || args.query;
-                if (!id) return { text: 'Errore: id richiesto per mode=forget.' };
+                if (!id) return { output: 'Errore: id richiesto per mode=forget.' };
                 const res = forgetLocal(id);
-                return { text: res.removed ? `Memoria ${id} rimossa.` : `Memoria ${id} non trovata.` };
+                return { output: res.removed ? `Memoria ${id} rimossa.` : `Memoria ${id} non trovata.` };
               }
 
               default:
-                return { text: 'Mode non riconosciuto. Usa help.' };
+                return { output: 'Mode non riconosciuto. Usa help.' };
             }
           }
         })

@@ -7,97 +7,67 @@ function ConvertFrom-Jsonc {
         [string]$Text
     )
     process {
-        $Text = [regex]::Replace($Text, '(?m)(^|[^:])//[^\r\n]*', '$1')
+        $Text = [regex]::Replace($Text, '(?m)(^|[^:/])//(?!/)[^\r\n]*', '$1')
         $Text = [regex]::Replace($Text, '/\*.*?\*/', '', [System.Text.RegularExpressions.RegexOptions]::Singleline)
         $Text = [regex]::Replace($Text, '(?m),(\s*[}\]])', '$1')
         return $Text
     }
 }
 
-$mindRepo       = "C:\Users\Kyrig\OpenCode-Skill-memory"
-$mindSrc        = Join-Path $mindRepo "skills\mind"
-$mindDest       = "C:\Users\Kyrig\.config\opencode\mind\skills"
-$mindPlugins    = "C:\Users\Kyrig\.config\opencode\plugins"
-$customSkills   = "C:\Users\Kyrig\.agents\skills"
-$opencodeConfig = "C:\Users\Kyrig\.config\opencode\opencode.jsonc"
+$homeDir = $HOME
+$superpowersPkg = Join-Path $homeDir ".cache\opencode\packages\superpowers@git+https_\github.com\obra\superpowers.git\node_modules\superpowers\package.json"
+$superpowersSkills = Join-Path $homeDir ".cache\opencode\packages\superpowers@git+https_\github.com\obra\superpowers.git\node_modules\superpowers\skills"
+$customSkills = Join-Path $homeDir ".agents\skills"
+$opencodeConfig = Join-Path $homeDir ".config\opencode\opencode.jsonc"
+$mindPluginJs = Join-Path $homeDir ".config\opencode\plugins\mind\mind.js"
+$mindMemoryJs = Join-Path $homeDir ".config\opencode\plugins\mind-memory\mind-memory.js"
 $backupZipPattern = "opencode-backup-*.zip"
 
 $report = @{
-    checkedAt    = (Get-Date).ToString("yyyy-MM-ddTHH:mm:ss")
-    mind         = $null
-    skills       = $null
-    context7     = $null
-    plugins      = $null
-    backup       = $null
-    skillUpdates = @()
+    checkedAt     = (Get-Date).ToString("yyyy-MM-ddTHH:mm:ss")
+    superpowers   = $null
+    skills        = $null
+    context7      = $null
+    pluginContract = $null
+    backup        = $null
+    skillUpdates  = @()
 }
 
-# --- MIND: plugin + skill del sistema mind ---
-$expectedMindSkills = @(
-    "using-mind", "mind-api", "mind-architecture", "mind-brainstorming", "mind-consult",
-    "mind-copy", "mind-data", "mind-debugging", "mind-devops", "mind-docs",
-    "mind-documents", "mind-eval", "mind-explore", "mind-git", "mind-i18n",
-    "mind-implementation", "mind-incident", "mind-migration", "mind-performance", "mind-planning",
-    "mind-recall", "mind-refactor", "mind-release", "mind-research", "mind-runner",
-    "mind-security", "mind-setup", "mind-testing", "mind-verification"
-)
-
-$mind = @{ status = "ok"; detail = ""; plugins = @(); skills = @(); synced = $true; resynced = @() }
-$problems = @()
-
-$expectedPlugins = @("mind\mind.js", "mind-memory\mind-memory.js")
-foreach ($p in $expectedPlugins) {
-    if (-not (Test-Path -LiteralPath (Join-Path $mindPlugins $p))) { $problems += "plugin mancante: $p" }
-}
-
-$missingMind = @()
-foreach ($s in $expectedMindSkills) {
-    if (-not (Test-Path -LiteralPath (Join-Path $mindDest $s))) { $missingMind += $s }
-}
-if ($missingMind.Count -gt 0) {
-    $mind.skills = $missingMind
-    $problems += "skill mind mancanti in ~/.config/opencode/mind/skills: " + ($missingMind -join ", ")
-}
-
-$resynced = @()
-foreach ($s in $expectedMindSkills) {
-    $srcPath  = Join-Path $mindSrc $s
-    $destPath = Join-Path $mindDest $s
-    $needsCopy = $false
-    if (-not (Test-Path -LiteralPath $destPath)) {
-        $needsCopy = $true
-    } elseif ((Test-Path -LiteralPath $srcPath) -and ((Get-Item -LiteralPath $destPath).LastWriteTime -lt (Get-Item -LiteralPath $srcPath).LastWriteTime)) {
-        $needsCopy = $true
-    }
-    if ($needsCopy) {
-        if (Test-Path -LiteralPath $srcPath) {
-            if (Test-Path -LiteralPath $destPath) { Remove-Item -LiteralPath $destPath -Recurse -Force }
-            Copy-Item -Path $srcPath -Destination $destPath -Recurse -Force
-            $resynced += $s
+$sp = @{ status = ""; detail = "" }
+$installed = ""
+$latestClean = ""
+try {
+    if (Test-Path -LiteralPath $superpowersPkg) {
+        $installed = (Get-Content -LiteralPath $superpowersPkg -Raw | ConvertFrom-Json).version
+        $latest = (Invoke-RestMethod -Uri "https://api.github.com/repos/obra/superpowers/releases/latest" -Headers @{ "User-Agent" = "ecosystem-health-check" }).tag_name
+        $latestClean = $latest.TrimStart([char[]]'v')
+        if ($installed -eq $latestClean) {
+            $sp.status = "up-to-date"; $sp.detail = "versione $installed installata = ultima release"
         } else {
-            $problems += "skill $s assente anche nel repo (OpenCode-Skill-memory)"
+            $sp.status = "outdated"; $sp.detail = "installata $installed, ultima $latestClean"
         }
+    } else {
+        $sp.status = "check-failed"; $sp.detail = "package.json del plugin non trovato"
     }
+} catch {
+    $sp.status = "check-failed"; $sp.detail = "errore di rete o parse: $($_.Exception.Message)"
 }
-$mind.resynced = $resynced
-if ($resynced.Count -gt 0) {
-    $mind.synced = $false
-    if ($mind.detail -eq "") { $mind.detail = "risincronizzate dal repo: " + ($resynced -join ", ") }
-    else { $mind.detail += "; risincronizzate dal repo: " + ($resynced -join ", ") }
-}
+$sp.installed = $installed
+$sp.latest = $latestClean
+$report.superpowers = $sp
 
-if ($problems.Count -gt 0) {
-    $mind.status = "missing"
-    if ($mind.detail -eq "") { $mind.detail = $problems -join "; " }
-    else { $mind.detail += "; " + ($problems -join "; ") }
-} else {
-    if ($mind.detail -eq "") { $mind.detail = "plugin e 29 skill mind presenti e allineati al repo" }
-}
-$report.mind = $mind
-
-# --- SKILLS curate (~/.agents/skills) ---
-$expectedCustom = @("context7-mcp", "ecosystem-health-check", "stop-slop", "frontend-design", "design-md", "orchestrator", "execution-hygiene", "design-system", "motion")
+$expectedSuperpowers = @(
+    "brainstorming", "dispatching-parallel-agents", "executing-plans",
+    "finishing-a-development-branch", "receiving-code-review", "requesting-code-review",
+    "subagent-driven-development", "systematic-debugging", "test-driven-development",
+    "using-git-worktrees", "using-superpowers", "verification-before-completion",
+    "writing-plans", "writing-skills"
+)
 $missing = @()
+foreach ($s in $expectedSuperpowers) {
+    if (-not (Test-Path -LiteralPath (Join-Path $superpowersSkills $s))) { $missing += $s }
+}
+$expectedCustom = @("context7-mcp", "ecosystem-health-check", "stop-slop", "frontend-design", "design-md")
 foreach ($s in $expectedCustom) {
     if (-not (Test-Path -LiteralPath (Join-Path $customSkills $s))) { $missing += $s }
 }
@@ -110,11 +80,10 @@ if ($missing.Count -gt 0) {
 }
 $report.skills = $sk
 
-# --- skillUpdates (git) ---
 $skillGit = @(
-    @{ name = "stop-slop";        type = "direct";   path = "C:\Users\Kyrig\.agents\skills\stop-slop" },
-    @{ name = "frontend-design";  type = "registry"; path = "C:\Users\Kyrig\.agents\skill-sources\anthropics-skills"; rel = "skills\frontend-design"; dest = "C:\Users\Kyrig\.agents\skills\frontend-design" },
-    @{ name = "design-md";        type = "registry"; path = "C:\Users\Kyrig\.agents\skill-sources\open-design"; rel = "skills\design-md"; dest = "C:\Users\Kyrig\.agents\skills\design-md" }
+    @{ name = "stop-slop";        type = "direct";   path = (Join-Path $customSkills "stop-slop") },
+    @{ name = "frontend-design";  type = "registry"; path = (Join-Path $homeDir ".agents\skill-sources\anthropics-skills"); rel = "skills\frontend-design"; dest = (Join-Path $customSkills "frontend-design") },
+    @{ name = "design-md";        type = "registry"; path = (Join-Path $homeDir ".agents\skill-sources\open-design"); rel = "skills\design-md"; dest = (Join-Path $customSkills "design-md") }
 )
 
 $updates = @()
@@ -148,7 +117,6 @@ foreach ($g in $skillGit) {
 }
 $report.skillUpdates = $updates
 
-# --- context7 ---
 $c7 = @{ status = "ok"; detail = "" }
 try {
     $cfg = Get-Content -LiteralPath $opencodeConfig -Raw | ConvertFrom-Jsonc | ConvertFrom-Json
@@ -167,36 +135,41 @@ try {
 }
 $report.context7 = $c7
 
-# --- plugins (config globale) ---
-$plugins = @{ status = "ok"; detail = ""; missing = @() }
+$pc = @{ status = "ok"; detail = "contratti plugin verificati"; checks = @() }
 try {
-    $cfg = Get-Content -LiteralPath $opencodeConfig -Raw | ConvertFrom-Jsonc | ConvertFrom-Json
-    $requiredPlugins = @("mind/mind.js", "mind-memory/mind-memory.js", "opencode-vibeguard", "@tarquinen/opencode-dcp")
-    foreach ($rp in $requiredPlugins) {
-        if (-not ($cfg.plugin | Where-Object { $_ -like "*$rp*" })) { $plugins.missing += $rp }
-    }
-    $requiredConfigs = @("vibeguard.config.json", "dcp.jsonc")
-    foreach ($rc in $requiredConfigs) {
-        if (-not (Test-Path -LiteralPath (Join-Path (Split-Path $opencodeConfig) $rc))) { $plugins.missing += $rc }
-    }
-    if ($plugins.missing.Count -gt 0) {
-        $plugins.status = "missing"; $plugins.detail = "elementi mancanti: " + ($plugins.missing -join ", ")
+    $mindJs = Get-Content -LiteralPath $mindPluginJs -Raw -ErrorAction Stop
+    if ($mindJs -match "EXTREMELY_IMPORTANT") {
+        $pc.checks += @{ name = "mind.js"; status = "ok"; detail = "inietta il bootstrap using-mind" }
     } else {
-        $plugins.detail = "plugin e config presenti"
+        $pc.status = "misconfigured"
+        $pc.checks += @{ name = "mind.js"; status = "misconfigured"; detail = "manca l'iniezione del bootstrap using-mind" }
     }
 } catch {
-    $plugins.status = "check-failed"; $plugins.detail = "errore lettura config: $($_.Exception.Message)"
+    $pc.status = "check-failed"
+    $pc.checks += @{ name = "mind.js"; status = "check-failed"; detail = "file non leggibile: $($_.Exception.Message)" }
 }
-$report.plugins = $plugins
+try {
+    $mmJs = Get-Content -LiteralPath $mindMemoryJs -Raw -ErrorAction Stop
+    if ($mmJs -match "return \{\s*output\s*:" -and $mmJs -notmatch "return \{\s*text\s*:") {
+        $pc.checks += @{ name = "mind-memory.js"; status = "ok"; detail = "usa il contratto {output:} supportato" }
+    } else {
+        $pc.status = "misconfigured"
+        $pc.checks += @{ name = "mind-memory.js"; status = "misconfigured"; detail = "contratto risposta non conforme: atteso {output:}, vietato {text:}" }
+    }
+} catch {
+    $pc.status = "check-failed"
+    $pc.checks += @{ name = "mind-memory.js"; status = "check-failed"; detail = "file non leggibile: $($_.Exception.Message)" }
+}
+if ($pc.status -eq "ok") { $pc.detail = "contratti plugin verificati" } else { $pc.detail = "verifica i check con status negativo" }
+$report.pluginContract = $pc
 
-# --- backup ---
 $bk = @{ status = "no-backup"; detail = "nessuno zip opencode-backup-*.zip trovato nella directory corrente"; lastBackup = ""; lastSkillChange = "" }
 $zip = Get-ChildItem -Path (Join-Path $PWD.Path $backupZipPattern) -File -ErrorAction SilentlyContinue |
     Sort-Object LastWriteTime -Descending | Select-Object -First 1
 if ($zip) {
     $bk.lastBackup = $zip.LastWriteTime.ToString("yyyy-MM-ddTHH:mm:ss")
     $lastSkillChange = $null
-    foreach ($dir in @($mindSrc, $mindDest, $customSkills)) {
+    foreach ($dir in @($superpowersSkills, $customSkills)) {
         try {
             if (Test-Path -LiteralPath $dir) {
                 $latestFile = Get-ChildItem -LiteralPath $dir -Recurse -File -ErrorAction Stop |
