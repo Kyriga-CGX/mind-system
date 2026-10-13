@@ -53,11 +53,22 @@ Cartella: `.mind/breach/<target>/` (target = slug kebab-case).
 | `06-report-pack/` | Report Pack sui modelli reali: `evidence-report.pdf` (tecnico testata+§§0-8, da .md via mind-documents), `pentest-deck.pdf` (slide cover→catena→finding→appendici verbatim), `exec-01.html` (12 slide management A4 landscape) |
 | `07-retest.md` | esito riverifica post-fix |
 
+### Registro ID (assegnati in Stage 1, mai riusati nello stesso assessment)
+
+| Prefisso | Cosa | Dove vive |
+|---|---|---|
+| `D-xx` | dettaglio tecnico (dato/endpoint/vettore) | evidence §1/§3, panoramica D del deck |
+| `C/H/M/L-xx` | singolo report per gravità | `06-report-pack/`, indice in `06-report.md` |
+| `CH-xx` | catena | `05-catene.md` + slide catena del deck |
+| `R-xx` | voce di regressione post-fix | `REGRESSION_<old>_vs_<new>.md`, `07-retest.md` |
+
+La mappa D→C/H/M/L→file vive in §1.1 dell'evidence e si aggiorna a ogni stage che assegna ID.
+
 ## Stage (in ordine)
 
 ### Stage 1 — SCOPE
-- [ ] Importa la policy del programma (HackerOne, Bugcrowd, Intigriti, YesWeHack o delega privata): asset in/out, esclusioni, limiti. Mappa payout per asset (tabelle del programma): attacca prima dove il rapporto $/ora è più alto. Finestra temporale e rate-limit espliciti in `auth-gate.md`. Scegli il profilo (`blackbox-external`, `graybox-lowpriv`, `whitebox-code`) e registralo in `state.json`; in black-box registra anche “zero credenziali/codice iniziali”. Piano copertura autonoma: registra in `01-scope.md` le fasi richieste da `auth-gate.md` con i loro output, la priorità ai task ordinari (l’assessment non li blocca mai), lo scheduling dentro la finestra (pause/checkpoint, strumenti consentiti, ambiente staging/URL autorizzati). Scrivi `01-scope.md` + `auth-gate.md` + `state.json`.
-**Gate**: scope non ambiguo; profilo registrato; un solo NO nel checklist auth → STOP.
+- [ ] Importa la policy del programma (HackerOne, Bugcrowd, Intigriti, YesWeHack o delega privata): asset in/out, esclusioni, limiti. Mappa payout per asset (tabelle del programma): attacca prima dove il rapporto $/ora è più alto. Finestra temporale e rate-limit espliciti in `auth-gate.md`. Scegli il profilo (`blackbox-external`, `graybox-lowpriv`, `whitebox-code`) e registralo in `state.json`; in black-box registra anche “zero credenziali/codice iniziali”. Piano copertura autonoma: registra in `01-scope.md` le fasi richieste da `auth-gate.md` con i loro output, la priorità ai task ordinari (l’assessment non li blocca mai), lo scheduling dentro la finestra (pause/checkpoint, strumenti consentiti, ambiente staging/URL autorizzati). Baseline: importa report/pack precedenti dello stesso target come noti (stato aperto/chiuso per ciascuno); i noti non si ri-segnalano, si riverificano in Stage 7. Inizializza in `state.json` i contatori del registro ID (D, C/H/M/L, CH, R). Scrivi `01-scope.md` + `auth-gate.md` + `state.json`.
+**Gate**: scope non ambiguo; profilo registrato; baseline importata o assenza registrata; un solo NO nel checklist auth → STOP.
 
 ### Stage 2 — RECON (passiva)
 - [ ] Attack surface senza contatto invasivo: endpoint/API, JS-bundle (endpoint nascosti, segreti client), header/TLS/CORS, versioni e CVE (OSV/Advisory), secrets esposti. Priori da report disclosed (stesso stack): attacca prima dove statisticamente paga. First-blood: programmi/asset nuovi o scope appena ampliato = meno competizione, priorità massima. Diff release: solo superfici nuove vanno in probe, il resto è già coperto. Check duplicati prima di ogni probe (report noti, CVE): il duplicato non paga. Scrivi `02-recon.md`.
@@ -88,7 +99,8 @@ Cartella: `.mind/breach/<target>/` (target = slug kebab-case).
 
 ### Stage 7 — RETEST
 - [ ] Dopo il fix: il PoC originale deve fallire. Scrivi `07-retest.md`; chiudi solo con fix + retest verde o accettazione rischio scritta.
-**Gate**: assessment completo = ogni 🔴/🟠 con retest verde o accettazione scritta.
+- [ ] Aggiorna il Pack (applica la regola di ri-verifica di versione dello Stage 6): blocco AGGIORNAMENTO in testa all'evidence, voci `R-xx` in `REGRESSION_<old>_vs_<new>.md`, slide regressione nel deck, PDF rigenerati via `mind-documents`. Il pack non resta mai fermo alla versione bucata.
+**Gate**: assessment completo = ogni 🔴/🟠 con retest verde o accettazione scritta + pack allineato all'ultima versione testata.
 
 ## Cicli di ripetizione consentiti
 
