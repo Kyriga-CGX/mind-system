@@ -188,46 +188,38 @@ Regola d'oro: mai fix sui sintomi. mind-breach parte SOLO con gate autorizzazion
 
 ```mermaid
 flowchart TD
-    REQ[programma bounty / assessment email-type] --> GATE[mind-auth-gate: checklist bloccante + profili black/gray/white]
+    REQ[programma bounty / assessment email-type] --> GATE[mind-auth-gate: checklist bloccante]
     GATE -->|un solo NO| STOP[STOP, nessun probe]
-    GATE -->|verde| SC[Stage 1 SCOPE: profilo + policy in/out + payout map + finestra/rate-limit + piano copertura autonoma]
-    SC -->|asset nuovo o scope ampliato| FB[first-blood: priorità massima]
+    GATE -->|verde| SC[Stage 1 SCOPE: lista profili + ordine, payout map, finestra/rate-limit, baseline noti, preset stealth per profilo]
+    SC --> LOOP[un profilo alla volta: ciclo 2→5 completo, poi gate inter-profilo]
 
-    SC --> RJS[recon JS-bundle: endpoint nascosti, segreti client]
-    SC --> RAPI[recon API: mappa endpoint + matrice auth endpoint×ruolo]
-    SC --> RCVE[recon versioni: SBOM + CVE via OSV/Advisory]
-    SC --> RCFG[recon config: header, TLS, CORS, permessi]
-    SC --> RPR[recon priori: report disclosed stesso stack → dove paga]
-    SC & FB --> RDU[recon duplicati: report noti + CVE → il dupe non paga]
-    SC --> RDI[recon diff release: solo superfici nuove in probe]
-
-    RJS & RAPI & RCVE & RCFG & RPR & RDU & RDI --> SA[Stage 3 SAST: injection, auth, IDOR, crypto, business-logic]
+    LOOP --> R2[Stage 2 RECON: JS-bundle, header/TLS/CORS, CVE, priori, first-blood, diff release, check duplicati]
+    R2 --> CT[discovery da contract: OpenAPI/Swagger/Postman → inventario endpoint×metodo×auth×ruolo + BOLA matrix + drift]
+    CT --> SA[Stage 3 SAST + nuclei solo se autorizzato]
     SA -->|niente codice / black-box| PR
-    SA -->|pattern trovati| PR[Stage 4 PROBE serializzati]
-
-    PR --> CHK{in scope?}
+    SA -->|pattern trovati| PR[Stage 4 PROBE serializzati: checklist + wordlist vendored]
+    PR --> GOV[stealth governor: throttle per profilo, backoff su 429, kill-switch a 3 blocchi]
+    GOV --> CHK{in scope?}
     CHK -->|no| ABORT[abort: fuori scope = ban]
-    CHK -->|sì| VA[auth bypass logici]
-    CHK -->|sì| VI[injection non distruttive]
-    CHK -->|sì| VD[IDOR con account di test propri]
-    CHK -->|sì| VX[XSS reflected / open redirect / upload lettura]
-    CHK -->|sì| VF[fuzz semantico API: stati impossibili, transizioni]
-    CHK -->|sì, profilo black-box| VU[traccia unauthenticated: superficie senza sessione + colonna anonimo]
-
-    VA & VI & VD & VX & VF & VU --> SAFE{dati terzi? scrittura? imprevisto?}
+    CHK -->|sì| CLS[classi OWASP da checklist: auth bypass, injection, IDOR, XSS, fuzz semantico]
+    CHK -->|sì, black-box| VU[traccia unauthenticated + colonna anonimo]
+    CLS & VU --> SAFE{dati terzi? scrittura? imprevisto?}
     SAFE -->|sì| HALT[STOP immediato]
     SAFE -->|salto a exploit reale| ESC[STOP: decide l'umano]
     SAFE -->|critica confermata| SEG[segnala al contatto critiche e continua]
     SEG --> CA
     SAFE -->|no| CA[Stage 5 CATENE su vettori confermati]
 
-    CA --> RC[Stage 6 REPORT: CVSS + PoC + impatto per la severity che merita]
-    RC --> PACK[Report Pack in 06-report-pack: evidence-report.pdf + pentest-deck.pdf + exec-01.html]
+    CA --> NEXT{altri profili?}
+    NEXT -->|sì: solo vie rimaste, dedup cross-profilo| LOOP
+    NEXT -->|no| RC[Stage 6 REPORT: finding + ID test WSTG + evidence pack redatto + CVSS umano + EPSS]
+    RC --> PACK[Report Pack: evidence-report.pdf + pentest-deck.pdf + exec-01.html]
     PACK --> INV[invio piattaforma: steps-to-reproduce + impact + PoC one-click]
     INV --> FX[mind-implementation: fix TDD, PoC = regression test]
-    FX --> RT[Stage 7 RETEST: il PoC originale deve fallire]
-    RT -->|ancora verde| FX
-    RT -->|rosso + fix| UP[aggiorna Pack: blocco AGGIORNAMENTO + R-xx + PDF rigenerati]
+    FX --> RT[Stage 7 RETEST AUTOMATICO: replay comando unico + varianti anti-fix-ingenuo]
+    RT -->|ROSSO, meno di 3 round| FX
+    RT -->|ROSSO al 3° round| HUMAN[scala all'umano: fix strutturale]
+    RT -->|VERDE| UP[aggiorna Pack: blocco AGGIORNAMENTO + R-xx + PDF rigenerati]
     UP --> DONE[chiuso]
     RT -->|rischio accettato scritto| DONE
     INV -->|duplicato / rigetto| NEG[KB negativa: non riprovare così]
@@ -235,7 +227,7 @@ flowchart TD
     CAMP[campagne lunghe: dentro finestra, checkpoint pausa/ripresa, task ordinari prima] -.-> PR
 ```
 
-Stato in `.mind/breach/<target>/`, registro ID D/C/H/M/L/CH/R, baseline dei noti in Stage 1, matrice auth endpoint×ruolo (colonna anonimo obbligatoria in black-box), campagne lunghe solo in finestra con checkpoint, Report Pack a fine test completo e aggiornato a ogni retest, mai payload distruttivi.
+Stato in `.mind/breach/<target>/`, registro ID D/C/H/M/L/CH/R, baseline dei noti in Stage 1, lista profili in sequenza (mai in parallelo sullo stesso target) con dedup cross-profilo, discovery da contract OpenAPI/Postman, stealth governor con kill-switch, matrice auth endpoint×ruolo (colonna anonimo obbligatoria in black-box), evidence pack redatto + CVSS umano + EPSS per finding, retest automatico max 3 round, Report Pack aggiornato a ogni retest, mai payload distruttivi.
 
 ### Grafica: dalla direzione alla QA
 
