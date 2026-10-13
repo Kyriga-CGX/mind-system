@@ -2,7 +2,7 @@
 
 Sistema mind: skill + orchestrazione + memoria per **opencode**.
 
-Orchestratore a 7 intenti, 47 skill di dominio, Design Track first-class, un solo gate di verifica, memoria locale-first. Funziona con DeepSeek, Qwen e Muse.
+Orchestratore a 7 intenti, 51 skill (33 di dominio + 17 pipeline + orchestratore), Design Track first-class, un solo gate di verifica, memoria locale-first. Funziona con DeepSeek, Qwen e Muse.
 
 > I diagrammi sono **Mermaid** (GitHub li renderizza da solo). Dettaglio operativo dell'orchestratore in `skills/mind/using-mind/` (`SKILL.md` + `routing.md`).
 
@@ -10,7 +10,7 @@ Orchestratore a 7 intenti, 47 skill di dominio, Design Track first-class, un sol
 
 | Versione | Dove | Cosa |
 |---|---|---|
-| **v2.0** (corrente, `main`) | questo repo | Orchestratore snello: 7 intenti, 5 precedenze, budget rigido, 1 gate. Le skill di dominio sono invariate |
+| **v2.0** (corrente, `main`) | questo repo | Orchestratore snello: 7 intenti, 5 precedenze, budget rigido, 1 gate. Catalogo in crescita: auth-gate riusabile, breach email-type + Report Pack |
 | **v1.0** | [Releases](../../releases/tag/v1.0) | Sistema precedente (tabella ~50 rotte, 17 precedenze) — zip scaricabile, congelata per sempre |
 
 ## Come funziona (in 30 secondi)
@@ -35,7 +35,7 @@ Il plugin `mind` inietta il bootstrap a ogni turno (con guardia anti-duplicazion
 
 ## Struttura
 
-- `skills/mind/` — il fork mind: orchestratore `using-mind` (`SKILL.md` + `routing.md` + `fma-agents.md`) e 47 skill di dominio
+- `skills/mind/` — il fork mind: orchestratore `using-mind` (`SKILL.md` + `routing.md` + `fma-agents.md`) e 50 skill tra dominio (33) e pipeline (17)
 - `skills/<altre>` — skill storiche: context7-mcp, design-md, design-system, ecosystem-health-check, execution-hygiene, frontend-design, motion, orchestrator, stop-slop
 - `plugins/` — `mind.js` (bootstrap + registrazione skill + tracciamento uso) e `mind-memory.js` (memoria locale-first). Vanno al top di `~/.config/opencode/plugins/`
 - `config/` — `opencode.jsonc`, `mind-memory.json`, `AGENTS.md` + subagent custom (`agents/sage.md`, `lust.md`, `forge.md`). Chiavi come `{env:VAR}` dall'ambiente all'avvio
@@ -54,7 +54,7 @@ setx CONTEXT7_API_KEY "<valore>"   # poi riapri il terminale e riavvia opencode
 
 ## I 7 intenti
 
-> I 7 intenti sono le **porte d'ingresso**, non il sistema: dietro ci sono 48 skill, 16 pipeline, 23 agenti e 1 gate. Niente è stato rimosso dalla v1 — la ricchezza è nel catalogo qui sotto.
+> I 7 intenti sono le **porte d'ingresso**, non il sistema: dietro ci sono 51 skill, 18 pipeline, 23 agenti e 1 gate. Niente è stato rimosso dalla v1 — la ricchezza è nel catalogo qui sotto.
 
 | # | Intent | Rotta | Esempio |
 |---|---|---|---|
@@ -136,6 +136,7 @@ Se ambiguo: route conservativa (creativo→costruire, anomalia→fixare, domanda
 | `mind-runner` | Esegue un piano per intero in autonomia (coda su file, checkpoint, max 10 iter, stop a 3 fail) | "finisci da solo", obiettivi multi-sessione |
 | `mind-eval` | Valuta prompt/agenti/skill con report | la skill scatta ma rende male |
 | `mind-forge` | Forgia nuove skill/agenti via subagent Sheska (solo con approvazione) | caso ricorrente non coperto da nessuna skill |
+| `mind-auth-gate` | Checklist + template `auth-gate.md`, profili black/gray/white, escalation critiche | gate PRIMA di breach, audit e pipeline offensive |
 
 ## Flussi d'uso (come si lavora davvero)
 
@@ -187,9 +188,9 @@ Regola d'oro: mai fix sui sintomi. mind-breach parte SOLO con gate autorizzazion
 
 ```mermaid
 flowchart TD
-    REQ[programma bounty / assessment] --> AUTH{auth-gate verde? target+scope+limiti+contatto}
-    AUTH -->|no| STOP[STOP, nessun probe]
-    AUTH -->|sì| SC[Stage 1 SCOPE: policy in/out + payout map + finestra/rate-limit]
+    REQ[programma bounty / assessment email-type] --> GATE[mind-auth-gate: checklist bloccante + profili black/gray/white]
+    GATE -->|un solo NO| STOP[STOP, nessun probe]
+    GATE -->|verde| SC[Stage 1 SCOPE: profilo + policy in/out + payout map + finestra/rate-limit + piano copertura autonoma]
     SC -->|asset nuovo o scope ampliato| FB[first-blood: priorità massima]
 
     SC --> RJS[recon JS-bundle: endpoint nascosti, segreti client]
@@ -201,8 +202,8 @@ flowchart TD
     SC --> RDI[recon diff release: solo superfici nuove in probe]
 
     RJS & RAPI & RCVE & RCFG & RPR & RDU & RDI --> SA[Stage 3 SAST: injection, auth, IDOR, crypto, business-logic]
-    SA -->|niente codice| PR
-    SA -->|pattern trovati| PR[Stage 4 PROBE]
+    SA -->|niente codice / black-box| PR
+    SA -->|pattern trovati| PR[Stage 4 PROBE serializzati]
 
     PR --> CHK{in scope?}
     CHK -->|no| ABORT[abort: fuori scope = ban]
@@ -211,23 +212,29 @@ flowchart TD
     CHK -->|sì| VD[IDOR con account di test propri]
     CHK -->|sì| VX[XSS reflected / open redirect / upload lettura]
     CHK -->|sì| VF[fuzz semantico API: stati impossibili, transizioni]
+    CHK -->|sì, profilo black-box| VU[traccia unauthenticated: superficie senza sessione + colonna anonimo]
 
-    VA & VI & VD & VX & VF --> SAFE{dati terzi? scrittura? imprevisto?}
+    VA & VI & VD & VX & VF & VU --> SAFE{dati terzi? scrittura? imprevisto?}
     SAFE -->|sì| HALT[STOP immediato]
     SAFE -->|salto a exploit reale| ESC[STOP: decide l'umano]
+    SAFE -->|critica confermata| SEG[segnala al contatto critiche e continua]
+    SEG --> CA
     SAFE -->|no| CA[Stage 5 CATENE su vettori confermati]
 
     CA --> RC[Stage 6 REPORT: CVSS + PoC + impatto per la severity che merita]
-    RC --> INV[invio piattaforma: steps-to-reproduce + impact + PoC one-click]
+    RC --> PACK[Report Pack in 06-report-pack: evidence-report tecnico + deck slide + exec-summary HTML]
+    PACK --> INV[invio piattaforma: steps-to-reproduce + impact + PoC one-click]
     INV --> FX[mind-implementation: fix TDD, PoC = regression test]
     FX --> RT[Stage 7 RETEST: il PoC originale deve fallire]
     RT -->|ancora verde| FX
     RT -->|rosso + fix| DONE[chiuso]
     RT -->|rischio accettato scritto| DONE
     INV -->|duplicato / rigetto| NEG[KB negativa: non riprovare così]
+
+    CAMP[campagne lunghe: dentro finestra, checkpoint pausa/ripresa, task ordinari prima] -.-> PR
 ```
 
-Stato in `.mind/breach/<target>/`, matrice auth endpoint×ruolo, mai payload distruttivi.
+Stato in `.mind/breach/<target>/`, matrice auth endpoint×ruolo (colonna anonimo obbligatoria in black-box), campagne lunghe solo in finestra con checkpoint, Report Pack a fine test completo, mai payload distruttivi.
 
 ### Grafica: dalla direzione alla QA
 
