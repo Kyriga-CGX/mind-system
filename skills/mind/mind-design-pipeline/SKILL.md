@@ -10,7 +10,7 @@ description: Pipeline di design end-to-end per UI nuove o rifatte (brief → aud
 1. **Il soggetto prima dello stile**: nessuna direzione estetica senza sapere COSA è il prodotto, per CHI e qual è il suo compito primario. Un design che starebbe bene su qualsiasi prodotto è un fallimento.
 2. **Due gate di approvazione, mai saltati**: (a) la direzione estetica la sceglie l'utente tra 2-3 concept; (b) il mockup va approvato PRIMA del codice di produzione. Niente approvazione = niente stage successivo.
 3. **DESIGN.md è la fonte di verità**: dallo Stage 4 in poi ogni colore, spaziatura, radius e font viene dai token. Hex hardcoded e px letterali nel diff = difetto (`design-system/enforce.md`).
-4. **Anti-slop prima della maturità**: prima si passa il gate C1-C9 (`anti-slop.md`), poi si applicano i pattern P1-P3 (`design-system/patterns.md`) e F1-F3 (`motion/patterns.md`). I pattern non giustificano lo slop.
+4. **Anti-slop prima della maturità**: prima si passa il gate C1-C9 (`anti-slop.md`), poi si applicano i pattern P1-P3 (`design-system/patterns.md`) e F1-F7 (`motion/patterns.md`: F1-F3 atmosfera/load, F4 ricette, F5 performance, F6 icone, F7 esserini vivi). I pattern non giustificano lo slop.
 5. **Si guarda, non si immagina**: mockup e risultato finale vanno VISTI (screenshot letti dall'agente, o verifica nel browser chiesta all'utente). Un'affermazione estetica senza screenshot non è verificata.
 6. **Skip solo per assenza**: niente audit senza UI esistente, niente motion senza animazioni, niente copy senza testi nuovi. Mai saltare per fretta.
 7. **Budget di chiamate**: ogni stage produce UN artefatto in `.mind/design/<progetto>/`; nessuno riesplora ciò che un artefatto già contiene.
@@ -44,7 +44,7 @@ Cartella di lavoro: `.mind/design/<progetto-o-feature>/` (slug kebab-case).
 | `05-mockup.md` | mockup hi-fi della schermata chiave: path del file, screenshot, note di autocritica |
 | `05-feedback.md` | esito approvazione mockup, iterazioni incluse |
 | `06-components.md` | inventario componenti, mapping ai token, pattern P1-P3 con criterio binario e motivazione |
-| `07-motion.md` | archetipo, livello della priority-ladder, tre strati, pattern F1-F3, report di `verify.md` (o "skip") |
+| `07-motion.md` | archetipo, livello della priority-ladder, tre strati, pattern F1-F7 (conoscenza operativa vendored in `motion/reference/companions-vendored.md`), report di `verify.md` (o "skip") |
 | `08-copy.md` | microcopy, CTA, stati di errore, empty states + esito `stop-slop` (o "skip") |
 | `09-fe.md` | implementazione FE: file toccati, enforcement token, subagent usati, esito fix loop |
 | `10-quality.md` | qualità visiva: C1-C9 finale, enforce.md, pattern dichiarati vs applicati, a11y, responsive, baseline visual regression |
@@ -82,7 +82,7 @@ Dal mockup estrai l'inventario dei componenti, mappa ognuno ai token del DESIGN.
 **Gate**: nessun componente senza token, gerarchia esplicita.
 
 ### Stage 7 — Motion (skip se non serve)
-`motion`: tipo di motion → `priority-ladder.md` (livello più basso sufficiente) → `philosophy.md` (UN archetipo, tre strati, regola del terzo) → `patterns.md` (F1-F3) → `verify.md` (report con audit tecnico e marcatura esplicita di ciò che è `NON VERIFICABILE VISIVAMENTE`). Scrivi `07-motion.md`.
+`motion`: tipo di motion → `priority-ladder.md` (livello più basso sufficiente) → `philosophy.md` (UN archetipo, tre strati, regola del terzo, frequency gate) → `patterns.md` (F1-F7: atmosfera F1-F3, ricette F4, performance F5, icone F6, esserini F7) → `verify.md` (report con audit tecnico e marcatura esplicita di ciò che è `NON VERIFICABILE VISIVAMENTE`). Scrivi `07-motion.md`.
 **Gate**: report completo, `prefers-reduced-motion` rispettato, una sola coreografia di load.
 
 ### Stage 8 — Copy in UI (skip se non serve)
@@ -94,7 +94,7 @@ Dal mockup estrai l'inventario dei componenti, mappa ognuno ai token del DESIGN.
 **Gate**: diff senza hex hardcoded né px letterali; token enforcement applicato, non solo dichiarato.
 
 ### Stage 10 — Qualità visiva
-Passata finale su ciò che è stato costruito: gate C1-C9, `enforce.md` (regole 1-5), pattern P1-P3 e F1-F3 applicati come dichiarato in `06-components.md`/`07-motion.md`, a11y (Axe-core 0 violazioni, contrasto AA 4.5:1 testo e 3:1 UI, focus da tastiera, label, landmark, `prefers-reduced-motion`), responsive su breakpoint reali, baseline visual regression (`mind-testing` 5.1). La review va fatta in CONTESTO FRESCO: dispatch del subagent **Lust** (design QA, read-only, non può modificare il codice). Scrivi `10-quality.md`.
+Passata finale su ciò che è stato costruito: gate C1-C9, `enforce.md` (regole 1-5), pattern P1-P3 e F1-F7 applicati come dichiarato in `06-components.md`/`07-motion.md`, a11y (Axe-core 0 violazioni, contrasto AA 4.5:1 testo e 3:1 UI, focus da tastiera, label, landmark, `prefers-reduced-motion`), responsive su breakpoint reali, baseline visual regression (`mind-testing` 5.1). La review va fatta in CONTESTO FRESCO: dispatch del subagent **Lust** (design QA, read-only, non può modificare il codice). Scrivi `10-quality.md`.
 **Gate**: 0 FAIL ingiustificati su C1-C9, 0 violazioni a11y, contrasto AA rispettato.
 
 ### Stage 11 — Gate finale
@@ -141,7 +141,7 @@ Chi riprende il lavoro legge `state.json` e sa sempre: soggetto, audience e comp
 - **→ mind-design-explore**: Stage 3 (divergenza delle direzioni e scelta dell'utente).
 - **→ frontend-design**: direzione estetica negli Stage 1, 3, 5, 9; è il prerequisito di ogni codice UI. `design-references.md` per ispirazione reale, non da copiare.
 - **→ design-md / design-system**: Stage 4 (`create.md` per il DESIGN.md), Stage 9-10 (`enforce.md`, `anti-slop.md`, `patterns.md`).
-- **→ motion**: Stage 7 (`priority-ladder.md`, `philosophy.md`, `patterns.md`, `verify.md`).
+- **→ motion**: Stage 7 (`priority-ladder.md`, `philosophy.md`, `patterns.md` F1-F7, `verify.md`, `reference/companions-vendored.md` per gli esserini vivi).
 - **→ mind-copy / stop-slop**: Stage 8 (microcopy, errori, empty states).
 - **→ mind-implementation**: Stage 9 (dispatch parallelo, ledger, fix loop, model selection, Design Squad).
 - **→ mind-testing**: Stage 10 (visual regression 5.1, seed e fixture 5.2, a11y 5.3).
