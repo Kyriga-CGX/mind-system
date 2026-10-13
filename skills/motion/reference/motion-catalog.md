@@ -97,7 +97,7 @@ Questa è la **knowledge base concreta** della skill: pattern reali che l'agente
 
 ### 3.2 Sezione che appare allo scroll
 - **Categoria:** ingressi/uscite card
-- **Tecnica:** GSAP+ScrollTrigger o CSS scroll-driven (ladder 1-4)
+- **Tecnica:** Motion `inView` o CSS scroll-driven (ladder 1-3); GSAP+ScrollTrigger solo per choreography complessa (ladder 4, vedi regola Motion-vs-GSAP in `priority-ladder.md`)
 - **Interazione → Timing:** `dramatic` (600-1200ms)
 - **Easing:** MD3 Emphasized `(0.05,0.7,0.1,1)`
 - **Strati:** primary = sezione che si rivela; secondary = singoli elementi (headline, corpo) con stagger; ambient = sfondo che sfuma.
@@ -138,6 +138,34 @@ Questa è la **knowledge base concreta** della skill: pattern reali che l'agente
 - **Archetipo:** Corporate o Premium (storia ordinata) — mai Playful se non richiesto.
 - **Giustificazione:** struttura **setup→azione→risoluzione** per ogni scena. Stagger budget <500ms. Niente animazioni "sculture" senza scopo.
 - **Fonte:** `motionographer.com` (regia) + `gsap.com`.
+
+### 4.3 Smooth scroll Lenis + GSAP ticker (snippet vendored)
+- **Categoria:** scroll
+- **Tecnica:** Lenis (smooth scroll) + GSAP ticker + ScrollTrigger
+- **Interazione → Timing:** input-driven (segue la rotella); `lerp: 0.1`
+- **Easing:** n/a (fisica di smoothing, non easing di keyframe)
+- **Strati:** n/a (infrastruttura: abilita parallax/pin senza jank)
+- **Archetipo:** tutti (quando serve scroll-driven oltre il CSS nativo)
+- **Giustificazione:** collegamento canonico — UN solo rAF (quello di GSAP) guida tutto; `lagSmoothing(0)` evita salti al ritorno sul tab. Non inizializzare sotto `prefers-reduced-motion`.
+- **Snippet (copia autonoma, nessuna doc esterna richiesta):**
+  ```js
+  import Lenis from 'lenis';
+  import gsap from 'gsap';
+  import { ScrollTrigger } from 'gsap/ScrollTrigger';
+
+  gsap.registerPlugin(ScrollTrigger);
+
+  const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  let lenis = null;
+  if (!reduce) {
+    lenis = new Lenis({ lerp: 0.1, smoothWheel: true });
+    lenis.on('scroll', ScrollTrigger.update);
+    gsap.ticker.add((time) => lenis.raf(time * 1000));
+    gsap.ticker.lagSmoothing(0);
+  }
+  // cleanup: gsap.ticker.remove(raf); lenis?.destroy();
+  ```
+- **Fonte:** vendored da `darkroomengineering/lenis` (2026-10-13); attribuzione in `sources.md`.
 
 ---
 
@@ -231,3 +259,43 @@ Questa è la **knowledge base concreta** della skill: pattern reali che l'agente
 - **Archetipo:** tutti
 - **Giustificazione:** anima **solo `transform` e `opacity`** (GPU). Mai `margin`, `padding`, `border-width`, `box-shadow` o proprietà di layout in animazione (causano reflow/jank). Usa `motion values` + `useTransform`, `whileInView` per lazy-load.
 - **Fonte:** `motion.dev/docs` (performance) + `60fps.design`.
+
+### 6.3 Sicurezza flash e loop + reduced-motion via Motion
+- **Categoria:** tecnica/a11y
+- **Tecnica:** regola di implementazione + `useReducedMotion` (Motion) / media query CSS
+- **Interazione → Timing:** ridotto (da ridurre a ~0 sotto `reduce`); flash mai oltre 3/s
+- **Easing:** n/a (disattivato o semplificato)
+- **Strati:** n/a (si riduce)
+- **Archetipo:** tutti (obbligatorio)
+- **Giustificazione:** oltre a `prefers-reduced-motion` (voce 6.1): niente flash sopra i **3 al secondo**, loop infiniti solo per loader/stati di attesa, `fillMode` definito. In ecosistema Motion implementa con `useReducedMotion` come standard; in vanilla con la media query. Vedi i check "Sicurezza flash e loop" e "prefers-reduced-motion" in `verify.md`.
+- **Fonte:** `motion.dev/docs` (accessibilità) + WCAG 2.3.1 (soglia flash).
+
+### 6.4 Snippet reduced-motion (CSS + Motion, vendored)
+- **Categoria:** tecnica/a11y
+- **Tecnica:** media query CSS + `useReducedMotion` (Motion)
+- **Interazione → Timing:** ~0 sotto `reduce`
+- **Easing:** n/a
+- **Strati:** n/a
+- **Archetipo:** tutti (obbligatorio)
+- **Giustificazione:** kill-switch universale + branch per-componente. Il CSS copre tutto il legacy in un colpo; l'hook copre il JS runtime (Motion, Lenis, esserini F7). Mai solo uno dei due su progetti nuovi.
+- **Snippet CSS (base, sempre presente):**
+  ```css
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
+  ```
+- **Snippet Motion (per-componente):**
+  ```jsx
+  import { useReducedMotion } from 'motion/react';
+
+  const shouldReduce = useReducedMotion();
+  // shouldReduce === true → salta l'animazione o vai dritto allo stato finale
+  // (opacity/transform istantanei); il moto autonomo (respiro, ambient) si spegne,
+  // il feedback su azione diretta resta ma istantaneo.
+  ```
+- **Fonte:** vendored da `motion.dev/docs` (2026-10-13); attribuzione in `sources.md`.

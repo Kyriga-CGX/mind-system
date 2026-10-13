@@ -79,6 +79,17 @@ I dodici principi dell'animazione classica si trasportano bene sulla UI, e sono 
 - **Flat** — un solo layer animato. Sembra un'animazione "di maniera", senza profondità. La cura è nei tre layer.
 - **Lineare per movimento spaziale** — l'interpolazione `linear` è accettabile solo per il colore o per trasparenza, **mai** per movimento spaziale (posizione, scala, rotazione). Un movimento spaziale lineare sembra un robot. La cura è nell'easing giusto (vedi sopra) e nel rispetto di entrance/exit.
 
+## Frequency gate — non tutto deve animare
+
+L'errore più comune non è animare male: è animare troppo. Prima di aggiungere un motion, passa il **frequency gate**:
+
+- **Sempre**: micro-feedback su azione diretta (press bottone, toggle, focus). Il tocco conferma l'azione: senza, la UI sembra rotta.
+- **Una volta sola**: coreografie d'ingresso (hero, load orchestrato). Si vedono all'arrivo e poi silenzio — mai ripetute a ogni scroll.
+- **Selettivo**: reveal on-scroll solo per sezioni che ne guadagnano (narrativa, pricing, showcase). Liste lunghe e contenuti densi restano fermi: animare 50 card in cascata è rumore, non regia.
+- **Mai**: testo corpo, tabelle dati, form in compilazione, elementi già visti che rientrano nel viewport. Il motion che distrae dalla lettura o dal lavoro è un difetto, non uno stile.
+
+**Regola:** se non sai dire *perché* un elemento anima (quale dei tre layer, quale intenzione comunicativa), non anima. Ogni motion nel report di verifica deve avere la sua motivazione; gli scarti volontari vanno elencati nella sezione "Scarti motivati" di `verify.md`.
+
 ## Uso
 
-Quando coreografi: (1) fissa **un solo** archetipo, (2) distribuisci **tre layer** (primary/secondary/ambient) e scegli dove sta il primary, (3) applica durata ed easing dalla tabella e dalla fonte `scripts/timing.js`, (4) sequenzia con la regola del 1/3, uno stagger sotto i 500 ms e la struttura setup→azione→risoluzione, (5) applica anticipation, follow-through e squash & stretch dosati sull'archetipo, (6) ricorda che movement spaziale **mai** lineare e mai flat. Tutte queste sono istruzioni per il progettista, non codice.
+Quando coreografi: (1) fissa **un solo** archetipo, (2) passa il **frequency gate** (decidi cosa anima e cosa resta fermo), (3) distribuisci **tre layer** (primary/secondary/ambient) e scegli dove sta il primary, (4) applica durata ed easing dalla tabella e dalla fonte `scripts/timing.js`, (5) sequenzia con la regola del 1/3, uno stagger sotto i 500 ms e la struttura setup→azione→risoluzione, (6) applica anticipation, follow-through e squash & stretch dosati sull'archetipo, (7) ricorda che movement spaziale **mai** lineare e mai flat. Tutte queste sono istruzioni per il progettista, non codice.

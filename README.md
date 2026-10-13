@@ -39,7 +39,7 @@ Il plugin `mind` inietta il bootstrap a ogni turno (con guardia anti-duplicazion
 - `skills/<altre>` — skill storiche: context7-mcp, design-md, design-system, ecosystem-health-check, execution-hygiene, frontend-design, motion, orchestrator, stop-slop
 - `plugins/` — `mind.js` (bootstrap + registrazione skill + tracciamento uso) e `mind-memory.js` (memoria locale-first). Vanno al top di `~/.config/opencode/plugins/`
 - `config/` — `opencode.jsonc`, `mind-memory.json`, `AGENTS.md` + subagent custom (`agents/sage.md`, `lust.md`, `forge.md`). Chiavi come `{env:VAR}` dall'ambiente all'avvio
-- `docs/` — appunti e note decisionali
+- `docs/` — appunti e note decisionali; `docs/session-registry.md` documenta il registro condiviso tra sessioni (`~/.config/opencode/mind/sessions/`)
 - `sync.ps1` — sincronizza **repo → macchina locale** (il repo è la source of truth)
 
 ## Quickstart
@@ -54,7 +54,7 @@ setx CONTEXT7_API_KEY "<valore>"   # poi riapri il terminale e riavvia opencode
 
 ## I 7 intenti
 
-> I 7 intenti sono le **porte d'ingresso**, non il sistema: dietro ci sono 51 skill, 18 pipeline, 23 agenti e 1 gate. Niente è stato rimosso dalla v1 — la ricchezza è nel catalogo qui sotto.
+> I 7 intenti sono le **porte d'ingresso**, non il sistema: dietro ci sono 51 skill, 17 pipeline, 23 agenti e 1 gate. Niente è stato rimosso dalla v1 — la ricchezza è nel catalogo qui sotto.
 
 | # | Intent | Rotta | Esempio |
 |---|---|---|---|
@@ -99,7 +99,7 @@ Se ambiguo: route conservativa (creativo→costruire, anomalia→fixare, domanda
 |---|---|---|
 | `frontend-design` | Direzione estetica: personalità, signature element, restraint | PRIMA di qualsiasi UI |
 | `design-system` | Crea/applica `DESIGN.md`, enforce token `var(--*)`, anti-slop 9 check, WCAG 4.5:1 | token, stili, design system |
-| `motion` | Ladder anti-3D (CSS→WAAPI→Motion→GSAP→SVG→Three.js), 3 strati, stagger <500ms | animazioni e movimento |
+| `motion` | Ladder anti-3D (CSS→WAAPI→Motion→GSAP→SVG→Three.js), 3 strati, stagger <500ms, pattern F1-F7 (ricette, icone, esserini vivi), reference vendored anti-rot | animazioni e movimento |
 | `mind-design-explore` | 2-3 direzioni visive distinte + scelta utente | serve un concept prima di costruire |
 | `mind-copy` | Copy con tono/audience/obiettivo + pulizia `stop-slop` | landing, email, CTA, microcopy |
 | `stop-slop` | Rimuove i pattern AI dal testo | pulizia prosa esistente |

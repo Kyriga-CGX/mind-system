@@ -16,10 +16,17 @@ Per ciascuno rispondi **SÌ**/**NO** con una riga di motivazione basata sui valo
 - **Tre strati** — verifica che esistano primary, secondary e ambient. Se ne manca almeno uno (l'animazione è flat, un solo layer), segnala il default flat.
 - **Stagger < 500 ms** — se più elementi entrano in sequenza, verifica che l'offset cumulativo (il costo totale dello stagger) resti **sotto i 500 ms**. Segnala se supera la soglia.
 - **Regola del 1/3** — verifica che il picco d'attenzione cada circa a un terzo della durata totale. Segnala se il momento più importante è coreografato altrove.
-- **`prefers-reduced-motion` gestito** — verifica che il motion rispetti l'`@media (prefers-reduced-motion: reduce)` (o un'API equivalente): o disattiva il motion o lo riduce a un cambiamento minimo. Un motion che ignora l'impostazione dell'accessibilità è un difetto.
+- **`prefers-reduced-motion` gestito** — verifica che il motion rispetti l'`@media (prefers-reduced-motion: reduce)` (o un'API equivalente come `useReducedMotion` di Motion): o disattiva il motion o lo riduce a un cambiamento minimo. Un motion che ignora l'impostazione dell'accessibilità è un difetto.
+- **Sicurezza flash e loop** — verifica che nessun elemento lampeggi più di **3 volte al secondo** (soglia crisi fotosensibili) e che i loop infiniti siano solo loader/stati di attesa, con `fillMode` definito e durata finita dove possibile. Un flash rapido o un loop decorativo infinito è un difetto di accessibilità, non uno stile.
+- **Firma easing-timing coerente** — per ogni componente annota la firma (famiglia easing + classe timing da `scripts/timing.js` + intensità): tutti i componenti devono condividere **una sola famiglia di easing** e le classi timing dello script, salvo eccezione motivata dal brief. Due componenti con easing di famiglie diverse (es. uno spring rimbalzoso + uno lineare) senza motivo sono incoerenza, non varietà.
 - **Nessun hex/px hardcoded che viola i token** — se il progetto ha un design system con token (vedi skill `design-system`), verifica che il motion non introduca hex o px di valore letterale fuori sistema. Lo stesso motion che va contro i token è uno slop: durate hardcoded arbitrari, colori non mappati.
 - **Orchestrazione load unica** (pattern F3, `patterns.md`) — se c'è un'animazione di caricamento, verifica che sia UNA coreografia coordinata (~900 ms, max ~1000 ms) poi silenzio; count-up, sparkline stroke-dashoffset e stagger (~40 ms/card) rispettano lo stagger budget < 500 ms. Segnala se gli effetti sono sparsi senza momento centrale.
 - **Ambient reattivo / auto-atmosphere** (pattern F1-F2, `patterns.md`) — se l'ambient risponde a focus/hover/ora del giorno, verifica che rispetti `prefers-reduced-motion` e `prefers-color-scheme` e che il crossfade sia 300-600 ms (luce) o lento (atmosfera). Un ambient sempre-on o un cambio tema secco senza crossfade è un difetto.
+- **Frequency gate** (philosophy.md) — verifica che NON tutto animi: micro-feedback sempre, ingressi una volta sola, reveal selettivi, testo corpo/tabelle/form mai. Se ogni sezione anima on-scroll o liste lunghe entrano in cascata, è rumore: segnala come difetto.
+- **Ricette F4 applicate** (patterns.md) — verifica che le micro-interazioni standard usino i valori delle ricette (button 0.97/~120 ms, card lift -4px/~200 ms, modal fade+scale/~300 ms) o abbiano firma alternativa motivata. Valori inventati senza motivo sono incoerenza.
+- **Disciplina performance F5** (patterns.md) — verifica: solo transform/opacity sul percorso animato, `will-change` solo transitorio, niente blur animato su path critici, scroll-driven o throttled, ≤ ~5 animazioni concorrenti su mobile. Violazioni = difetto.
+- **Disciplina icone F6** (patterns.md) — verifica: un solo set monolinea coerente (no sticker misti), monocromo + un accento, trigger solo hover/active (mai loop decorativi su navigazione), signature ≤ 400 ms, toggle con stati avanti/indietro, libreria con licenza chiara. Set incoerente o icone-loop = difetto.
+- **Anatomia esserini F7** (patterns.md) — se c'è un companion: verifica respiro 3-5s ±1-2%, blink casuale 3-7s (~120-150 ms), sguardo con smoothing in range ±10-15%, stati (minimo neutral/happy/sad/sleepy) guidati dal contesto reale, reazioni al tocco con pazienza, sonno dopo 30-60s idle + startle-wake, un solo essere per vista, rAF senza re-render, reduced-motion → statico. Manca il respiro o snap tra stati = difetto.
 
 ## Marcatura "NON VERIFICABILE VISIVAMENTE"
 
@@ -42,9 +49,21 @@ Al termine della verifica, produci un report strutturato. Copia questo template 
 - Stagger sotto i 500 ms: OK / OLTRE SOGLIA — <motivazione>
 - Regola del 1/3: OK / DA CORREGGERE — <motivazione>
 - prefers-reduced-motion gestito: SÌ / NO — <motivazione>
+- Sicurezza flash e loop (max 3 flash/s, loop solo loader): OK / DIFETTO — <motivazione>
+- Firma easing-timing coerente (una famiglia, classi timing.js): OK / INCOERENTE — <motivazione>
 - Orchestrazione load unica (pattern F3): OK / EFFETTI SPARSI — <motivazione>
 - Ambient reattivo / auto-atmosphere (F1-F2): OK / MANCANTE o SENZA RISPETTO ACCESSIBILITÀ — <motivazione>
+- Frequency gate (non tutto anima): OK / RUMORE — <motivazione>
+- Ricette F4 + disciplina performance F5: OK / VALORI INVENTATI o VIOLAZIONE — <motivazione>
+- Disciplina icone F6 (set coerente, trigger hover/active): OK / STICKER o LOOP DECORATIVI — <motivazione>
+- Anatomia esserini F7 (respiro, blink, sguardo, stati, sonno): OK / MECCANICO o MANCANTE — <motivazione>
 - Nessun hex/px hardcoded che viola i token: OK / VIOLAZIONE — <motivazione>
+
+## Scarti motivati
+
+Elenca gli elementi che hai scelto di **NON animare**, con il motivo (uno per riga). Il frequency gate richiede che ogni scarto sia intenzionale, non dimenticanza.
+
+- <elemento> — NON ANIMATO perché <motivazione: es. testo corpo, leggibilità; lista densa, rumore; form in compilazione, distrazione>
 
 ## Verifiche qualitative (solo visive)
 - <descrizione del parametro visivo>: NON VERIFICABILE VISIVAMENTE
