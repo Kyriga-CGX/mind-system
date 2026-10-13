@@ -10,7 +10,7 @@ Orchestratore a 7 intenti, 51 skill (33 di dominio + 17 pipeline + orchestratore
 
 | Versione | Dove | Cosa |
 |---|---|---|
-| **v2.0** (corrente, `main`) | questo repo | Orchestratore snello: 7 intenti, 5 precedenze, budget rigido, 1 gate. Catalogo in crescita: auth-gate riusabile, breach email-type + Report Pack |
+| **v2.0** (corrente, `main`) | questo repo | Orchestratore snello: 7 intenti, 5 precedenze, budget rigido, 1 gate. Catalogo in crescita: auth-gate riusabile, breach email-type + Report Pack (registro ID, baseline, retest→pack) |
 | **v1.0** | [Releases](../../releases/tag/v1.0) | Sistema precedente (tabella ~50 rotte, 17 precedenze) — zip scaricabile, congelata per sempre |
 
 ## Come funziona (in 30 secondi)
@@ -227,14 +227,15 @@ flowchart TD
     INV --> FX[mind-implementation: fix TDD, PoC = regression test]
     FX --> RT[Stage 7 RETEST: il PoC originale deve fallire]
     RT -->|ancora verde| FX
-    RT -->|rosso + fix| DONE[chiuso]
+    RT -->|rosso + fix| UP[aggiorna Pack: blocco AGGIORNAMENTO + R-xx + PDF rigenerati]
+    UP --> DONE[chiuso]
     RT -->|rischio accettato scritto| DONE
     INV -->|duplicato / rigetto| NEG[KB negativa: non riprovare così]
 
     CAMP[campagne lunghe: dentro finestra, checkpoint pausa/ripresa, task ordinari prima] -.-> PR
 ```
 
-Stato in `.mind/breach/<target>/`, matrice auth endpoint×ruolo (colonna anonimo obbligatoria in black-box), campagne lunghe solo in finestra con checkpoint, Report Pack a fine test completo, mai payload distruttivi.
+Stato in `.mind/breach/<target>/`, registro ID D/C/H/M/L/CH/R, baseline dei noti in Stage 1, matrice auth endpoint×ruolo (colonna anonimo obbligatoria in black-box), campagne lunghe solo in finestra con checkpoint, Report Pack a fine test completo e aggiornato a ogni retest, mai payload distruttivi.
 
 ### Grafica: dalla direzione alla QA
 
