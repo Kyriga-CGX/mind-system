@@ -222,7 +222,7 @@ flowchart TD
     SAFE -->|no| CA[Stage 5 CATENE su vettori confermati]
 
     CA --> RC[Stage 6 REPORT: CVSS + PoC + impatto per la severity che merita]
-    RC --> PACK[Report Pack in 06-report-pack: evidence-report tecnico + deck slide + exec-summary HTML]
+    RC --> PACK[Report Pack in 06-report-pack: evidence-report.pdf + pentest-deck.pdf + exec-01.html]
     PACK --> INV[invio piattaforma: steps-to-reproduce + impact + PoC one-click]
     INV --> FX[mind-implementation: fix TDD, PoC = regression test]
     FX --> RT[Stage 7 RETEST: il PoC originale deve fallire]
