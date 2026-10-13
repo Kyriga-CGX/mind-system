@@ -50,7 +50,7 @@ Cartella: `.mind/breach/<target>/` (target = slug kebab-case).
 | `04-probe.md` | probe eseguiti con evidenza, uno per vettore |
 | `05-catene.md` | scenari combinati con prerequisiti, passi, impatto |
 | `06-report.md` | findings per gravità con PoC + remediation, formato bounty-ready |
-| `06-report-pack/` | Report Pack: `evidence-report.md` (tecnico §§0-8), `pentest-slides.md` (deck), `exec-summary.html` (management) |
+| `06-report-pack/` | Report Pack sui modelli reali: `evidence-report.pdf` (tecnico testata+§§0-8, da .md via mind-documents), `pentest-deck.pdf` (slide cover→catena→finding→appendici verbatim), `exec-01.html` (12 slide management A4 landscape) |
 | `07-retest.md` | esito riverifica post-fix |
 
 ## Stage (in ordine)
@@ -77,13 +77,14 @@ Cartella: `.mind/breach/<target>/` (target = slug kebab-case).
 - [ ] Combina vettori confermati in scenari realistici (es. XSS + CSRF mancante → takeover). Scrivi `05-catene.md` con prerequisiti, passi, impatto.
 **Gate**: nessuna catena su vettori `NON-CONFERMATO`.
 
-### Stage 6 — REPORT PACK (3 deliverable)
-- [ ] Findings per gravità (critica/alta/media/bassa, con CVSS dove richiesto dalla piattaforma), ognuno: titolo, dove, PoC riproducibile, impatto, remediation, riferimenti OWASP/CWE. Impatto scritto per la severity che merita (scenario reale peggiore, onesto, con PoC one-click per il triager): la severity assegnata decide il payout. Formato steps-to-reproduce + impact pronto all'invio. Scrivi `06-report.md`.
-- [ ] A fine ogni test completo produci il **Report Pack** in `06-report-pack/`, un deliverable per audience:
-  1. **Evidence Report tecnico** (`evidence-report.md`): struttura completa §§0-8 secondo il template del committente — contesto/scope, metodo e profili, matrice auth endpoint×ruolo, findings con PoC, catene, remediation, appendice NON-CONFERMATO, retest.
-  2. **Deck slide** (`pentest-slides.md`): catena d'attacco, evidenze (comando+risposta), severity e remediation in forma presentabile.
-  3. **Pagina executive** (`exec-summary.html`): sintesi management standalone (rischio, cosa sistemare prima, stato per fase black-box/autenticata).
-**Gate**: zero finding senza PoC nel corpo; `NON-CONFERMATO` solo in appendice; pack completo = 3 file consegnati o scarto esplicito concordato.
+### Stage 6 — REPORT PACK (3 deliverable, sui modelli reali — non inventarne altri)
+- [ ] Singoli report per finding con ID progressivi per gravità (`C-__` critico, `H-__` alto, `M-__` medio, `L-__` basso; catene `CH-__` in `05-catene.md`): ognuno titolo, dove, PoC riproducibile, impatto, remediation, riferimenti OWASP/CWE. Impatto scritto per la severity che merita (scenario reale peggiore, onesto, con PoC one-click per il triager). Scrivi `06-report.md` come indice + sintesi.
+- [ ] A fine ogni test completo produci il **Report Pack** in `06-report-pack/`:
+  1. **Evidence Report tecnico** (`evidence-report.md` → `evidence-report.pdf` via `mind-documents`, header Confidenziale + piè pagina): testata (target, tenant/ambiente, data/ora run, versioni + branch/commit, autorizzazione/scope, repo analizzato, a-chi-è-rivolto, regola EVIDENZA=output reale, blocco AGGIORNAMENTO con ri-verifica live su nuova versione + novità/regressione); §0 come leggere; §1 sintesi tabellare D-xx (dato, categoria, via black/white/static, auth?, riproducibile, fonte nel codice file:riga) + §1.1 mappa D→finding→report; §2 metodologia (strumenti, flusso d'attacco, base tecnica); §3 dettaglio per dato (contratto, comando, EVIDENZA verbatim, causa nel codice, fix, sempre? — il parziale va marcato); §4 limiti onesti (cosa NON ottenuto); §5 riproducibilità (tabella + conclusione automatizzabile); §6 comando unico copia-incolla; §7 checklist remediation (azione→file→priorità C/A/M); §8 impatto aggregato; chiusura con ambito autorizzato (read-only salvo prove ripristinate e dichiarate).
+  2. **Deck slide** (`pentest-deck.pdf` via `mind-documents`): cover (target, versione, ambiente, data, CONFIDENZIALE) → sintesi numeri (totali/critiche/alte/catene + one-liner da-zero-credenziali) → metodologia (white-box/black-box + badge AUTORIZZATO-READ-ONLY) → catena in N passi numerati → panoramica D (tabella #/dato/auth/sempre) → una slide per finding critico/alto (badge severity + bullet + riquadro EVIDENZA LIVE o CAUSA NEL CODICE) → distribuzione gravità → riproducibilità (tempo, sempre, automatizzabile) → remediation (tabella azione/componente/priorità) → regressione nuova versione (confermati/parziali/novità) → prossimi passi → appendici A/B/C verbatim (black-box, white-box, transcript FTP/STOMP, solo sessioni autorizzate).
+  3. **EXEC-01 management** (`exec-01.html` standalone, print-ready A4 landscape, footer numerato): 12 slide — cover con one-liner → sintesi 3 card + causa unica (OWASP) → scope/metodo + badge autorizzato → evidenze (tabelle richieste/esiti/volumi) → dati reali (valori veri ambiente test) → variazioni PRIMA→DOPO con stato ripristino → controprova (cosa NON sfruttabile) → ampliabilità (difetto strutturale) → impatto (riservatezza/integrità/scala, CVSS, GDPR) → remediation numerata per priorità → chiusura one-liner + materiale disponibile.
+- [ ] Ri-verifica di versione: a ogni nuova versione riesegui il comando unico (§6 dell'evidence); findings identici → blocco AGGIORNAMENTO in testa + `REGRESSION_<old>_vs_<new>.md` + slide regressione nel deck; findings chiusi → retest verde in `07-retest.md`.
+**Gate**: zero finding senza PoC; `NON-CONFERMATO`/parziale solo in appendice o marcato; pack completo = `evidence-report.pdf` + `pentest-deck.pdf` + `exec-01.html` (sorgenti .md/.html conservati) o scarto esplicito concordato.
 
 ### Stage 7 — RETEST
 - [ ] Dopo il fix: il PoC originale deve fallire. Scrivi `07-retest.md`; chiudi solo con fix + retest verde o accettazione rischio scritta.
