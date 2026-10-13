@@ -42,7 +42,7 @@ Checklist bloccante — un solo NO e non si parte:
 - [ ] Finestra temporale e limiti (orari, ambienti: staging sì / produzione solo se concordato)
 - [ ] Contatto per stop immediato (se qualcosa va storto, chi chiami)
 
-Output: `auth-gate.md` (target, scope in/out, limiti, contatto). Senza questo file, le fasi 3-5 NON esistono.
+Output: `auth-gate.md` (target, scope in/out, limiti, contatto). Senza questo file, le fasi 3-5 NON esistono. Il gate è implementato da `mind-auth-gate` (checklist §2 + template §3): usalo, non duplicarlo qui.
 
 ### 3.1 RECON PASSIVA (zero contatto invasivo)
 

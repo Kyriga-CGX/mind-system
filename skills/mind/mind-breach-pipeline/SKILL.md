@@ -14,6 +14,7 @@ description: Pipeline di assessment offensivo a stage per bug bounty e red-team 
 5. **Nessun report senza PoC**: ogni finding ha PoC riproducibile o è `NON-CONFERMATO` in appendice.
 6. **Disclosure responsabile**: critici subito al committente/piattaforma in privato; mai pubblici prima del fix concordato.
 7. **Escalation umana**: quando un vettore confermato può diventare exploit reale (da lettura a scrittura, da singolo a massivo), STOP e chiedi all'utente. Il salto di impatto è sempre decisione umana, mai dell'AI.
+8. **Profili black/gray/white non cambiano i gate**: black-box = zero conoscenza/credenziali iniziali, NON assenza di autorizzazione. Anche in black-box servono `auth-gate.md`, scope, finestra/limiti, probe serializzati e rate-limitati. Campagne lunghe (anche ore) solo dentro finestra esplicita, con checkpoint pausa/ripresa e priorità ai task ordinari. Mai attacco continuo senza sosta né probe paralleli. Il gate è implementato da `mind-auth-gate`: usalo, non duplicarlo qui. Delega email-type: registra produzione esclusa, solo-dati-di-test, contatto escalation critiche, strumenti consentiti, fasi richieste.
 
 ## Quando si attiva
 
@@ -24,6 +25,16 @@ description: Pipeline di assessment offensivo a stage per bug bounty e red-team 
 | Difesa, threat model, hardening | `mind-security` |
 | Audit formale difensivo a stage | `mind-security-audit-pipeline` (usa breach come motore) |
 | Incidente in corso | `mind-incident` |
+
+## Profili di partenza
+
+| Profilo | Punto di partenza | Cosa cambia |
+|---|---|---|
+| `blackbox-external` | zero codice, zero credenziali, solo superficie esterna autorizzata | Stage 3 SAST normalmente saltato; Stage 2/4 includono inventario non autenticato e matrice accessi senza sessione |
+| `graybox-lowpriv` | credenziali a basso privilegio fornite | test di escalation solo entro scope e con escalation umana |
+| `whitebox-code` | codice disponibile | SAST obbligatoria prima dei probe |
+
+Nessun profilo consente signup, brute-force, uso di account altrui, test fuori scope o attacchi continui senza finestra esplicita.
 
 ## Stato condiviso
 
@@ -39,13 +50,14 @@ Cartella: `.mind/breach/<target>/` (target = slug kebab-case).
 | `04-probe.md` | probe eseguiti con evidenza, uno per vettore |
 | `05-catene.md` | scenari combinati con prerequisiti, passi, impatto |
 | `06-report.md` | findings per gravità con PoC + remediation, formato bounty-ready |
+| `06-report-pack/` | Report Pack: `evidence-report.md` (tecnico §§0-8), `pentest-slides.md` (deck), `exec-summary.html` (management) |
 | `07-retest.md` | esito riverifica post-fix |
 
 ## Stage (in ordine)
 
 ### Stage 1 — SCOPE
-- [ ] Importa la policy del programma (HackerOne, Bugcrowd, Intigriti, YesWeHack o delega privata): asset in/out, esclusioni, limiti. Mappa payout per asset (tabelle del programma): attacca prima dove il rapporto $/ora è più alto. Finestra temporale e rate-limit espliciti in `auth-gate.md`. Scrivi `01-scope.md` + `auth-gate.md` + `state.json`.
-**Gate**: scope non ambiguo; un solo NO nel checklist auth → STOP.
+- [ ] Importa la policy del programma (HackerOne, Bugcrowd, Intigriti, YesWeHack o delega privata): asset in/out, esclusioni, limiti. Mappa payout per asset (tabelle del programma): attacca prima dove il rapporto $/ora è più alto. Finestra temporale e rate-limit espliciti in `auth-gate.md`. Scegli il profilo (`blackbox-external`, `graybox-lowpriv`, `whitebox-code`) e registralo in `state.json`; in black-box registra anche “zero credenziali/codice iniziali”. Piano copertura autonoma: registra in `01-scope.md` le fasi richieste da `auth-gate.md` con i loro output, la priorità ai task ordinari (l’assessment non li blocca mai), lo scheduling dentro la finestra (pause/checkpoint, strumenti consentiti, ambiente staging/URL autorizzati). Scrivi `01-scope.md` + `auth-gate.md` + `state.json`.
+**Gate**: scope non ambiguo; profilo registrato; un solo NO nel checklist auth → STOP.
 
 ### Stage 2 — RECON (passiva)
 - [ ] Attack surface senza contatto invasivo: endpoint/API, JS-bundle (endpoint nascosti, segreti client), header/TLS/CORS, versioni e CVE (OSV/Advisory), secrets esposti. Priori da report disclosed (stesso stack): attacca prima dove statisticamente paga. First-blood: programmi/asset nuovi o scope appena ampliato = meno competizione, priorità massima. Diff release: solo superfici nuove vanno in probe, il resto è già coperto. Check duplicati prima di ogni probe (report noti, CVE): il duplicato non paga. Scrivi `02-recon.md`.
@@ -58,25 +70,38 @@ Cartella: `.mind/breach/<target>/` (target = slug kebab-case).
 
 ### Stage 4 — PROBE (solo con gate auth verde)
 - [ ] Scope enforcement prima di ogni probe. Vettori leggeri e reversibili: auth bypass logici, injection non distruttive, IDOR con account di test propri, XSS reflected innocue, upload in lettura, fuzz semantico API (casi edge di logica da schema/comportamento: stati impossibili, transizioni saltate). Un vettore alla volta, dentro finestra e rate-limit. Logga comando grezzo + risposta di ogni probe (evidenza per contestazioni). Scrivi `04-probe.md`.
+- [ ] Traccia black-box/unauthenticated (solo se profilo `blackbox-external` o parte dello scope): inventario della superficie raggiungibile senza sessione; per ogni endpoint × ruolo verifica l’enforcement lato server includendo la colonna anonimo/senza-sessione; nessun signup, brute-force o uso di account salvo autorizzazione esplicita in `auth-gate.md`; probe sempre serializzati e rate-limitati.
 **Gate**: ogni probe con evidenza; STOP a dati reali di terzi, rischio scrittura, comportamento imprevisto.
 
 ### Stage 5 — CATENE
 - [ ] Combina vettori confermati in scenari realistici (es. XSS + CSRF mancante → takeover). Scrivi `05-catene.md` con prerequisiti, passi, impatto.
 **Gate**: nessuna catena su vettori `NON-CONFERMATO`.
 
-### Stage 6 — REPORT
+### Stage 6 — REPORT PACK (3 deliverable)
 - [ ] Findings per gravità (critica/alta/media/bassa, con CVSS dove richiesto dalla piattaforma), ognuno: titolo, dove, PoC riproducibile, impatto, remediation, riferimenti OWASP/CWE. Impatto scritto per la severity che merita (scenario reale peggiore, onesto, con PoC one-click per il triager): la severity assegnata decide il payout. Formato steps-to-reproduce + impact pronto all'invio. Scrivi `06-report.md`.
-**Gate**: zero finding senza PoC nel corpo; `NON-CONFERMATO` solo in appendice.
+- [ ] A fine ogni test completo produci il **Report Pack** in `06-report-pack/`, un deliverable per audience:
+  1. **Evidence Report tecnico** (`evidence-report.md`): struttura completa §§0-8 secondo il template del committente — contesto/scope, metodo e profili, matrice auth endpoint×ruolo, findings con PoC, catene, remediation, appendice NON-CONFERMATO, retest.
+  2. **Deck slide** (`pentest-slides.md`): catena d'attacco, evidenze (comando+risposta), severity e remediation in forma presentabile.
+  3. **Pagina executive** (`exec-summary.html`): sintesi management standalone (rischio, cosa sistemare prima, stato per fase black-box/autenticata).
+**Gate**: zero finding senza PoC nel corpo; `NON-CONFERMATO` solo in appendice; pack completo = 3 file consegnati o scarto esplicito concordato.
 
 ### Stage 7 — RETEST
 - [ ] Dopo il fix: il PoC originale deve fallire. Scrivi `07-retest.md`; chiudi solo con fix + retest verde o accettazione rischio scritta.
 **Gate**: assessment completo = ogni 🔴/🟠 con retest verde o accettazione scritta.
 
+## Cicli di ripetizione consentiti
+
+1. **Retest post-fix**: ripetere il PoC originale dopo ogni fix, fino a verde o accettazione scritta del rischio. Nessun loop infinito: ogni ciclo ha esito registrato in `07-retest.md`.
+2. **Campagne a finestra**: la ripetizione su più giorni/finestre è consentita solo se finestra, rate-limit, scope e contatto stop sono espliciti in `auth-gate.md`.
+3. **Fix loop**: ≤3 tentativi per stage; poi riformula o scala a `mind-consult`.
+4. **Campagne lunghe (anche ore, in autonomia)**: consentite solo dentro la finestra di `auth-gate.md`, con checkpoint pausa/ripresa registrati in `state.json`, rate-limit invariato, priorità ai task ordinari (se arrivano task operativi, la campagna si mette in pausa). Ogni ripresa riverifica scope e finestra prima di ripartire.
+5. **Vietato**: probing attivo continuo/senza sosta, probe paralleli sullo stesso target, escalation automatica senza decisione umana.
+
 ## Economia di chiamate (budget)
 
 1. **Leggi prima, proba dopo**: mai riprobare ciò che gli artefatti già coprono.
 2. **Tool per il rumore, AI per il giudizio**: scanner/SAST/CVE via tool, triage/catene/report via AI.
-3. **Matrice auth**: ogni endpoint × ogni ruolo (anonimo, user, admin, altro tenant) — fabbrica IDOR sistematica, non a campione.
+3. **Matrice auth**: ogni endpoint × ogni ruolo (anonimo, user, admin, altro tenant) — fabbrica IDOR sistematica, non a campione; in `blackbox-external` la colonna anonimo/senza-sessione è obbligatoria.
 4. **Probe serializzati**: mai parallelo sullo stesso target; max 3 subagent solo su vettori/file disgiunti.
 5. **Fix loop**: ≤3 tentativi per stage; poi riformula o scala a `mind-consult`.
 6. **KB pattern**: ogni finding confermato diventa pattern riusabile in memoria.

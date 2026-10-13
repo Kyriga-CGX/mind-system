@@ -1,6 +1,6 @@
 ---
 name: ecosystem-health-check
-description: Verifica la salute dell'ecosistema opencode (plugin e skill del sistema mind, integrità delle skill installate, configurazione Context7 MCP, freschezza del backup) e guida gli aggiornamenti automatici. Da eseguire all'init di ogni nuovo progetto.
+description: Verifica la salute dell'ecosistema opencode (versione plugin Superpowers, integrità skill installate, configurazione Context7 MCP, freschezza del backup) e guida gli aggiornamenti automatici. Da eseguire all'init di ogni nuovo progetto.
 ---
 
 # ecosystem-health-check
@@ -10,7 +10,7 @@ Esegue il controllo dello stato dell'ecosistema e lo riporta all'utente, applica
 ## Esecuzione
 
 1. Esegui lo script di verifica:
-   `powershell -ExecutionPolicy Bypass -File F:\OpenCode Project\Container Idee\skills\ecosystem-health-check\scripts\health-check.ps1`
+   `powershell -ExecutionPolicy Bypass -File "$HOME\.agents\skills\ecosystem-health-check\scripts\health-check.ps1"`
 2. Leggi `health-report.json` (nella directory di lavoro corrente).
 3. Per ogni sezione con status negativo, applica l'update automatico senza chiedere conferma (vedi sotto).
 4. Riporta all'utente (in italiano): stato iniziale, azioni eseguite, stato finale.
@@ -24,14 +24,25 @@ Esegue il controllo dello stato dell'ecosistema e lo riporta all'utente, applica
 
 | Sezione | Status | Azione |
 |---|---|---|
-| mind | missing / out-of-sync | Copia le skill mind mancanti da `C:\Users\Kyrig\OpenCode-Skill-memory\skills\mind` a `C:\Users\Kyrig\.config\opencode\mind\skills` (lo script lo fa da solo: risincronizza le skill mancanti o più vecchie del repo). Verifica la presenza dei plugin `mind\mind.js` e `mind-memory\mind-memory.js` in `C:\Users\Kyrig\.config\opencode\plugins` |
-| skills | missing | Reinstalla le skill curate mancanti in `C:\Users\Kyrig\.agents\skills\` copiandole dal repo `C:\Users\Kyrig\OpenCode-Skill-memory\skills\` |
-| context7 | misconfigured | Correggi la sezione `mcp.context7` in `C:\Users\Kyrig\.config\opencode\opencode.jsonc` (url `https://mcp.context7.com/mcp`, `enabled: true`) |
-| plugins | missing | Verifica che `opencode.jsonc` includa i plugin mind (`file:...plugins\mind\mind.js`, `file:...plugins\mind-memory\mind-memory.js`), `opencode-vibeguard` e `@tarquinen/opencode-dcp`, e che esistano `vibeguard.config.json` e `dcp.jsonc` |
-| backup | stale / no-backup | Riesegui `create-backup.ps1` (nella root del repo `Container Idee`) per rigenerare lo zip |
+| superpowers | outdated | Aggiorna il ref del plugin in `$HOME\.config\opencode\opencode.jsonc` alla versione riportata nel report (`latest`). Il plugin è installato da uno spec git: cambia SOLO il frammento del ref mantenendo la forma `superpowers@git+https://github.com/obra/superpowers.git#<ref>` (es. `...git#6.2.1`). NON sostituire mai la sorgente `git+https://...` con uno spec npm-style come `superpowers@6.2.0`: cambierebbe la sorgente di installazione e romperebbe il path di cache usato dallo script e dal backup |
+| skills | missing | Reinstalla le skill mancanti: per le 14 superpowers riesegui il plugin (bump di versione in opencode.jsonc e verifica che il plugin venga riscaricato); per le skill custom copia la cartella nel path `$HOME\.agents\skills\` |
+| context7 | misconfigured | Correggi la sezione `mcp.context7` in `$HOME\.config\opencode\opencode.jsonc` (url `https://mcp.context7.com/mcp`, `enabled: true`) |
+| pluginContract | misconfigured / check-failed | `mind.js`: deve contenere l'iniezione del bootstrap using-mind; se manca, ripristinalo dal backup. `mind-memory.js`: deve usare il contratto `{output:}` (mai `{text:}`); se non conforme, tieni la versione locale funzionante e segnala la divergenza dal repo |
+| backup | stale / no-backup | Riesegui `create-backup.ps1` (nella root del repo di lavoro) per rigenerare lo zip |
+
+## Preflight sync mind-system (manuale, prima di ogni sync dal repo)
+
+Mai eseguire un sync intero alla cieca. Prima di copiare qualsiasi cosa dal repo mind-system:
+
+1. Backup timestampato di `mind/`, `agent/`, `plugins/`, `$HOME\.agents\skills`, `opencode.jsonc`.
+2. Dry-run con diff: skill nuove/modificate, agenti, plugin, skill esterne.
+3. Sync selettivo: skill mind, skill esterne, agenti, `plugins/mind/mind.js`. MAI sovrascrivere `opencode.jsonc` da un repo esterno (path utente hardcoded, sintassi env diversa): riconciliazione manuale.
+4. Plugin sempre in sottocartelle (`plugins/mind/mind.js`), mai flat: il flat causa doppia registrazione.
+5. Verifica post-sync: confronto a zero divergenze sulle aree sincronizzate, poi restart di opencode.
 
 ## Regole
 
 - Non chiedere conferma per gli update: eseguili e riporta il risultato.
 - Non modificare mai file di progetto dell'utente durante l'update; agisci solo su configurazione globale e path delle skill.
+- Mai sovrascrivere `opencode.jsonc` con la versione di un repo esterno: contiene path utente e sintassi env locali.
 - Se `health-report.json` non viene prodotto, segnala l'errore e fermati.
