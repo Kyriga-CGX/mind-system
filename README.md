@@ -32,7 +32,7 @@ flowchart TD
     M --> O
 ```
 
-Il plugin `mind` inietta il bootstrap a ogni turno (con guardia anti-duplicazione), registra le skill usate in `gaps/skills-used.json` e non fa rete (niente lentezza all'avvio). Quando una sessione accumula turni consecutivi senza alcuna skill o subagent (≥ soglia), inietta un **segnale di fuori-rotta** (`MIND_SIGNAL`) che invita a dichiarare la rotta o a giustificare perché non serve. L'orchestratore dichiara la rotta in una riga (`INTENT=x → STAGE=… → GATE=verification`), invoca le skill a catena annunciando `Uso <skill> per <scopo>`, chiude con evidenza e salva in memoria.
+Il plugin `mind` inietta il bootstrap a ogni turno (con guardia anti-duplicazione), registra le skill usate in `gaps/skills-used.json` e non fa rete (niente lentezza all'avvio). Quando una sessione accumula turni consecutivi senza alcuna skill o subagent (≥ soglia), inietta un **segnale di fuori-rotta** (`MIND_SIGNAL`) che invita a dichiarare la rotta o a giustificare perché non serve. Se l'utente rifiuta lo stesso risultato due volte di fila, inietta **`MIND_LOOP`** (regola anti-loop: niente varianti, cambia ipotesi). L'orchestratore dichiara la rotta in una riga (`INTENT=x → STAGE=… → GATE=verification`), invoca le skill a catena annunciando `Uso <skill> per <scopo>`, chiude con evidenza e salva in memoria.
 
 ## Struttura
 
@@ -372,6 +372,7 @@ Ogni skill passa il suo **risultato** come input alla successiva; se manca o è 
 - Budget: max 3 subagent, max 10 iterazioni, stop a 3 fail. Review piano-vs-spec prima del dispatch. Regression check su codice esistente. Delivery in fasi per feature grandi. Design debt check post-UI.
 - Proattività: gap/rischi/miglioramenti → domanda con opzioni PRIMA di agire. Artefatti come link `file://` assoluti.
 - Lacune: routing sbagliato → correggi `routing.md`; skill scadente → `mind-eval`; caso non coperto → `mind-forge` (mai senza approvazione); manutenzione/integrazione del sistema → `mind-system-sync`.
+- Anti-loop: 1° rifiuto → aggiusta; 2° consecutivo → STOP e cambia ipotesi (mai varianti, mai "aggiusta il colore"); 3° → abbandona l'artefatto (cambio metodo/rotta).
 
 ## Sviluppo e rollback
 

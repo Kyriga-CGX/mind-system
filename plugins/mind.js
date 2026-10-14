@@ -209,6 +209,41 @@ const partText = (part) => {
   return '';
 };
 
+// --- Anti-loop: rifiuto ripetuto dello stesso risultato ---
+// L'hook `prompt` di V2 vede il testo dell'utente: contiamo i rifiuti consecutivi
+// e al 2° iniettiamo MIND_LOOP, che richiama la regola anti-loop di using-mind.
+const REJECTION_PATTERNS = [
+  /non va( bene)?/i,
+  /non funziona/i,
+  /non (lo |la )?vedo/i,
+  /non mi piace/i,
+  /ancora (lontan|sbagliat|uguale|lo stesso|non|peggio)/i,
+  /(lo )?stesso (problema|errore|risultato|effetto)/i,
+  /(hai sbagliato|è sbagliato|non è (giusto|corretto|quello))/i,
+  /(rifai|rifallo|riprova di nuovo)/i,
+  /fuori rotta/i,
+  /non è cambiato (niente|nulla)/i,
+  /(ti blocchi|sei bloccato|si blocca)/i
+];
+
+const isRejection = (text) => REJECTION_PATTERNS.some((re) => re.test(text));
+
+const _rejectStreak = {};
+const _loopSignal = {};
+
+const buildLoopSignal = (n) => `<MIND_LOOP>
+Segnale automatico mind: l'utente ha rifiutato lo stesso risultato ${n} volte di fila.
+Applica la regola anti-loop: NON riproporre una variante della stessa soluzione. Nomina l'assunzione che il rifiuto falsifica, formula un'ipotesi nuova (approccio/strumento/assunzione) e, se il segnale e' ambiguo, fai UNA domanda diagnostica.
+</MIND_LOOP>`;
+
+const takeLoopSignal = (sessionID) => {
+  if (!sessionID) return null;
+  const text = _loopSignal[sessionID];
+  if (!text) return null;
+  delete _loopSignal[sessionID];
+  return text;
+};
+
 export default {
   id: 'mind',
   async setup(ctx) {
@@ -230,18 +265,35 @@ export default {
           const signal = getNoSkillWarning(sessionID);
           if (signal) event.system.unshift({ type: 'text', text: signal });
         }
+
+        if (!joined.includes('MIND_LOOP')) {
+          const loop = takeLoopSignal(sessionID);
+          if (loop) event.system.unshift({ type: 'text', text: loop });
+        }
       } catch {
         // best-effort
       }
     });
 
-    // 2) Turno utente: chiude il precedente e apre il nuovo (registratore).
+    // 2) Turno utente: chiude il precedente e apre il nuovo (registratore) +
+    //    conta i rifiuti consecutivi per il segnale anti-loop.
     await ctx.session.hook('prompt', (event) => {
       try {
         const sessionID = sessionIdOf(event);
-        if (sessionID) {
-          _lastSessionID = sessionID;
-          recordTurnStart(sessionID);
+        if (!sessionID) return;
+        _lastSessionID = sessionID;
+        recordTurnStart(sessionID);
+
+        const text = event?.prompt?.text || '';
+        if (text) {
+          if (isRejection(text)) {
+            _rejectStreak[sessionID] = (_rejectStreak[sessionID] || 0) + 1;
+            if (_rejectStreak[sessionID] >= 2) {
+              _loopSignal[sessionID] = buildLoopSignal(_rejectStreak[sessionID]);
+            }
+          } else {
+            _rejectStreak[sessionID] = 0;
+          }
         }
       } catch {
         // best-effort
