@@ -3,7 +3,7 @@
 Formato rigido, parsabile anche da modelli piccoli (Qwen/DeepSeek):
 `INTENT=<intent> → STAGE=<fasi in ordine> → GATE=verification`
 
-## Tabella 7 intenti
+## Tabella 8 intenti
 
 ```
 INTENT=costruire     → STAGE=brainstorming,spec → planning → implementation → GATE=verification
@@ -13,6 +13,7 @@ INTENT=esplorare     → STAGE=explore(digest) → docs? → memory-save → GAT
 INTENT=decidere      → STAGE=consult/research → ADR/piano → implementation-solo-se-approvato → GATE=verification
 INTENT=rilasciare    → STAGE=release/devops/incident(vedi sotto) → GATE=verification
 INTENT=scrivere      → STAGE=dominio(docs/copy/i18n/data) → GATE=verification
+INTENT=manutenere    → STAGE=sync(discovery,vendoring,integrazione,registrazione,docs) → GATE=verification
 ```
 
 Un esempio per intent (quello che riduce gli errori su DeepSeek/Qwen):
@@ -24,6 +25,7 @@ Un esempio per intent (quello che riduce gli errori su DeepSeek/Qwen):
 - `decidere`: "quale ORM?" → research con fonti → raccomandazione → piano solo se approvi.
 - `rilasciare`: "v1.2.0" → changelog → tag → build CI verde → publish (+ rollback pronto).
 - `scrivere`: "README API" → docs dal codice reale → verification (link e comandi verificati).
+- `manutenere`: "ci sono aggiornamenti dal nostro github?" → discovery → vendoring → integrazione → registrazione nel routing → README/diagrammi → verification.
 
 ## Dettaglio Rotte (skill precise per intent)
 
@@ -36,6 +38,7 @@ esplorare:  mind-explore → mind-docs? → memory (nessun gate, read-only)
 decidere:   mind-consult (sage) / mind-architecture (ADR) / mind-research (+context7-mcp) / mind-stack-watch (watch novità stack, solo su richiesta + inventario) → piano solo se approvato
 rilasciare: mind-release → mind-devops (build/publish) | incidente → mind-incident → debugging/security/devops → mind-docs (postmortem) → mind-verification
 scrivere:   mind-docs | mind-copy → stop-slop | mind-i18n | mind-data → mind-verification
+manutenere: mind-system-sync (preflight → ecosystem-health-check; singolo pezzo → mind-forge se nuovo / mind-eval se affinamento; docs → mind-docs/mind-release; commit → mind-git) → mind-verification
 ```
 
 ## Regola pipeline vs singola (unica)
@@ -105,3 +108,5 @@ SE VUOTA/CORROTTA: procedi con default + segnala, mai bloccare.
 - **Task UI+BE**: rotta del dominio predominante; il gate copre l'intero delta.
 - **Dubbio sul tipo**: route conservativa (creativo→costruire, anomalia→fixare, domanda→decidere); se sbagliata, rifalla.
 - **Skill in dubbio**: scegli quella più vicina al gate (verifica), richiama l'altra se serve.
+- **Sync del sistema vs salute ecosistema**: integrare/sincronizzare contenuti nel sistema mind (repo upstream, skill esterne, README/diagrammi) → `mind-system-sync`; verificare salute/backup/plugin/Context7 e il preflight del sync (backup + dry-run) → `ecosystem-health-check`. Confine netto: una integra, l'altra verifica.
+- **Registro sessioni (consapevolezza tra sessioni)**: all'avvio di un task (non per una domanda singola) leggi `~/.config/opencode/mind/sessions/` (schede attive delle altre sessioni; scarta quelle stantie oltre 48h) e aggiorna la scheda della sessione corrente (`goal`, `status`, `step`). Protocollo in `mind/sessions/README.md`. È disciplina dell'orchestratore, non una skill.
