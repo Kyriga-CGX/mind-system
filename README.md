@@ -41,7 +41,7 @@ Il plugin `mind` inietta il bootstrap a ogni turno (con guardia anti-duplicazion
 - `plugins/` — `mind.js` (bootstrap + registrazione skill + tracciamento uso + segnali `MIND_SIGNAL`/`MIND_LOOP`), `mind-memory.js` (memoria locale-first) e `vibeguard.js` (redazione segreti/PII verso il provider, port V2 di `opencode-vibeguard`). Vanno al top di `~/.config/opencode/plugins/`. **Forma OpenCode V2**: `export default { id, async setup(ctx) {...} }` con hook per dominio — un plugin in stile V1 non viene eseguito in V2 (verifica il log per `failed to load plugin`)
 - `config/dcp.jsonc` — soglie di Dynamic Context Pruning: compressione **lossy** solo oltre ~800K (con 1M di contesto non deve distruggere conversazione a 100K), deduplicazione e purge degli errori sempre attivi (lossless)
 - `config/` — `opencode.jsonc`, `mind-memory.json`, `AGENTS.md` + subagent custom (`agents/sage.md`, `lust.md`, `forge.md`). Chiavi come `{env:VAR}` dall'ambiente all'avvio
-- `docs/` — appunti e note decisionali; `docs/session-registry.md` documenta il registro condiviso tra sessioni (`~/.config/opencode/mind/sessions/`)
+- `docs/` — appunti e note decisionali; `docs/session-registry.md` (registro condiviso tra sessioni in `~/.config/opencode/mind/sessions/`), `docs/system-diagram.md` (routing e pipeline per esteso), `docs/eval/` (report di valutazione delle skill)
 - `sync.ps1` — sincronizza **repo → macchina locale** (il repo è la source of truth)
 
 ## Quickstart
