@@ -27,7 +27,7 @@ Esegue il controllo dello stato dell'ecosistema e lo riporta all'utente, applica
 | superpowers | outdated | Aggiorna il ref del plugin in `$HOME\.config\opencode\opencode.jsonc` alla versione riportata nel report (`latest`). Il plugin è installato da uno spec git: cambia SOLO il frammento del ref mantenendo la forma `superpowers@git+https://github.com/obra/superpowers.git#<ref>` (es. `...git#6.2.1`). NON sostituire mai la sorgente `git+https://...` con uno spec npm-style come `superpowers@6.2.0`: cambierebbe la sorgente di installazione e romperebbe il path di cache usato dallo script e dal backup |
 | skills | missing | Reinstalla le skill mancanti: per le 14 superpowers riesegui il plugin (bump di versione in opencode.jsonc e verifica che il plugin venga riscaricato); per le skill custom copia la cartella nel path `$HOME\.agents\skills\` |
 | context7 | misconfigured | Correggi la sezione `mcp.context7` in `$HOME\.config\opencode\opencode.jsonc` (url `https://mcp.context7.com/mcp`, `enabled: true`) |
-| pluginContract | misconfigured / check-failed | `mind.js`: deve contenere l'iniezione del bootstrap using-mind; se manca, ripristinalo dal backup. `mind-memory.js`: deve usare il contratto `{output:}` (mai `{text:}`); se non conforme, tieni la versione locale funzionante e segnala la divergenza dal repo |
+| pluginContract | misconfigured / check-failed | I plugin mind devono essere in **forma V2**: `export default { id, async setup(ctx) {...} }`, con hook registrati per dominio (`ctx.session.hook("context"|"prompt")`, `ctx.tool.hook("execute.after")`, `ctx.tool.transform`). Uno stile V1 (`export default { id, server: async (...) => ({...}) }`) **NON viene eseguito in V2**: fallisce con *"Plugin must export a default definition with an id and an effect or setup function"*. Verifica SEMPRE il log `~/.local/share/opencode/log/opencode.log`: se compare `failed to load plugin` per un plugin mind, l'intero runtime (bootstrap using-mind, registratore `skills-used.json`, tool `memory`) è spento. `mind.js` = bootstrap + segnale fuori-rotta + registratore; `mind-memory.js` = tool `memory` via `ctx.tool.transform` che ritorna `{content}` (V2), **non** `{output}` (V1) |
 | backup | stale / no-backup | Riesegui `create-backup.ps1` (nella root del repo di lavoro) per rigenerare lo zip |
 
 ## Preflight sync mind-system (manuale, prima di ogni sync dal repo)
@@ -37,7 +37,7 @@ Mai eseguire un sync intero alla cieca. Prima di copiare qualsiasi cosa dal repo
 1. Backup timestampato di `mind/`, `agent/`, `plugins/`, `$HOME\.agents\skills`, `opencode.jsonc`.
 2. Dry-run con diff: skill nuove/modificate, agenti, plugin, skill esterne.
 3. Sync selettivo: skill mind, skill esterne, agenti, `plugins/mind/mind.js`. MAI sovrascrivere `opencode.jsonc` da un repo esterno (path utente hardcoded, sintassi env diversa): riconciliazione manuale.
-4. Plugin sempre in sottocartelle (`plugins/mind/mind.js`), mai flat: il flat causa doppia registrazione.
+4. Plugin: i file vivono in `~/.config/opencode/plugins/` (es. `mind.js`, `mind-memory.js`) e opencode li scopre da lì. In V2 ogni plugin deve esportare `{ id, setup }` (vedi sezione pluginContract). **Verifica sempre il log** dopo ogni aggiornamento di opencode: un plugin V1 non eseguito non produce errori visibili all'utente, solo `failed to load plugin` nel log.
 5. Verifica post-sync: confronto a zero divergenze sulle aree sincronizzate, poi restart di opencode.
 
 ## Regole

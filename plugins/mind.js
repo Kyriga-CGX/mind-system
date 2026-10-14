@@ -1,25 +1,19 @@
 import path from 'path';
 import fs from 'fs';
 import os from 'os';
-import { fileURLToPath } from 'url';
 
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
-
-const extractAndStripFrontmatter = (content) => {
-  const match = content.match(/^---\n([\s\S]*?)\n---\n([\s\S]*)$/);
-  if (!match) return { frontmatter: {}, content };
-  const frontmatter = {};
-  for (const line of match[1].split('\n')) {
-    const colonIdx = line.indexOf(':');
-    if (colonIdx > 0) {
-      frontmatter[line.slice(0, colonIdx).trim()] = line.slice(colonIdx + 1).trim().replace(/^["']|["']$/g, '');
-    }
-  }
-  return { frontmatter, content: match[2] };
-};
-
-let _bootstrapCache;
-let _lastSessionID = null;
+// ---------------------------------------------------------------------------
+// mind — plugin OpenCode V2 (definizione { id, setup }).
+// Runtime: (1) bootstrap di using-mind nel context di ogni richiesta modello,
+// (2) segnale di fuori-rotta quando la sessione accumula turni senza skill,
+// (3) registratore d'uso skill/subagent in mind/gaps/skills-used.json.
+// Best-effort: non deve mai bloccare l'app.
+//
+// NOTA: questa e' la porta V1 -> V2. In V1 l'entrypoint era
+// `export default { id, server: async ({client,directory}) => ({...hooks}) }`;
+// in V2 servono `id` + `setup(ctx)`, con hook registrati per dominio
+// (ctx.session.hook, ctx.tool.hook). Vedi docs/build/plugins/migrate-v1.
+// ---------------------------------------------------------------------------
 
 const configDir = () => {
   const home = os.homedir();
@@ -113,7 +107,7 @@ const recordTurnStart = (sessionID) => {
   }
 };
 
-// Una skill mind è stata caricata nel turno corrente.
+// Una skill mind e' stata caricata nel turno corrente.
 const recordSkill = (sessionID, skillName) => {
   if (!sessionID || !isMindSkill(skillName)) return;
   try {
@@ -129,7 +123,7 @@ const recordSkill = (sessionID, skillName) => {
   }
 };
 
-// Un subagent è stato dispatchato nel turno corrente (task tool).
+// Un subagent e' stato dispatchato nel turno corrente (tool task).
 const recordSubagent = (sessionID, subagentType) => {
   if (!sessionID) return;
   try {
@@ -145,6 +139,22 @@ const recordSubagent = (sessionID, subagentType) => {
     // ignora
   }
 };
+
+const extractAndStripFrontmatter = (content) => {
+  const match = content.match(/^---\n([\s\S]*?)\n---\n([\s\S]*)$/);
+  if (!match) return { frontmatter: {}, content };
+  const frontmatter = {};
+  for (const line of match[1].split('\n')) {
+    const colonIdx = line.indexOf(':');
+    if (colonIdx > 0) {
+      frontmatter[line.slice(0, colonIdx).trim()] = line.slice(colonIdx + 1).trim().replace(/^["']|["']$/g, '');
+    }
+  }
+  return { frontmatter, content: match[2] };
+};
+
+let _bootstrapCache;
+let _lastSessionID = null;
 
 const getBootstrapContent = () => {
   if (_bootstrapCache !== undefined) return _bootstrapCache;
@@ -189,56 +199,70 @@ Se il turno e' piu' di una domanda singola, verifica la rotta: dichiara \`INTENT
   }
 };
 
+// Id sessione dall'evento, con fallback sull'ultimo visto dal prompt hook.
+const sessionIdOf = (event) => event?.sessionID || event?.session?.id || _lastSessionID;
+
+// Testo di una entry di event.system (stringa in V1, {type,text} in V2).
+const partText = (part) => {
+  if (typeof part === 'string') return part;
+  if (part && typeof part.text === 'string') return part.text;
+  return '';
+};
+
 export default {
-  id: "mind",
-  server: async ({ client, directory }) => {
-    return {
-      config: async (config) => {
-        config.skills = config.skills || {};
-        config.skills.paths = config.skills.paths || [];
-        const dir = mindSkillsDir();
-        if (!config.skills.paths.includes(dir)) {
-          config.skills.paths.push(dir);
+  id: 'mind',
+  async setup(ctx) {
+    // 1) Bootstrap using-mind + segnale fuori-rotta nel context di ogni richiesta.
+    await ctx.session.hook('context', (event) => {
+      try {
+        if (!Array.isArray(event.system)) return;
+        const sessionID = sessionIdOf(event);
+        if (sessionID) _lastSessionID = sessionID;
+
+        const joined = event.system.map(partText).join('\n');
+
+        if (!joined.includes('EXTREMELY_IMPORTANT')) {
+          const bootstrap = getBootstrapContent();
+          if (bootstrap) event.system.unshift({ type: 'text', text: bootstrap });
         }
-      },
-      'experimental.chat.system.transform': async (input, output) => {
-        if (!output.system?.length) return;
-        const joined = output.system.join('\n');
-        const bootstrap = getBootstrapContent();
-        if (bootstrap && !joined.includes('EXTREMELY_IMPORTANT')) {
-          output.system.unshift(bootstrap);
+
+        if (!joined.includes('MIND_SIGNAL')) {
+          const signal = getNoSkillWarning(sessionID);
+          if (signal) event.system.unshift({ type: 'text', text: signal });
         }
-        // Segnalazione runtime fuori-rotta (per-turno, solo oltre soglia).
-        const signal = getNoSkillWarning(input?.sessionID || _lastSessionID);
-        if (signal && !output.system.join('\n').includes('MIND_SIGNAL')) {
-          output.system.unshift(signal);
-        }
-      },
-      'chat.message': async (input) => {
-        try {
-          if (input?.sessionID) {
-            _lastSessionID = input.sessionID;
-            recordTurnStart(input.sessionID);
-          }
-        } catch {
-          // best-effort
-        }
-      },
-      'tool.execute.after': async (input) => {
-        try {
-          const sessionID = input?.sessionID;
-          if (!sessionID) return;
-          if (input.tool === 'skill') {
-            const name = input?.args?.name;
-            recordSkill(sessionID, name);
-          } else if (input.tool === 'task') {
-            const subagentType = input?.args?.subagent_type || input?.args?.subagentType;
-            recordSubagent(sessionID, subagentType);
-          }
-        } catch {
-          // best-effort
-        }
+      } catch {
+        // best-effort
       }
-    };
-  }
+    });
+
+    // 2) Turno utente: chiude il precedente e apre il nuovo (registratore).
+    await ctx.session.hook('prompt', (event) => {
+      try {
+        const sessionID = sessionIdOf(event);
+        if (sessionID) {
+          _lastSessionID = sessionID;
+          recordTurnStart(sessionID);
+        }
+      } catch {
+        // best-effort
+      }
+    });
+
+    // 3) Uso di skill/subagent nel turno.
+    await ctx.tool.hook('execute.after', (event) => {
+      try {
+        const sessionID = sessionIdOf(event);
+        if (!sessionID) return;
+        const tool = event?.tool;
+        const input = event?.input || {};
+        if (tool === 'skill') {
+          recordSkill(sessionID, input.name);
+        } else if (tool === 'task') {
+          recordSubagent(sessionID, input.subagent_type || input.subagentType);
+        }
+      } catch {
+        // best-effort
+      }
+    });
+  },
 };
