@@ -56,6 +56,18 @@ Se ambiguo: route conservativa (creativo→`costruire`, anomalia→`fixare`, dom
 - A fine rotta: salva pattern, decisioni, errori superati, architettura (tool `memory` add).
 - Se la memoria è vuota o illeggibile: procedi con i default e segnalalo. Mai bloccare il task.
 
+## Anti-loop (rifiuto ripetuto)
+
+Quando l'utente rifiuta **lo stesso** artefatto/risultato, non riproporre varianti della stessa soluzione:
+
+| Rifiuto | Cosa fai |
+|---|---|
+| **1°** | Aggiusta l'artefatto. Nessuna cerimonia. |
+| **2° consecutivo** | **STOP**: niente varianti. (1) nomina l'**assunzione** che il rifiuto falsifica; (2) formula un'**ipotesi nuova** (cosa cambia: approccio, strumento o assunzione — non il colore); (3) se il segnale è ambiguo fai **UNA** domanda diagnostica ("cosa vedi esattamente / cosa ti aspettavi"). Se non riesci a formulare un'ipotesi diversa → cambia rotta o proponi 2-3 opzioni concrete. |
+| **3°** | L'artefatto si **abbandona**: cambio di metodo/rotta. Mai una quarta proposta dello stesso tipo. |
+
+Registra i tentativi falliti (cosa NON ha funzionato) così non si ripropongono. Un rifiuto non è "aggiusta il dettaglio": è un segnale sull'approccio, finché non dimostri il contrario. Il plugin segnala da solo il 2° rifiuto consecutivo (`MIND_LOOP`).
+
 ## Design Track (sintesi — dettaglio in routing.md)
 
 `frontend-design` (direzione: personalità, signature element, restraint; prima cerca preferenze in memoria) → `design-system` (token + anti-slop 9 check, WCAG 4.5:1, `DESIGN.md` source of truth) → `motion` (solo se animato: ladder CSS→WAAPI→Motion→GSAP→SVG→Three.js, mai saltare al 3D; 3 strati, stagger <500ms) → Design QA (occhi freschi, subagent read-only: token? anti-slop? motion giustificato? Se FAIL → torna a enforce) → `mind-verification`.
