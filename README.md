@@ -38,7 +38,7 @@ Il plugin `mind` inietta il bootstrap a ogni turno (con guardia anti-duplicazion
 
 - `skills/mind/` — il fork mind: orchestratore `using-mind` (`SKILL.md` + `routing.md` + `fma-agents.md`) e 51 skill tra dominio (34) e pipeline (17)
 - `skills/<altre>` — skill storiche: context7-mcp, design-md, design-system, ecosystem-health-check, execution-hygiene, frontend-design, motion, orchestrator, stop-slop
-- `plugins/` — `mind.js` (bootstrap + registrazione skill + tracciamento uso) e `mind-memory.js` (memoria locale-first). Vanno al top di `~/.config/opencode/plugins/`
+- `plugins/` — `mind.js` (bootstrap + registrazione skill + tracciamento uso + segnale fuori-rotta) e `mind-memory.js` (memoria locale-first). Vanno al top di `~/.config/opencode/plugins/`. **Forma OpenCode V2**: `export default { id, async setup(ctx) {...} }` con hook per dominio — un plugin in stile V1 non viene eseguito in V2 (verifica il log per `failed to load plugin`)
 - `config/` — `opencode.jsonc`, `mind-memory.json`, `AGENTS.md` + subagent custom (`agents/sage.md`, `lust.md`, `forge.md`). Chiavi come `{env:VAR}` dall'ambiente all'avvio
 - `docs/` — appunti e note decisionali; `docs/session-registry.md` documenta il registro condiviso tra sessioni (`~/.config/opencode/mind/sessions/`)
 - `sync.ps1` — sincronizza **repo → macchina locale** (il repo è la source of truth)
