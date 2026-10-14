@@ -19,6 +19,7 @@ const extractAndStripFrontmatter = (content) => {
 };
 
 let _bootstrapCache;
+let _lastSessionID = null;
 
 const configDir = () => {
   const home = os.homedir();
@@ -167,6 +168,27 @@ ${content}
   return _bootstrapCache;
 };
 
+// Avviso runtime: trasforma il registratore (finora passivo/di diagnosi) in una
+// segnalazione IN-SESSIONE quando una sessione accumula troppi turni senza
+// skill mind ne' subagent. Non blocca nulla: suggerisce di dichiarare la rotta.
+const getNoSkillWarning = (sessionID) => {
+  if (!sessionID) return null;
+  try {
+    const data = readGaps();
+    const entry = data.sessions.find((s) => s.sessionID === sessionID);
+    if (!entry) return null;
+    const threshold = typeof data.threshold === 'number' ? data.threshold : THRESHOLD_NO_SKILL;
+    const n = entry.consecutiveNoSkill || 0;
+    if (n < threshold) return null;
+    return `<MIND_SIGNAL>
+Segnale automatico mind: in questa sessione sono passati ${n} turni consecutivi senza caricare nessuna skill mind ne' dispatchare subagent.
+Se il turno e' piu' di una domanda singola, verifica la rotta: dichiara \`INTENT=... -> STAGE=... -> GATE=verification\` e carica la skill giusta (vedi using-mind). Se davvero non serve alcuna skill (saluto, domanda one-shot), ignora questo segnale e prosegui.
+</MIND_SIGNAL>`;
+  } catch {
+    return null;
+  }
+};
+
 export default {
   id: "mind",
   server: async ({ client, directory }) => {
@@ -180,17 +202,24 @@ export default {
         }
       },
       'experimental.chat.system.transform': async (input, output) => {
+        if (!output.system?.length) return;
+        const joined = output.system.join('\n');
         const bootstrap = getBootstrapContent();
-        if (bootstrap && output.system?.length) {
-          const joined = output.system.join('\n');
-          if (!joined.includes('EXTREMELY_IMPORTANT')) {
-            output.system.unshift(bootstrap);
-          }
+        if (bootstrap && !joined.includes('EXTREMELY_IMPORTANT')) {
+          output.system.unshift(bootstrap);
+        }
+        // Segnalazione runtime fuori-rotta (per-turno, solo oltre soglia).
+        const signal = getNoSkillWarning(input?.sessionID || _lastSessionID);
+        if (signal && !output.system.join('\n').includes('MIND_SIGNAL')) {
+          output.system.unshift(signal);
         }
       },
       'chat.message': async (input) => {
         try {
-          if (input?.sessionID) recordTurnStart(input.sessionID);
+          if (input?.sessionID) {
+            _lastSessionID = input.sessionID;
+            recordTurnStart(input.sessionID);
+          }
         } catch {
           // best-effort
         }

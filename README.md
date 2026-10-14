@@ -32,7 +32,7 @@ flowchart TD
     M --> O
 ```
 
-Il plugin `mind` inietta il bootstrap a ogni turno (con guardia anti-duplicazione), registra le skill usate in `gaps/skills-used.json` e non fa rete (niente lentezza all'avvio). L'orchestratore dichiara la rotta in una riga (`INTENT=x → STAGE=… → GATE=verification`), invoca le skill a catena annunciando `Uso <skill> per <scopo>`, chiude con evidenza e salva in memoria.
+Il plugin `mind` inietta il bootstrap a ogni turno (con guardia anti-duplicazione), registra le skill usate in `gaps/skills-used.json` e non fa rete (niente lentezza all'avvio). Quando una sessione accumula turni consecutivi senza alcuna skill o subagent (≥ soglia), inietta un **segnale di fuori-rotta** (`MIND_SIGNAL`) che invita a dichiarare la rotta o a giustificare perché non serve. L'orchestratore dichiara la rotta in una riga (`INTENT=x → STAGE=… → GATE=verification`), invoca le skill a catena annunciando `Uso <skill> per <scopo>`, chiude con evidenza e salva in memoria.
 
 ## Struttura
 
