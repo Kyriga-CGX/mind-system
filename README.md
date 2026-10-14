@@ -2,7 +2,7 @@
 
 Sistema mind: skill + orchestrazione + memoria per **opencode**.
 
-Orchestratore a 7 intenti, 51 skill (33 di dominio + 17 pipeline + orchestratore), Design Track first-class, un solo gate di verifica, memoria locale-first. Funziona con DeepSeek, Qwen e Muse.
+Orchestratore a 8 intenti, 52 skill (34 di dominio + 17 pipeline + orchestratore), Design Track first-class, un solo gate di verifica, memoria locale-first. Funziona con DeepSeek, Qwen e Muse.
 
 > I diagrammi sono **Mermaid** (GitHub li renderizza da solo). Dettaglio operativo dell'orchestratore in `skills/mind/using-mind/` (`SKILL.md` + `routing.md`).
 
@@ -10,7 +10,7 @@ Orchestratore a 7 intenti, 51 skill (33 di dominio + 17 pipeline + orchestratore
 
 | Versione | Dove | Cosa |
 |---|---|---|
-| **v2.0** (corrente, `main`) | questo repo | Orchestratore snello: 7 intenti, 5 precedenze, budget rigido, 1 gate. Catalogo in crescita: auth-gate riusabile, breach email-type + Report Pack (registro ID, baseline, retest→pack) |
+| **v2.0** (corrente, `main`) | questo repo | Orchestratore snello: 8 intenti, 5 precedenze, budget rigido, 1 gate. Catalogo in crescita: auth-gate riusabile, breach email-type + Report Pack (registro ID, baseline, retest→pack), `mind-system-sync` (sync/vendoring del sistema) |
 | **v1.0** | [Releases](../../releases/tag/v1.0) | Sistema precedente (tabella ~50 rotte, 17 precedenze) — zip scaricabile, congelata per sempre |
 
 ## Come funziona (in 30 secondi)
@@ -18,7 +18,7 @@ Orchestratore a 7 intenti, 51 skill (33 di dominio + 17 pipeline + orchestratore
 ```mermaid
 flowchart TD
     U[Utente scrive] --> P[Plugin mind: bootstrap using-mind nel system prompt, ogni turno]
-    P --> O{using-mind: quale dei 7 intenti?}
+    P --> O{using-mind: quale degli 8 intenti?}
     O --> C[costruire] --> I[skill di dominio a catena]
     O --> D[design-ui] --> I
     O --> F[fixare] --> I
@@ -26,6 +26,7 @@ flowchart TD
     O --> S[decidere] --> I
     O --> R[rilasciare] --> I
     O --> W[scrivere] --> I
+    O --> N[manutenere: sistema] --> I
     I --> G[Gate unico: mind-verification con evidenza]
     G --> M[(mind-memory: pattern, decisioni, errori)]
     M --> O
@@ -35,7 +36,7 @@ Il plugin `mind` inietta il bootstrap a ogni turno (con guardia anti-duplicazion
 
 ## Struttura
 
-- `skills/mind/` — il fork mind: orchestratore `using-mind` (`SKILL.md` + `routing.md` + `fma-agents.md`) e 50 skill tra dominio (33) e pipeline (17)
+- `skills/mind/` — il fork mind: orchestratore `using-mind` (`SKILL.md` + `routing.md` + `fma-agents.md`) e 51 skill tra dominio (34) e pipeline (17)
 - `skills/<altre>` — skill storiche: context7-mcp, design-md, design-system, ecosystem-health-check, execution-hygiene, frontend-design, motion, orchestrator, stop-slop
 - `plugins/` — `mind.js` (bootstrap + registrazione skill + tracciamento uso) e `mind-memory.js` (memoria locale-first). Vanno al top di `~/.config/opencode/plugins/`
 - `config/` — `opencode.jsonc`, `mind-memory.json`, `AGENTS.md` + subagent custom (`agents/sage.md`, `lust.md`, `forge.md`). Chiavi come `{env:VAR}` dall'ambiente all'avvio
@@ -52,9 +53,9 @@ cd mind-system
 setx CONTEXT7_API_KEY "<valore>"   # poi riapri il terminale e riavvia opencode
 ```
 
-## I 7 intenti
+## Gli 8 intenti
 
-> I 7 intenti sono le **porte d'ingresso**, non il sistema: dietro ci sono 51 skill, 17 pipeline, 23 agenti e 1 gate. Niente è stato rimosso dalla v1 — la ricchezza è nel catalogo qui sotto.
+> Gli 8 intenti sono le **porte d'ingresso**, non il sistema: dietro ci sono 52 skill, 17 pipeline, 23 agenti e 1 gate. Niente è stato rimosso dalla v1 — la ricchezza è nel catalogo qui sotto.
 
 | # | Intent | Rotta | Esempio |
 |---|---|---|---|
@@ -65,6 +66,7 @@ setx CONTEXT7_API_KEY "<valore>"   # poi riapri il terminale e riavvia opencode
 | 5 | `decidere` | consult/research → ADR/piano → codice solo se approvato | "quale ORM?" |
 | 6 | `rilasciare` | release / devops / incident → verification | "v1.2.0", "produzione giù" |
 | 7 | `scrivere` | docs / copy / i18n / data → verification | "README API", "traduci in EN" |
+| 8 | `manutenere` | sync/vendoring sistema mind → integrazione → routing → docs → verification | "ci sono aggiornamenti dal nostro github?", "integra questa skill esterna" |
 
 Se ambiguo: route conservativa (creativo→costruire, anomalia→fixare, domanda→decidere). Se sbagliata, si rifà. Pipeline multi-stage **solo** se consegna unica + ≥3 stage + stato su file — altrimenti rotta singola.
 
@@ -136,6 +138,7 @@ Se ambiguo: route conservativa (creativo→costruire, anomalia→fixare, domanda
 | `mind-runner` | Esegue un piano per intero in autonomia (coda su file, checkpoint, max 10 iter, stop a 3 fail) | "finisci da solo", obiettivi multi-sessione |
 | `mind-eval` | Valuta prompt/agenti/skill con report | la skill scatta ma rende male |
 | `mind-forge` | Forgia nuove skill/agenti via subagent Sheska (solo con approvazione) | caso ricorrente non coperto da nessuna skill |
+| `mind-system-sync` | Sync/integrazione del sistema mind: discovery upstream → **vendoring anti-rot** → integrazione → registrazione routing → README/diagrammi | "ci sono aggiornamenti dal nostro github?", "integra questa skill esterna", "aggiorna README/diagrammi del sistema" |
 | `mind-auth-gate` | Checklist + template `auth-gate.md`, profili black/gray/white, escalation critiche | gate PRIMA di breach, audit e pipeline offensive |
 
 ## Flussi d'uso (come si lavora davvero)
@@ -357,6 +360,7 @@ Ogni skill passa il suo **risultato** come input alla successiva; se manca o è 
 | i18n | implementation/testing/verification | chiavi → test per lingua → evidenza |
 | eval | orchestratore | report → modifiche (eval prima/dopo) |
 | forge | orchestratore/recall/eval/routing | lacuna → proposta (gate) → skill nuova → verifica |
+| system-sync | ecosystem-health-check/forge/eval/docs/git | sync upstream → vendoring → integrazione → registrazione → docs |
 | design-pipeline | explore/design-system/motion/implementation/QA | direzione, DESIGN.md, mockup, qualità verificata |
 | planning | runner | piano → coda persistente + checkpoint |
 | qualunque rotta | verification | gate finale con evidenza |
@@ -367,7 +371,7 @@ Ogni skill passa il suo **risultato** come input alla successiva; se manca o è 
 1. Istruzioni utente > tutto. 2. Sicurezza prima del codice sensibile. 3. Design: direzione → token → motion. 4. Un task = una rotta; parallelo solo a file disgiunti. 5. `mind-verification` unico gate.
 - Budget: max 3 subagent, max 10 iterazioni, stop a 3 fail. Review piano-vs-spec prima del dispatch. Regression check su codice esistente. Delivery in fasi per feature grandi. Design debt check post-UI.
 - Proattività: gap/rischi/miglioramenti → domanda con opzioni PRIMA di agire. Artefatti come link `file://` assoluti.
-- Lacune: routing sbagliato → correggi `routing.md`; skill scadente → `mind-eval`; caso non coperto → `mind-forge` (mai senza approvazione).
+- Lacune: routing sbagliato → correggi `routing.md`; skill scadente → `mind-eval`; caso non coperto → `mind-forge` (mai senza approvazione); manutenzione/integrazione del sistema → `mind-system-sync`.
 
 ## Sviluppo e rollback
 
@@ -389,7 +393,8 @@ La v1 aveva ~50 righe di routing e 17 precedenze nel prompt. Niente è sparito: 
 | decidere | research, research-pipeline, context7, consult |
 | rilasciare | incident, incident-pipeline, audit, devops, release, release-pipeline, rollout, mind-pipeline, mobile, data/perf/ml/infra/observability/migration/decommission/onboarding-pipeline |
 | scrivere | stop-slop, docs, documents, i18n |
-| trasversali | eval, forge, runner, memory, recall, setup, init |
+| manutenere | system-sync, init |
+| trasversali | eval, forge, runner, memory, recall, setup |
 
 Le voci pipeline vivono in una sezione dedicata con la regola unica "solo se consegna unica + ≥3 stage + stato su file".
 

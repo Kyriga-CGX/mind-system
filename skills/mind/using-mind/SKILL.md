@@ -1,6 +1,6 @@
 ---
 name: using-mind
-description: Entry point globale e orchestratore del sistema di skill. Attivala per QUALSIASI task: nuova feature, lavoro creativo, UI, motion/3D, prosa/copy, bug, domande su librerie, piani, init progetto, review. Non produce contenuto: decide la rotta, instrada alla skill giusta e ne coordina la comunicazione.
+description: Entry point globale e orchestratore del sistema di skill. Attivala per QUALSIASI task: nuova feature, lavoro creativo, UI, motion/3D, prosa/copy, bug, domande su librerie, piani, init progetto, manutenzione del sistema mind (sync upstream, skill esterne, README/diagrammi), review. Non produce contenuto: decide la rotta, instrada alla skill giusta e ne coordina la comunicazione.
 ---
 
 # Mind — orchestratore
@@ -15,7 +15,11 @@ Per ogni task dichiara la rotta in una riga (`INTENT=x → STAGE=... → GATE=ve
 
 **Lacuna del sistema**: al primo messaggio di una sessione nuova, leggi `.mind/gaps/skills-used.json`. Se sessioni recenti hanno `consecutiveNoSkill >= threshold`, proponi UNA volta: *"Nelle ultime sessioni N richieste non hanno attivato nessuna skill mind. Vuoi che mind-forge analizzi la lacuna?"*. Sì → `mind-forge` (FASE 1). No → prosegui. Non ripetere nella stessa sessione; non blocca il lavoro.
 
-## I 7 intenti
+**Init progetto**: al primo lavoro su un progetto nuovo, esegui `ecosystem-health-check` (salute ecosistema: plugin, skill installate, Context7, backup) prima di iniziare.
+
+**Registro sessioni (consapevolezza tra sessioni)**: al primo messaggio di un task (non per una domanda singola) leggi `~/.config/opencode/mind/sessions/` — schede attive delle altre sessioni, scartando quelle stantie dopo 48h — e scrivi/aggiorna la scheda della sessione corrente (`goal`, `status`, `step`). Protocollo in `mind/sessions/README.md`. Non è telepatia: funziona solo se ogni sessione scrive e legge.
+
+## Gli 8 intenti
 
 | # | Intent | Rotta |
 |---|---|---|
@@ -26,6 +30,7 @@ Per ogni task dichiara la rotta in una riga (`INTENT=x → STAGE=... → GATE=ve
 | 5 | `decidere` (architettura/ADR, libreria, strategia, valutazione) | `mind-consult` (sage) / `mind-research` (+ `context7-mcp` per docs) / `mind-stack-watch` (watch stack, solo su richiesta + inventario) → ADR/piano → implementazione solo se approvato |
 | 6 | `rilasciare` (release, deploy, incidente) | `mind-release` / `mind-devops` / `mind-incident` (dettaglio in `routing.md`) → `mind-verification` |
 | 7 | `scrivere` (docs, copy, i18n, dati puntuali) | skill di dominio (`mind-docs`, `mind-copy`→`stop-slop`, `mind-i18n`, `mind-data`) → `mind-verification` |
+| 8 | `manutenere` (sistema mind: sync upstream, skill esterne, vendoring, routing, README/diagrammi) | `mind-system-sync` → `mind-verification` |
 
 Se ambiguo: route conservativa (creativo→`costruire`, anomalia→`fixare`, domanda→`decidere`). Se la rotta si rivela sbagliata, rifalla. Mai due rotte insieme. Pipeline multi-stage SOLO se consegna unica + ≥3 stage + stato su file (regola in `routing.md`), altrimenti rotta singola.
 
@@ -60,5 +65,6 @@ Se ambiguo: route conservativa (creativo→`costruire`, anomalia→`fixare`, dom
 - Routing sbagliato (la skill giusta esiste) → correggi `routing.md`.
 - Skill che scatta ma rende male → `mind-eval` (report; le modifiche le decide l'orchestratore).
 - Caso non coperto da nessuna skill → `mind-forge` (proposta + gate utente; mai creare senza approvazione).
+- Manutenzione/integrazione del sistema (sync upstream, skill esterne, vendoring, docs di sistema) → `mind-system-sync`.
 
 Vedi `routing.md` per tabella completa INTENT → STAGE → GATE, esempi per intent, regola pipeline-vs-singola, handoff principali e budget.
