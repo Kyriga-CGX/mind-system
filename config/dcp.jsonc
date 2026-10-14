@@ -12,10 +12,10 @@
     "pruneNotification":  "minimal",
     "compress":  {
                      "permission":  "allow",
-                     "maxContextLimit":  100000,
+                     "maxContextLimit":  800000,
                      "nudgeForce":  "soft",
                      "mode":  "range",
-                     "minContextLimit":  50000
+                     "minContextLimit":  750000
                  },
     "enabled":  true
 }
