@@ -81,7 +81,7 @@ flowchart TD
     P --> O[using-mind<br/>identifica il task]
     O --> D{Macro-via?}
     D -->|1. Feature end-to-end<br/>>= 3 domini, consegna unica| M1[Delivery pipeline<br/>mind-pipeline]
-    D -->|2. Intervento strutturato<br/>>= 3 fasi, consegna unica| M2[Pipeline di dominio<br/>17 pipeline]
+    D -->|2. Intervento strutturato<br/>>= 3 fasi, consegna unica| M2[Pipeline di dominio<br/>18 pipeline]
     D -->|3. Task puntuale| M3[Rotta singola dedicata<br/>skill mind-*]
     D -->|4. Meta: consiglio / valutazione<br/>NON costruire| M4[mind-consult / mind-eval<br/>/ mind-architecture / mind-forge]
     D -->|5. Obiettivo lungo in autonomia<br/>più task, più sessioni| M5[mind-runner]
@@ -134,6 +134,7 @@ Le **8 porte d'ingresso** (intenti) di `using-mind` decidono *cosa* è la richie
 | Release / versioning | `mind-release` → `mind-devops` → `mind-verification` | versione/changelog/tag |
 | Release completa a stage | `mind-release-pipeline` (analisi cambiamenti→versioning→changelog→build+test CI→tag→publish→rollback plan) | chiusura ciclo feature→deploy |
 | Comprendere codice sconosciuto | `mind-explore` (digest) → (`mind-docs` se da documentare) → `mind-memory` | onboarding/impatto cambio |
+| Comprendere un ARTEFATTO senza sorgente (binario, APK, Electron/JS, .NET, firmware, WASM, EVM, archivio, cattura) | `mind-reverse` (gate `mind-auth-gate` sempre; ledger con evidenza) → `mind-verification`; multi-feature/multi-sessione → `mind-reverse-pipeline` | reverse engineering autorizzato di artefatti shipped |
 | Decisione architetturale | `mind-brainstorming` (spec) → `mind-architecture` (ADR) → `mind-planning` | ADR, trade-off di design |
 | Incidente in produzione | `mind-incident` → (`mind-debugging`/`mind-security`/`mind-devops`) → `mind-docs` (postmortem) → `mind-verification` | servizio giù/degrado |
 | Incidente/breach complesso (risposta strutturata) | `mind-incident-pipeline` (detection→triage→mitigazione→root cause→verifica stabilità→postmortem→hardening) | incidente strutturato a stage, breach |

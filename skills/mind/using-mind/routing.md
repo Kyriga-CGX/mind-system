@@ -10,6 +10,7 @@ INTENT=costruire     → STAGE=brainstorming,spec → planning → implementatio
 INTENT=design-ui     → STAGE=design-track(direzione,tokens,motion?,qa) → GATE=verification
 INTENT=fixare        → STAGE=debugging(root-cause) → implementation(TDD) → GATE=verification
 INTENT=esplorare     → STAGE=explore(digest) → docs? → memory-save → GATE=none (read-only)
+                       | artefatto senza sorgente → mind-reverse (gate auth SEMPRE) → GATE=verification
 INTENT=decidere      → STAGE=consult/research → ADR/piano → implementation-solo-se-approvato → GATE=verification
 INTENT=rilasciare    → STAGE=release/devops/incident(vedi sotto) → GATE=verification
 INTENT=scrivere      → STAGE=dominio(docs/copy/i18n/data) → GATE=verification
@@ -22,6 +23,7 @@ Un esempio per intent (quello che riduce gli errori su DeepSeek/Qwen):
 - `design-ui`: "card pricing con hover" → direzione → token → motion? (sì, hover) → QA → verification.
 - `fixare`: "crash su checkout" → root cause + test che fallisce → fix → verification + regression.
 - `esplorare`: "come funziona l'auth?" → digest → risposta + memoria. Nessun codice.
+- `esplorare` (artefatto chiuso): "come funziona questo binario/app senza sorgente?" → mind-reverse (auth-gate) → ledger con evidenza → spec. Se servono più feature/sessioni → mind-reverse-pipeline.
 - `decidere`: "quale ORM?" → research con fonti → raccomandazione → piano solo se approvi.
 - `rilasciare`: "v1.2.0" → changelog → tag → build CI verde → publish (+ rollback pronto).
 - `scrivere`: "README API" → docs dal codice reale → verification (link e comandi verificati).
@@ -35,6 +37,7 @@ design-ui:  Design Track (vedi sotto) → mind-verification
 fixare:     mind-debugging → mind-implementation → mind-verification
             assessment offensivo → mind-breach (gate auth SEMPRE) → mind-security → implementation → mind-verification | assessment multi-sessione/bounty → mind-breach-pipeline (scope→…→retest, stato su file)
 esplorare:  mind-explore → mind-docs? → memory (nessun gate, read-only)
+            artefatto senza sorgente → mind-reverse (gate auth SEMPRE; motore: leggi di ferro + evidenza) → multi-feature/multi-sessione → mind-reverse-pipeline (stato in .mind/reverse/<target>/) → GATE=verification
 decidere:   mind-consult (sage) / mind-architecture (ADR) / mind-research (+context7-mcp) / mind-stack-watch (watch novità stack, solo su richiesta + inventario) → piano solo se approvato
 rilasciare: mind-release → mind-devops (build/publish) | incidente → mind-incident → debugging/security/devops → mind-docs (postmortem) → mind-verification
 scrivere:   mind-docs | mind-copy → stop-slop | mind-i18n | mind-data → mind-verification
@@ -48,7 +51,7 @@ pipeline SOLO SE (consegna unica E ≥3 stage E stato su file .mind/delivery/<no
 ALTRIMENTI rotta singola.
 ```
 
-Le pipeline di dominio (data, mobile, infra, observability, ml, rollout, decommission, incident, audit, migration, release, onboarding, research, performance, design, feature, stack-watch, breach) sono **varianti dello STAGE**, non voci di routing: si usano quando il task attraversa ≥3 fasi con consegna unica e stato su file. Un intervento puntuale usa sempre la rotta singola del dominio (es. `mind-incident`, `mind-security`, `mind-migration`, `mind-release`, `mind-research`, `mind-data`, `mind-performance`, `mind-devops`).
+Le pipeline di dominio (data, mobile, infra, observability, ml, rollout, decommission, incident, audit, migration, release, onboarding, research, performance, design, feature, stack-watch, breach, reverse) sono **varianti dello STAGE**, non voci di routing: si usano quando il task attraversa ≥3 fasi con consegna unica e stato su file. Un intervento puntuale usa sempre la rotta singola del dominio (es. `mind-incident`, `mind-security`, `mind-migration`, `mind-release`, `mind-research`, `mind-data`, `mind-performance`, `mind-devops`).
 
 Solo due approvazioni utente bloccano una pipeline: mockup e contratti critici. Il resto fila senza interruzioni.
 
@@ -108,5 +111,6 @@ SE VUOTA/CORROTTA: procedi con default + segnala, mai bloccare.
 - **Task UI+BE**: rotta del dominio predominante; il gate copre l'intero delta.
 - **Dubbio sul tipo**: route conservativa (creativo→costruire, anomalia→fixare, domanda→decidere); se sbagliata, rifalla.
 - **Skill in dubbio**: scegli quella più vicina al gate (verifica), richiama l'altra se serve.
+- **Sorgente vs artefatto**: il codice c'è → `mind-explore`; il codice NON c'è (binario, APK, app Electron, firmware, WASM, EVM, archivio, cattura) → `mind-reverse` (gate `mind-auth-gate` SEMPRE, prima di ogni analisi). Più feature o più sessioni → `mind-reverse-pipeline`. Obiettivo = vulnerabilità, non comprensione → `mind-breach`/`mind-breach-pipeline`.
 - **Sync del sistema vs salute ecosistema**: integrare/sincronizzare contenuti nel sistema mind (repo upstream, skill esterne, README/diagrammi) → `mind-system-sync`; verificare salute/backup/plugin/Context7 e il preflight del sync (backup + dry-run) → `ecosystem-health-check`. Confine netto: una integra, l'altra verifica.
 - **Registro sessioni (consapevolezza tra sessioni)**: all'avvio di un task (non per una domanda singola) leggi `~/.config/opencode/mind/sessions/` (schede attive delle altre sessioni; scarta quelle stantie oltre 48h) e aggiorna la scheda della sessione corrente (`goal`, `status`, `step`). Protocollo in `mind/sessions/README.md`. È disciplina dell'orchestratore, non una skill.
