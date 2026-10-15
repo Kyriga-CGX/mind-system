@@ -2,7 +2,7 @@
 
 Sistema mind: skill + orchestrazione + memoria per **opencode**.
 
-Orchestratore a 8 intenti, 52 skill (34 di dominio + 17 pipeline + orchestratore), Design Track first-class, un solo gate di verifica, memoria locale-first. Funziona con DeepSeek, Qwen e Muse.
+Orchestratore a 8 intenti, 54 skill (35 di dominio + 18 pipeline + orchestratore), Design Track first-class, un solo gate di verifica, memoria locale-first. Funziona con DeepSeek, Qwen e Muse.
 
 > I diagrammi sono **Mermaid** (GitHub li renderizza da solo). Dettaglio operativo dell'orchestratore in `skills/mind/using-mind/` (`SKILL.md` + `routing.md`).
 
@@ -10,7 +10,7 @@ Orchestratore a 8 intenti, 52 skill (34 di dominio + 17 pipeline + orchestratore
 
 | Versione | Dove | Cosa |
 |---|---|---|
-| **v2.0** (corrente, `main`) | questo repo | Orchestratore snello: 8 intenti, 5 precedenze, budget rigido, 1 gate. Catalogo in crescita: auth-gate riusabile, breach email-type + Report Pack (registro ID, baseline, retest→pack), `mind-system-sync` (sync/vendoring del sistema) |
+| **v2.0** (corrente, `main`) | questo repo | Orchestratore snello: 8 intenti, 5 precedenze, budget rigido, 1 gate. Catalogo in crescita: auth-gate riusabile, breach email-type + Report Pack (registro ID, baseline, retest→pack), `mind-system-sync` (sync/vendoring del sistema), `mind-reverse` (RE di artefatti senza sorgente — metodo vendorato da REA) |
 | **v1.0** | [Releases](../../releases/tag/v1.0) | Sistema precedente (tabella ~50 rotte, 17 precedenze) — zip scaricabile, congelata per sempre |
 
 ## Come funziona (in 30 secondi)
@@ -36,7 +36,7 @@ Il plugin `mind` inietta il bootstrap a ogni turno (con guardia anti-duplicazion
 
 ## Struttura
 
-- `skills/mind/` — il fork mind: orchestratore `using-mind` (`SKILL.md` + `routing.md` + `fma-agents.md`) e 51 skill tra dominio (34) e pipeline (17)
+- `skills/mind/` — il fork mind: orchestratore `using-mind` (`SKILL.md` + `routing.md` + `fma-agents.md`) e 53 skill tra dominio (35) e pipeline (18)
 - `skills/<altre>` — skill storiche: context7-mcp, design-md, design-system, ecosystem-health-check, execution-hygiene, frontend-design, motion, orchestrator, stop-slop
 - `plugins/` — `mind.js` (bootstrap + registrazione skill + tracciamento uso + segnali `MIND_SIGNAL`/`MIND_LOOP`), `mind-memory.js` (memoria locale-first) e `vibeguard.js` (redazione segreti/PII verso il provider, port V2 di `opencode-vibeguard`). Vanno al top di `~/.config/opencode/plugins/`. **Forma OpenCode V2**: `export default { id, async setup(ctx) {...} }` con hook per dominio — un plugin in stile V1 non viene eseguito in V2 (verifica il log per `failed to load plugin`)
 - `config/dcp.jsonc` — soglie di Dynamic Context Pruning: compressione **lossy** solo oltre ~800K (con 1M di contesto non deve distruggere conversazione a 100K), deduplicazione e purge degli errori sempre attivi (lossless)
@@ -56,14 +56,14 @@ setx CONTEXT7_API_KEY "<valore>"   # poi riapri il terminale e riavvia opencode
 
 ## Gli 8 intenti
 
-> Gli 8 intenti sono le **porte d'ingresso**, non il sistema: dietro ci sono 52 skill, 17 pipeline, 23 agenti e 1 gate. Niente è stato rimosso dalla v1 — la ricchezza è nel catalogo qui sotto.
+> Gli 8 intenti sono le **porte d'ingresso**, non il sistema: dietro ci sono 54 skill, 18 pipeline, 23 agenti e 1 gate. Niente è stato rimosso dalla v1 — la ricchezza è nel catalogo qui sotto.
 
 | # | Intent | Rotta | Esempio |
 |---|---|---|---|
 | 1 | `costruire` | spec → piano → implementazione → verification | "aggiungi login OAuth" |
 | 2 | `design-ui` | Design Track → verification | "card pricing con hover" |
 | 3 | `fixare` | debugging (root cause + test) → fix TDD → verification | "crash su checkout" |
-| 4 | `esplorare` | explore (digest) → docs? → memoria, read-only | "come funziona l'auth?" |
+| 4 | `esplorare` | explore (digest) → docs? → memoria, read-only · artefatto senza sorgente → `mind-reverse` (gate auth) → verification | "come funziona l'auth?", "come funziona questo binario/app senza sorgente?" |
 | 5 | `decidere` | consult/research → ADR/piano → codice solo se approvato | "quale ORM?" |
 | 6 | `rilasciare` | release / devops / incident → verification | "v1.2.0", "produzione giù" |
 | 7 | `scrivere` | docs / copy / i18n / data → verification | "README API", "traduci in EN" |
@@ -117,6 +117,7 @@ Se ambiguo: route conservativa (creativo→costruire, anomalia→fixare, domanda
 | `mind-consult` | Parere strategico via subagent `sage` (Van Hohenheim) | "cosa mi consigli", "come miglioreresti" — NON costruisce |
 | `context7-mcp` | Documentazione aggiornata di librerie e SDK | domande su API e framework |
 | `mind-explore` | Codebase Digest di codice sconosciuto | onboarding, impatto di un cambio |
+| `mind-reverse` | RE autorizzato di artefatti SENZA sorgente (binari, APK, Electron/JS, .NET, firmware, WASM, EVM, archivi, catture): ledger con evidenza, osservazione ≠ inferenza ≠ incognita, gate auth sempre | "come funziona questo binario/app?", "confronta due versioni" — metodo vendorato da REA (MIT) |
 
 ### Rilasciare: versioni, deploy, incidenti
 
@@ -288,6 +289,7 @@ Regola unica: pipeline **solo** se consegna unica + ≥3 stage + stato su file (
 | `mind-design-pipeline` | brief→audit→direzioni→DESIGN.md→mockup→componenti→motion→copy→FE→QA→gate→memoria | design strutturato (2 gate utente) |
 | `mind-stack-watch` | inventario→osserva→filtra→proponi→report | monitoraggio novità integrabili (solo su richiesta) |
 | `mind-breach-pipeline` | scope→recon→SAST→probe→catene→report→retest | assessment offensivo bounty (gate auth sempre) |
+| `mind-reverse-pipeline` | scope+auth→identità→classificazione→inventario→tracciamento→corroborazione→ledger→spec→verifica→report | indagine RE multi-feature/multi-sessione (stato in `.mind/reverse/<target>/`) |
 
 ## Agenti FMA (chi esegue)
 
@@ -355,6 +357,7 @@ Ogni skill passa il suo **risultato** come input alla successiva; se manca o è 
 | api | security/docs/migration | threat model / contratto / breaking change |
 | release | devops/verification | build/publish / gate verde |
 | explore | docs/memory | Codebase Digest → docs/mappa |
+| reverse | implementation/docs | spec del comportamento (evidenza citata) → codice riscritto |
 | architecture | planning/api/security/migration | ADR come vincolo |
 | copy | stop-slop/frontend-design/memory | pulizia → estetica → tono |
 | incident | debugging/security/devops/docs | root cause / breach / rollback / postmortem |

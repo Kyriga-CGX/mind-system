@@ -19,8 +19,8 @@ $superpowersPkg = Join-Path $homeDir ".cache\opencode\packages\superpowers@git+h
 $superpowersSkills = Join-Path $homeDir ".cache\opencode\packages\superpowers@git+https_\github.com\obra\superpowers.git\node_modules\superpowers\skills"
 $customSkills = Join-Path $homeDir ".agents\skills"
 $opencodeConfig = Join-Path $homeDir ".config\opencode\opencode.jsonc"
-$mindPluginJs = Join-Path $homeDir ".config\opencode\plugins\mind\mind.js"
-$mindMemoryJs = Join-Path $homeDir ".config\opencode\plugins\mind-memory\mind-memory.js"
+$mindPluginJs = Join-Path $homeDir ".config\opencode\plugins\mind.js"
+$mindMemoryJs = Join-Path $homeDir ".config\opencode\plugins\mind-memory.js"
 $backupZipPattern = "opencode-backup-*.zip"
 
 $report = @{
@@ -138,11 +138,15 @@ $report.context7 = $c7
 $pc = @{ status = "ok"; detail = "contratti plugin verificati"; checks = @() }
 try {
     $mindJs = Get-Content -LiteralPath $mindPluginJs -Raw -ErrorAction Stop
-    if ($mindJs -match "EXTREMELY_IMPORTANT") {
-        $pc.checks += @{ name = "mind.js"; status = "ok"; detail = "inietta il bootstrap using-mind" }
+    $isV2 = ($mindJs -match "export\s+default\s*\{") -and (($mindJs -match "\bsetup\b") -or ($mindJs -match "\beffect\b"))
+    if (-not $isV2) {
+        $pc.status = "misconfigured"
+        $pc.checks += @{ name = "mind.js"; status = "misconfigured"; detail = "non in forma V2: serve export default { id, async setup(ctx) {...} }. In forma V1 (server: async) NON viene eseguito in opencode V2" }
+    } elseif ($mindJs -match "EXTREMELY_IMPORTANT") {
+        $pc.checks += @{ name = "mind.js"; status = "ok"; detail = "forma V2 + iniezione del bootstrap using-mind" }
     } else {
         $pc.status = "misconfigured"
-        $pc.checks += @{ name = "mind.js"; status = "misconfigured"; detail = "manca l'iniezione del bootstrap using-mind" }
+        $pc.checks += @{ name = "mind.js"; status = "misconfigured"; detail = "forma V2 ok ma manca l'iniezione del bootstrap using-mind" }
     }
 } catch {
     $pc.status = "check-failed"
@@ -150,11 +154,11 @@ try {
 }
 try {
     $mmJs = Get-Content -LiteralPath $mindMemoryJs -Raw -ErrorAction Stop
-    if ($mmJs -match "return \{\s*output\s*:" -and $mmJs -notmatch "return \{\s*text\s*:") {
-        $pc.checks += @{ name = "mind-memory.js"; status = "ok"; detail = "usa il contratto {output:} supportato" }
+    if ($mmJs -match "content\s*:" -and $mmJs -notmatch "return \{\s*output\s*:") {
+        $pc.checks += @{ name = "mind-memory.js"; status = "ok"; detail = "contratto V2: il tool ritorna {content}" }
     } else {
         $pc.status = "misconfigured"
-        $pc.checks += @{ name = "mind-memory.js"; status = "misconfigured"; detail = "contratto risposta non conforme: atteso {output:}, vietato {text:}" }
+        $pc.checks += @{ name = "mind-memory.js"; status = "misconfigured"; detail = "contratto non conforme: in V2 il tool ritorna {content} (non {output}, che e V1)" }
     }
 } catch {
     $pc.status = "check-failed"
