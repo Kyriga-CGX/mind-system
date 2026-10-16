@@ -234,6 +234,30 @@ flowchart TD
 
 Stato in `.mind/breach/<target>/`, registro ID D/C/H/M/L/CH/R, baseline dei noti in Stage 1, lista profili in sequenza (mai in parallelo sullo stesso target) con dedup cross-profilo, discovery da contract OpenAPI/Postman, stealth governor con kill-switch, matrice auth endpoint×ruolo (colonna anonimo obbligatoria in black-box), evidence pack redatto + CVSS umano + EPSS per finding, retest automatico max 3 round, Report Pack aggiornato a ogni retest, mai payload distruttivi.
 
+### Reverse engineering di un artefatto senza sorgente (pipeline)
+
+```mermaid
+flowchart TD
+    REQ["come funziona X? binario, app Electron, APK, firmware, WASM..."] --> AUTH[mind-auth-gate: autorizzazione bloccante]
+    AUTH -->|manca| STOP[STOP: nessuna analisi]
+    AUTH -->|verde| S0[Stage 0 SCOPE: domanda + sotto-domande + fuori scope]
+    S0 --> S1[Stage 1 IDENTITA: SHA-256, formato reale, copia di lavoro]
+    S1 --> S2[Stage 2 CLASSIFICAZIONE: nativo / gestito / JS-Electron / pacchetto / firmware / WASM / EVM / database / cattura / runtime]
+    S2 --> S3[Stage 3 INVENTARIO MINIMO: entry point, risorse, configurazione]
+    S3 --> S4[Stage 4 TRACCIAMENTO per feature: entry point - dati e stato - risultato]
+    S4 --> LED[ledger: conclusione - evidenza - osservazione/inferenza/incognita - confine della ricerca]
+    LED --> S5{la statica basta?}
+    S5 -->|no, e autorizzato| RT[osservazione runtime: esecuzione dichiarata come tale]
+    S5 -->|si| S6
+    RT --> S6[Stage 6 SPEC: comportamento separato dalle scelte di design]
+    S6 --> S7[Stage 7 VERIFICA: le conclusioni reggono? la ricostruzione e testata?]
+    S7 --> S8[Stage 8 REPORT + memoria: limiti e incognite residue]
+    S8 --> G[mind-verification]
+    S6 -.->|serve ricostruire| IMPL[mind-implementation / mind-pipeline: codice RISCRITTO, mai copiato dal decompilato]
+```
+
+Stato in `.mind/reverse/<target>/` (`state.json`, `scope.md`, `identity.md`, `inventory.md`, `findings.md`, `unknowns.md`, `spec.md`, `report.md`). Regola d'oro: **osservazione, inferenza e incognita non si mescolano mai**; ogni conclusione cita la sua evidenza; una ricerca negativa vale solo dentro il confine dichiarato. Il metodo e vendorato da REA (MIT) in `mind-reverse/reference/rea-method-vendored.md`.
+
 ### Grafica: dalla direzione alla QA
 
 ```mermaid
@@ -394,7 +418,7 @@ La v1 aveva ~50 righe di routing e 17 precedenze nel prompt. Niente è sparito: 
 | costruire | nuova feature, ADR, refactor, API, git, piano multi-step, review, testing |
 | design-ui | design-pipeline, design-explore, UI, motion, copy |
 | fixare | bug, bug-hunting, security, performance, data, migration |
-| esplorare | explore |
+| esplorare | explore, reverse |
 | decidere | research, research-pipeline, context7, consult |
 | rilasciare | incident, incident-pipeline, audit, devops, release, release-pipeline, rollout, mind-pipeline, mobile, data/perf/ml/infra/observability/migration/decommission/onboarding-pipeline |
 | scrivere | stop-slop, docs, documents, i18n |
