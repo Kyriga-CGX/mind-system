@@ -61,6 +61,8 @@ Identifica soggetto, audience, compito primario della UI, contenuto reale, vinco
 
 ### Stage 2 — Audit dell'esistente (skip se greenfield)
 Se esiste una UI: screenshot dello stato attuale e LEGGILO, gate C1-C9 (`design-system/anti-slop.md`), ricerca di hex e px hardcoded, baseline a11y (contrasto, focus da tastiera, label), eventuale audit motion (`motion/verify.md`). Scrivi `02-audit.md` con l'elenco dei difetti da correggere, per gravità.
+**Research-first sul web**: prima di modellare o disegnare da zero un asset complesso (3D, shader, particellari, fisica), cerca online su siti e gallery di design di qualita (es. Awwwards, Behance, Dribbble, Mobbin, SiteInspire) se esiste gia qualcosa da riusare e migliorare; verifica la licenza prima di riusare. Il custom da zero solo dove sta la firma (concept + signature). Salva i riferimenti trovati in `02-audit.md`. Commodity si riusa, identita si inventa, mai il contrario.
+
 **Gate**: ogni check con PASS/FAIL motivato. Senza UI esistente → `02-audit.md` = "skip".
 
 ### Stage 3 — Esplorazione direzioni (GATE UTENTE)
