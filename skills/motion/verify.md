@@ -50,6 +50,8 @@ Al termine della verifica, produci un report strutturato. Copia questo template 
 - Regola del 1/3: OK / DA CORREGGERE — <motivazione>
 - prefers-reduced-motion gestito: SÌ / NO — <motivazione>
 - Sicurezza flash e loop (max 3 flash/s, loop solo loader): OK / DIFETTO — <motivazione>
+- **Loop senza stacco** — verifica che nessuna animazione in loop mostri il punto di riavvio: il ciclo deve essere continuo (ping-pong, dissolvenza incrociata, tempo infinito) e mai bloccarsi e ripartire da 0 in modo visibile. Un restart che si vede e un difetto: ricuci il loop o nascondi la giunzione con una dissolvenza.
+- Loop senza stacco (nessun restart visibile): OK / DIFETTO — <motivazione>
 - Firma easing-timing coerente (una famiglia, classi timing.js): OK / INCOERENTE — <motivazione>
 - Orchestrazione load unica (pattern F3): OK / EFFETTI SPARSI — <motivazione>
 - Ambient reattivo / auto-atmosphere (F1-F2): OK / MANCANTE o SENZA RISPETTO ACCESSIBILITÀ — <motivazione>
