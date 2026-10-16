@@ -1,6 +1,6 @@
 ---
 name: ecosystem-health-check
-description: Verifica la salute dell'ecosistema opencode (versione plugin Superpowers, integrità skill installate, configurazione Context7 MCP, freschezza del backup) e guida gli aggiornamenti automatici. Da eseguire all'init di ogni nuovo progetto.
+description: Verifica la salute dell'ecosistema opencode (integrità skill installate, configurazione Context7 MCP, freschezza del backup) e guida gli aggiornamenti automatici. Da eseguire all'init di ogni nuovo progetto.
 ---
 
 # ecosystem-health-check
@@ -24,8 +24,7 @@ Esegue il controllo dello stato dell'ecosistema e lo riporta all'utente, applica
 
 | Sezione | Status | Azione |
 |---|---|---|
-| superpowers | outdated | Aggiorna il ref del plugin in `$HOME\.config\opencode\opencode.jsonc` alla versione riportata nel report (`latest`). Il plugin è installato da uno spec git: cambia SOLO il frammento del ref mantenendo la forma `superpowers@git+https://github.com/obra/superpowers.git#<ref>` (es. `...git#6.2.1`). NON sostituire mai la sorgente `git+https://...` con uno spec npm-style come `superpowers@6.2.0`: cambierebbe la sorgente di installazione e romperebbe il path di cache usato dallo script e dal backup |
-| skills | missing | Reinstalla le skill mancanti: per le 14 superpowers riesegui il plugin (bump di versione in opencode.jsonc e verifica che il plugin venga riscaricato); per le skill custom copia la cartella nel path `$HOME\.agents\skills\` |
+| skills | missing | Reinstalla le skill mancanti: copia la cartella nel path `$HOME\.agents\skills\` |
 | context7 | misconfigured | Correggi la sezione `mcp.context7` in `$HOME\.config\opencode\opencode.jsonc` (url `https://mcp.context7.com/mcp`, `enabled: true`) |
 | pluginContract | misconfigured / check-failed | I plugin mind devono essere in **forma V2**: `export default { id, async setup(ctx) {...} }`, con hook registrati per dominio (`ctx.session.hook("context"|"prompt")`, `ctx.tool.hook("execute.after")`, `ctx.tool.transform`). Uno stile V1 (`export default { id, server: async (...) => ({...}) }`) **NON viene eseguito in V2**: fallisce con *"Plugin must export a default definition with an id and an effect or setup function"*. Verifica SEMPRE il log `~/.local/share/opencode/log/opencode.log`: se compare `failed to load plugin` per un plugin mind, l'intero runtime (bootstrap using-mind, registratore `skills-used.json`, tool `memory`) è spento. `mind.js` = bootstrap + segnale fuori-rotta + registratore; `mind-memory.js` = tool `memory` via `ctx.tool.transform` che ritorna `{content}` (V2), **non** `{output}` (V1) |
 | backup | stale / no-backup | Riesegui `create-backup.ps1` (nella root del repo di lavoro) per rigenerare lo zip |

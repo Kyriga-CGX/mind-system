@@ -15,8 +15,6 @@ function ConvertFrom-Jsonc {
 }
 
 $homeDir = $HOME
-$superpowersPkg = Join-Path $homeDir ".cache\opencode\packages\superpowers@git+https_\github.com\obra\superpowers.git\node_modules\superpowers\package.json"
-$superpowersSkills = Join-Path $homeDir ".cache\opencode\packages\superpowers@git+https_\github.com\obra\superpowers.git\node_modules\superpowers\skills"
 $customSkills = Join-Path $homeDir ".agents\skills"
 $opencodeConfig = Join-Path $homeDir ".config\opencode\opencode.jsonc"
 $mindPluginJs = Join-Path $homeDir ".config\opencode\plugins\mind.js"
@@ -25,7 +23,6 @@ $backupZipPattern = "opencode-backup-*.zip"
 
 $report = @{
     checkedAt     = (Get-Date).ToString("yyyy-MM-ddTHH:mm:ss")
-    superpowers   = $null
     skills        = $null
     context7      = $null
     pluginContract = $null
@@ -33,40 +30,8 @@ $report = @{
     skillUpdates  = @()
 }
 
-$sp = @{ status = ""; detail = "" }
-$installed = ""
-$latestClean = ""
-try {
-    if (Test-Path -LiteralPath $superpowersPkg) {
-        $installed = (Get-Content -LiteralPath $superpowersPkg -Raw | ConvertFrom-Json).version
-        $latest = (Invoke-RestMethod -Uri "https://api.github.com/repos/obra/superpowers/releases/latest" -Headers @{ "User-Agent" = "ecosystem-health-check" }).tag_name
-        $latestClean = $latest.TrimStart([char[]]'v')
-        if ($installed -eq $latestClean) {
-            $sp.status = "up-to-date"; $sp.detail = "versione $installed installata = ultima release"
-        } else {
-            $sp.status = "outdated"; $sp.detail = "installata $installed, ultima $latestClean"
-        }
-    } else {
-        $sp.status = "check-failed"; $sp.detail = "package.json del plugin non trovato"
-    }
-} catch {
-    $sp.status = "check-failed"; $sp.detail = "errore di rete o parse: $($_.Exception.Message)"
-}
-$sp.installed = $installed
-$sp.latest = $latestClean
-$report.superpowers = $sp
 
-$expectedSuperpowers = @(
-    "brainstorming", "dispatching-parallel-agents", "executing-plans",
-    "finishing-a-development-branch", "receiving-code-review", "requesting-code-review",
-    "subagent-driven-development", "systematic-debugging", "test-driven-development",
-    "using-git-worktrees", "using-superpowers", "verification-before-completion",
-    "writing-plans", "writing-skills"
-)
 $missing = @()
-foreach ($s in $expectedSuperpowers) {
-    if (-not (Test-Path -LiteralPath (Join-Path $superpowersSkills $s))) { $missing += $s }
-}
 $expectedCustom = @("context7-mcp", "ecosystem-health-check", "stop-slop", "frontend-design", "design-md")
 foreach ($s in $expectedCustom) {
     if (-not (Test-Path -LiteralPath (Join-Path $customSkills $s))) { $missing += $s }
@@ -173,7 +138,7 @@ $zip = Get-ChildItem -Path (Join-Path $PWD.Path $backupZipPattern) -File -ErrorA
 if ($zip) {
     $bk.lastBackup = $zip.LastWriteTime.ToString("yyyy-MM-ddTHH:mm:ss")
     $lastSkillChange = $null
-    foreach ($dir in @($superpowersSkills, $customSkills)) {
+    foreach ($dir in @($customSkills)) {
         try {
             if (Test-Path -LiteralPath $dir) {
                 $latestFile = Get-ChildItem -LiteralPath $dir -Recurse -File -ErrorAction Stop |
