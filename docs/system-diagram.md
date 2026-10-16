@@ -191,7 +191,7 @@ flowchart TB
     SR --> G2[gate finale unico]
     subgraph PL[FASE 2: mind-pipeline - stage]
         direction TB
-        S1[01 Brief - intent utente] --> S2[02 Design + MOCKUP - frontend-design]
+        S1[01 Brief - intent utente] --> S2["02 Design + MOCKUP se FE nuovo<br/>mockup-first, skip se FE esistente"]
         S2 --> A1{Approvazione utente}
         A1 -->|no| S2
         A1 -->|si| S3[03 Contratti API - mind-api<br/>+ threat model mind-security]
@@ -200,9 +200,10 @@ flowchart TB
         S4 --> S6[06 Integrazione endpoint]
         S5 --> S6
         S6 --> S7[07 Sicurezza - mind-security]
+    S6 -.->|scope cresciuto: ridichiara la rotta| D
         S7 --> S8[08 Test - mind-testing]
         S8 --> S9[09 Gate - mind-verification]
-        S9 --> S10[10 Memoria - mind-memory]
+        S9 --> S10["10 Retrospettiva + Memoria<br/>3 domande + mind-memory"]
     end
     PL --> G2[gate finale unico<br/>mind-verification + execution-hygiene<br/>evidenza fresca su tutto il delta]
     G2 --> M[memoria mind-memory<br/>decisioni + architettura + riepilogo]
@@ -210,7 +211,7 @@ flowchart TB
 
 ### 3ter. Pipeline di dominio (15)
 
-Oltre alla consegna di feature (`mind-pipeline`, §3bis) e al design (`mind-design-pipeline`, §3quater), il sistema ha 15 pipeline di dominio per interventi strutturati a stage (≥3 fasi, consegna unica) — **17 pipeline in totale**. Un intervento puntuale usa la rotta singola dedicata, NON la pipeline. Ogni pipeline mantiene stato condiviso su file, gate tra gli stage e budget di chiamate.
+Oltre alla consegna di feature (`mind-pipeline`, §3bis) e al design (`mind-design-pipeline`, §3quater), il sistema ha 16 pipeline di dominio per interventi strutturati a stage (≥3 fasi, consegna unica) — **18 pipeline in totale**. Un intervento puntuale usa la rotta singola dedicata, NON la pipeline. Ogni pipeline mantiene stato condiviso su file, gate tra gli stage e budget di chiamate.
 
 | Pipeline | Stage | Trigger |
 |---|---|---|
@@ -229,6 +230,7 @@ Oltre alla consegna di feature (`mind-pipeline`, §3bis) e al design (`mind-desi
 | `mind-ml-pipeline` | problema+metrica → dati (split) → cleaning/feature (leakage) → selezione modello → training (riproducibile) → eval (test set, fairness) → deploy servizio → monitoraggio drift | modello, predizione, classificazione, ML |
 | `mind-feature-rollout-pipeline` | flag design (default off) → metriche con baseline PRIMA → canary → A/B → espansione 25→50→100% → rollout completo (cleanup) → post-verifica | attivare gradualmente una feature già pronta, canary, A/B |
 | `mind-decommission-pipeline` | inventario consumatori → valutazione impatto → piano deprecation (periodo) → avvisi/docs → migrazione → shutdown controllato → cleanup → gate | ritirare/spegnere un servizio o feature attivo |
+| `mind-reverse-pipeline` | scope+auth-gate -> identita -> classificazione -> inventario -> tracking per feature -> corroborazione -> ledger -> spec/ricostruzione -> verifica -> report | reverse multi-feature/multi-sessione, artefatto senza sorgente |
 
 ### 3quater. Design pipeline (`mind-design-pipeline`)
 
