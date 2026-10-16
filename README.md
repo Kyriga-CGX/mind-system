@@ -161,6 +161,8 @@ sequenceDiagram
     O->>P: spec
     P-->>O: piano (header + task, no placeholder)
     O->>O: review piano vs spec + mappa file
+    O->>O: FE nuovo? mockup-first (approvazione prima del codice)
+    Note over O: scope cresciuto o 3 turni senza skill = STOP e ridichiara la rotta
     O->>E: unità 1 (input, output, done criteria)
     O->>A: unità 2 (file disgiunti)
     E-->>O: DONE
@@ -168,7 +170,7 @@ sequenceDiagram
     O->>R: diff → fix-loop (R≤3 stesso subagent, R≥4 Mustang)
     R-->>O: ok
     O->>V: test + lint + evidenza fresca
-    V-->>O: verde → memoria (pattern, decisioni)
+    V-->>O: verde → retrospettiva (3 domande) + memoria
 ```
 
 ### Fixare un bug / rispondere a un breach
