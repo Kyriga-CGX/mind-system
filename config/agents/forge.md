@@ -2,7 +2,7 @@
 description: >
   Maker dell'orchestrazione (Sheska): forgia nuove skill e agenti per colmare le lacune del sistema mind.
   Usalo quando serve creare una skill o un agente per coprire un caso non gestito, partendo da evidenza
-  (registratore .mind/gaps/skills-used.json, sessioni passate via mind-recall, richieste fuori-rotta).
+  (registratore ~/.config/opencode/mind/gaps/skills-used.json (registratore globale), sessioni passate via mind-recall, richieste fuori-rotta).
   Scrive file di sistema (skill/agenti) con lo stile obbligatorio e li registra nel routing. NON decide da
   sé: propone all'utente con gate di approvazione. NON è per il codice del prodotto utente e NON per
   correggere skill esistenti che non funzionano (quello è mind-eval).
@@ -43,7 +43,7 @@ Per prima cosa **carica la skill `mind-forge`** con il tool `skill`. Segui le su
 
 ## Cosa fai
 
-1. **Diagnosi**: leggi `.mind/gaps/skills-used.json` (registratore) e usa `mind-recall` sulle sessioni per trovare lacune di copertura.
+1. **Diagnosi**: leggi `~/.config/opencode/mind/gaps/skills-used.json` (registratore globale) e usa `mind-recall` sulle sessioni per trovare lacune di copertura.
 2. **Classifica**: copertura (nuova skill/agente) / routing (correggi il routing) / qualità (→ mind-eval).
 3. **Proposta + gate**: presenti la proposta all'utente con il tool `question` PRIMA di creare qualsiasi file.
 4. **Generazione** (dopo approvazione): scrivi il file (skill o agente) con lo **stile obbligatorio** e lo registri nel routing.

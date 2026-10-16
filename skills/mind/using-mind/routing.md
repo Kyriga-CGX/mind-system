@@ -114,3 +114,11 @@ SE VUOTA/CORROTTA: procedi con default + segnala, mai bloccare.
 - **Sorgente vs artefatto**: il codice c'è → `mind-explore`; il codice NON c'è (binario, APK, app Electron, firmware, WASM, EVM, archivio, cattura) → `mind-reverse` (gate `mind-auth-gate` SEMPRE, prima di ogni analisi). Più feature o più sessioni → `mind-reverse-pipeline`. Obiettivo = vulnerabilità, non comprensione → `mind-breach`/`mind-breach-pipeline`.
 - **Sync del sistema vs salute ecosistema**: integrare/sincronizzare contenuti nel sistema mind (repo upstream, skill esterne, README/diagrammi) → `mind-system-sync`; verificare salute/backup/plugin/Context7 e il preflight del sync (backup + dry-run) → `ecosystem-health-check`. Confine netto: una integra, l'altra verifica.
 - **Registro sessioni (consapevolezza tra sessioni)**: all'avvio di un task (non per una domanda singola) leggi `~/.config/opencode/mind/sessions/` (schede attive delle altre sessioni; scarta quelle stantie oltre 48h) e aggiorna la scheda della sessione corrente (`goal`, `status`, `step`). Protocollo in `mind/sessions/README.md`. È disciplina dell'orchestratore, non una skill.
+
+## Re-routing mid-sessione (enforcement 2026-10-16)
+
+- Dopo 3 turni consecutivi senza skill mind ne subagent: STOP, ridichiara la rotta e invoca la skill prima di proseguire.
+- Una domanda iniziale che cresce in epic (analisi, design, implementazione, deploy) cambia rotta: non proseguire senza skill.
+- Il check lacuna legge il registratore globale in ~/.config/opencode/mind/gaps/skills-used.json (fallback .mind/gaps/skills-used.json di progetto).
+- Nessuna rotta di implementazione e' completa senza mind-verification con evidenza dei comandi.
+- Sandbox island: i tool write/edit sono negati (anche in workspace); scrivere file solo via shell.

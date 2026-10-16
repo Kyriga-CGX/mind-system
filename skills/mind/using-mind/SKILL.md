@@ -13,7 +13,7 @@ Per ogni task dichiara la rotta in una riga (`INTENT=x → STAGE=... → GATE=ve
 
 **Prima configurazione**: al primo messaggio di un progetto nuovo (o se in memoria non esiste config per questo progetto/utente), NON instradare subito: annuncia "prima di partire dobbiamo fare una prima configurazione" ed esegui `mind-setup` (domande una alla volta → working-set in memoria). Poi riprendi la rotta normale.
 
-**Lacuna del sistema**: al primo messaggio di una sessione nuova, leggi `.mind/gaps/skills-used.json`. Se sessioni recenti hanno `consecutiveNoSkill >= threshold`, proponi UNA volta: *"Nelle ultime sessioni N richieste non hanno attivato nessuna skill mind. Vuoi che mind-forge analizzi la lacuna?"*. Sì → `mind-forge` (FASE 1). No → prosegui. Non ripetere nella stessa sessione; non blocca il lavoro.
+**Lacuna del sistema**: al primo messaggio di una sessione nuova, leggi `~/.config/opencode/mind/gaps/skills-used.json` (registratore globale; fallback `.mind/gaps/skills-used.json` di progetto). Se sessioni recenti hanno `consecutiveNoSkill >= threshold`, proponi UNA volta: *"Nelle ultime sessioni N richieste non hanno attivato nessuna skill mind. Vuoi che mind-forge analizzi la lacuna?"*. Sì → `mind-forge` (FASE 1). No → prosegui. Non ripetere nella stessa sessione; non blocca il lavoro.
 
 **Init progetto**: al primo lavoro su un progetto nuovo, esegui `ecosystem-health-check` (salute ecosistema: plugin, skill installate, Context7, backup) prima di iniziare.
 
@@ -32,7 +32,7 @@ Per ogni task dichiara la rotta in una riga (`INTENT=x → STAGE=... → GATE=ve
 | 7 | `scrivere` (docs, copy, i18n, dati puntuali) | skill di dominio (`mind-docs`, `mind-copy`→`stop-slop`, `mind-i18n`, `mind-data`) → `mind-verification` |
 | 8 | `manutenere` (sistema mind: sync upstream, skill esterne, vendoring, routing, README/diagrammi) | `mind-system-sync` → `mind-verification` |
 
-Se ambiguo: route conservativa (creativo→`costruire`, anomalia→`fixare`, domanda→`decidere`). Se la rotta si rivela sbagliata, rifalla. Mai due rotte insieme. Pipeline multi-stage SOLO se consegna unica + ≥3 stage + stato su file (regola in `routing.md`), altrimenti rotta singola.
+Se ambiguo: route conservativa (creativo→`costruire`, anomalia→`fixare`, domanda→`decidere`). Se la rotta si rivela sbagliata, rifalla. Mai due rotte insieme. Re-routing mid-sessione: se dopo 3 turni consecutivi non hai caricato nessuna skill mind ne dispatchato subagent, STOP e ridichiara la rotta prima di proseguire. Vale anche quando una domanda iniziale cresce in epic (analisi, design, implementazione, deploy): rifai la rotta invece di proseguire senza skill. Pipeline multi-stage SOLO se consegna unica + ≥3 stage + stato su file (regola in `routing.md`), altrimenti rotta singola.
 
 ## Precedenze (solo 5)
 
@@ -49,6 +49,7 @@ Se ambiguo: route conservativa (creativo→`costruire`, anomalia→`fixare`, dom
 - Snello: niente prosa, checklist, output verificabili. Rispondi nella lingua dell'utente.
 - Proattività: gap nei requisiti, rischio non richiesto o miglioramento utile → domanda (tool `question`) con opzioni concrete PRIMA di agire; se blocca la rotta, segnalalo mentre procedi. Mai oltre lo scope senza conferma. Test e docs previsti dalla rotta si aggiungono senza chiedere (parte del gate).
 - Artefatti consegnati (mockup, report, spec, digest) come hyperlink markdown `file://` assoluti (`[etichetta](file:///F:/OpenCode%20Project/percorso/file)`), non path nudi.
+- Sandbox island: i tool write/edit sono negati (anche in workspace); scrivere file solo via shell.
 
 ## Memoria (mai bloccante)
 
