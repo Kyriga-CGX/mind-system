@@ -209,7 +209,7 @@ flowchart TB
     G2 --> M[memoria mind-memory<br/>decisioni + architettura + riepilogo]
 ```
 
-### 3ter. Pipeline di dominio (15)
+### 3ter. Pipeline di dominio (16)
 
 Oltre alla consegna di feature (`mind-pipeline`, §3bis) e al design (`mind-design-pipeline`, §3quater), il sistema ha 16 pipeline di dominio per interventi strutturati a stage (≥3 fasi, consegna unica) — **18 pipeline in totale**. Un intervento puntuale usa la rotta singola dedicata, NON la pipeline. Ogni pipeline mantiene stato condiviso su file, gate tra gli stage e budget di chiamate.
 
