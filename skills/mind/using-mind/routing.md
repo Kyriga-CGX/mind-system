@@ -122,3 +122,9 @@ SE VUOTA/CORROTTA: procedi con default + segnala, mai bloccare.
 - Il check lacuna legge il registratore globale in ~/.config/opencode/mind/gaps/skills-used.json (fallback .mind/gaps/skills-used.json di progetto).
 - Nessuna rotta di implementazione e' completa senza mind-verification con evidenza dei comandi.
 - Sandbox island: i tool write/edit sono negati (anche in workspace); scrivere file solo via shell.
+
+## Retrospettiva fine-epic (proattivita 2026-10-16)
+
+- A epic chiuso, prima di mind-verification e memory-save, 3 domande obbligatorie: (1) cosa ho fatto a mano che una skill copriva? (2) cosa ha rifiutato lutente e perche? (3) cosa manca o duplica nel routing?
+- Se emerge un pattern (stesso lavoro manuale 2+ volte, rifiuto al 2o consecutivo, skill mai instradata): apri diagnosi mind-forge se manca copertura, oppure correggi il routing o vai di mind-eval. Non aspettare la segnalazione dellutente.
+- Salva esito e pattern in mind-memory: la proattivita si misura dai pattern chiusi, non dalle intenzioni.
