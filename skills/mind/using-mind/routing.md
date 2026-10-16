@@ -53,7 +53,7 @@ ALTRIMENTI rotta singola.
 
 Le pipeline di dominio (data, mobile, infra, observability, ml, rollout, decommission, incident, audit, migration, release, onboarding, research, performance, design, feature, stack-watch, breach, reverse) sono **varianti dello STAGE**, non voci di routing: si usano quando il task attraversa ≥3 fasi con consegna unica e stato su file. Un intervento puntuale usa sempre la rotta singola del dominio (es. `mind-incident`, `mind-security`, `mind-migration`, `mind-release`, `mind-research`, `mind-data`, `mind-performance`, `mind-devops`).
 
-Solo due approvazioni utente bloccano una pipeline: mockup e contratti critici. Il resto fila senza interruzioni.
+Solo due approvazioni utente bloccano una pipeline: mockup e contratti critici. Il resto fila senza interruzioni. Mockup-first: ogni implementazione che crea un FE nuovo parte da un mockup; se il FE esiste gia, niente mockup rigenerato salvo richiesta esplicita dell'utente.
 
 ## Matrice lacune (forge vs eval vs routing)
 
