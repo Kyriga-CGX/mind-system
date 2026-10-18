@@ -28,6 +28,20 @@ sqlite3 -readonly "C:\Users\<utente>\.local\share\opencode\opencode.db" "<QUERY>
 
 > Se `sqlite3` non è nel PATH, installalo o usa un client SQLite in sola lettura. NON usare mai `opencode db` con comandi di scrittura.
 
+## Schema V2 (aggiornato 2026-10-18)
+
+Le tabelle legacy (`session`, `message`, `part`) quotate sotto sono **ferme al 2026-10-14**: non contengono le sessioni successive alla migrazione a opencode V2. Le sessioni reali vivono in:
+
+| Tabella | Colonne utili |
+|---------|---------------|
+| `session_v2` | `id` (ses_*), `title`, `directory`, `time_created` / `time_updated` (ms) |
+| `session_message` | `session_id`, `type` (user/assistant/idle/system/model-switched), `seq`, `time_created`, `data` (JSON) |
+
+- Testo utente: filtro `type = 'user'`, testo in `json_extract(data,'$.metadata.displayText')`.
+- Query essenziali:
+  - `SELECT id, title, directory, time_updated FROM session_v2 ORDER BY time_updated DESC LIMIT 20;`
+  - `SELECT seq, type, json_extract(data,'$.metadata.displayText') FROM session_message WHERE session_id='<ID>' AND type='user' ORDER BY seq ASC;`
+- Se una tabella manca o è vuota: ispeziona prima lo schema con `sqlite3 -readonly <db> "SELECT name FROM sqlite_master WHERE type='table';"` e adatta la query. MAI dichiarare "storico vuoto" senza aver controllato `sqlite_master`.
 ## Schema rilevante (tabelle in sola lettura)
 
 | Tabella | Colonne utili |

@@ -135,6 +135,7 @@ Le **8 porte d'ingresso** (intenti) di `using-mind` decidono *cosa* è la richie
 | Release completa a stage | `mind-release-pipeline` (analisi cambiamenti→versioning→changelog→build+test CI→tag→publish→rollback plan) | chiusura ciclo feature→deploy |
 | Comprendere codice sconosciuto | `mind-explore` (digest) → (`mind-docs` se da documentare) → `mind-memory` | onboarding/impatto cambio |
 | Comprendere un ARTEFATTO senza sorgente (binario, APK, Electron/JS, .NET, firmware, WASM, EVM, archivio, cattura) | `mind-reverse` (gate `mind-auth-gate` sempre; ledger con evidenza) → `mind-verification`; multi-feature/multi-sessione → `mind-reverse-pipeline` | reverse engineering autorizzato di artefatti shipped |
+| Periferica/device fisico (USB, driver, radio, drone, tastiera, batterie) | `mind-hardware` (identifica→connetti→azioni fisiche dietro conferma) → `mind-verification`; bug software → `mind-debugging` | "drone non compare", "installa driver", APK da cavo |
 | Decisione architetturale | `mind-brainstorming` (spec) → `mind-architecture` (ADR) → `mind-planning` | ADR, trade-off di design |
 | Incidente in produzione | `mind-incident` → (`mind-debugging`/`mind-security`/`mind-devops`) → `mind-docs` (postmortem) → `mind-verification` | servizio giù/degrado |
 | Incidente/breach complesso (risposta strutturata) | `mind-incident-pipeline` (detection→triage→mitigazione→root cause→verifica stabilità→postmortem→hardening) | incidente strutturato a stage, breach |
