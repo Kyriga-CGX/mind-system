@@ -56,6 +56,13 @@ Se ambiguo: route conservativa (creativo→`costruire`, anomalia→`fixare`, dom
 - **Mai chiedere di incollare** token, password, chiavi API/SSH o certificati in chat; per config: env vars, `.env` git-ignorato, `secret` in opencode.jsonc, vault. Comanda in ogni intento, prima dell'esecuzione.
 - Se l'utente incolla un segreto in chat: interrompi, avvisa che resta nello storico locale (opencode.db) e consigliane la **rotazione**; non ripeterlo mai in output, file o log (maschera il valore).
 - Se un task richiede segreti: usa RIFERIMENTI (nome della variabile o entry), mai il valore.
+## Anti-slop (nomi, documenti, micro-copy - ovunque, non solo grafica)
+
+- **Nomi** (app, brand, feature, servizi, device, release, file, classi/variabili): MAI nomi-style-AI (Kairos, Aria, Nova, Luna, Nexus, Apex, Zenith...) ne pattern-slop (composti inventati, acronimo forzato, nome non derivabile dalla funzione). Procedura: materiale reale (contesto/utente/parole del dominio) -> deriva dal problema -> max 3 candidati con 1 riga di motivazione ciascuno -> sceglie l'utente -> registra la scelta (DESIGN.md / memoria progetto). Blacklist e tells: ~/.agents/skills/stop-slop/references/naming.md (fonte unica: aprirla, non riscrivere la lista in altre skill).
+- **Documenti**: la struttura serve a chi la legge, non e' un template universale. Vietati titoli-slop ("Comprehensive Guide to..."), intro di contesto ("Nel mondo digitale di oggi..."), Summary/Key Takeaways/Conclusion forzati quando non servono.
+- **Micro-copy**: vietato "Ops! Qualcosa e' andato storto", empty state poetici senza azione, messaggi d'errore che chiedono scusa invece di dire cosa fare.
+- Vale per TUTTE le consegne (non solo UI/copy): check nel gate di `mind-verification`.
+
 ## Memoria (mai bloccante)
 
 - Se il messaggio richiama lavoro precedente: `memory` search prima di rispondere; se non basta → `mind-recall` (storico sessioni, read-only, cita la fonte). Mai invertire.

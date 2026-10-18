@@ -10,7 +10,7 @@ Orchestratore a 8 intenti, 54 skill (35 di dominio + 18 pipeline + orchestratore
 
 | Versione | Dove | Cosa |
 |---|---|---|
-| **v2.0** (corrente, `main`) | questo repo | Orchestratore snello: 8 intenti, 5 precedenze, budget rigido, 1 gate. Catalogo in crescita: auth-gate riusabile, breach email-type + Report Pack (registro ID, baseline, retest→pack), `mind-system-sync` (sync/vendoring del sistema), `mind-reverse` (RE di artefatti senza sorgente — metodo vendorato da REA) + `mind-hardware` (device fisici, gate fisico) + regola "segreti mai in chat" |
+| **v2.0** (corrente, `main`) | questo repo | Orchestratore snello: 8 intenti, 5 precedenze, budget rigido, 1 gate. Catalogo in crescita: auth-gate riusabile, breach email-type + Report Pack (registro ID, baseline, retest→pack), `mind-system-sync` (sync/vendoring del sistema), `mind-reverse` (RE di artefatti senza sorgente — metodo vendorato da REA) + `mind-hardware` (device fisici, gate fisico) + regola "segreti mai in chat" + anti-slop universale (naming blacklist `stop-slop/references/naming.md`, struttura documenti, micro-copy; check nel gate mind-verification) |
 | **v1.0** | [Releases](../../releases/tag/v1.0) | Sistema precedente (tabella ~50 rotte, 17 precedenze) — zip scaricabile, congelata per sempre |
 
 ## Come funziona (in 30 secondi)

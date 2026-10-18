@@ -48,6 +48,7 @@ Saltare un passaggio = mentire, non verificare
 | Requisiti soddisfatti | Checklist linea per linea | Test che passano |
 | UI accessibile | Axe-core: 0 violations + check manuali (contrasto, tastiera, etichette) | "Il testo c'è", contrasto verificato a occhio |
 | Regressione visiva ok | Diff screenshot esaminati / baseline confermata | "Sembra uguale", screenshot accettato a scatola chiusa |
+| Testi/nomi senza slop | Blacklist + tells (stop-slop/references/naming.md) passati sul deliverable | "Sembra originale", check non eseguito |
 
 ## Red flags — FERMATI
 
@@ -115,6 +116,12 @@ Saltare un passaggio = mentire, non verificare
 ```
 ✅ [Esegui screenshot diff] [Vedi: baseline o diff esaminati] → "La UI non è regredita"
 ❌ "Sembra uguale a prima"
+```
+
+**Slop check (deliverable con nomi/testi):**
+```
+✅ [Grep/occhio: blacklist nomi + tells di naming.md] [Vedi: nessun hit] -> "Nomi/prosa/struttura puliti"
+❌ "Il nome va bene" (Kairos/Aria scappati), "il testo e' ok" senza check
 ```
 
 ## Quando applicarla
