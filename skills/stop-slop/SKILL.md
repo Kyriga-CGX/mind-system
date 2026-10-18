@@ -63,6 +63,10 @@ Below 35/50: revise.
 
 See [references/examples.md](references/examples.md) for before/after transformations.
 
+## Naming & Documents (mind extension, 2026-10-18)
+
+These rules extend beyond prose: **product/feature/service/device names**, **document structure**, and **micro-copy** follow the same anti-slop discipline. Canonical name blacklist, naming procedure, and tells: [references/naming.md](references/naming.md) - the single source of truth; other skills link to it, they do not duplicate it. mind-verification includes this check in its gate.
+
 ## License
 
 MIT
