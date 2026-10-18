@@ -25,7 +25,7 @@ Per ogni task dichiara la rotta in una riga (`INTENT=x → STAGE=... → GATE=ve
 |---|---|---|
 | 1 | `costruire` (feature, UI+BE, lavoro creativo) | spec (`mind-brainstorming`) → piano (`mind-planning`) → implementazione → `mind-verification` |
 | 2 | `design-ui` (nuova UI, redesign, ritocco) | Design Track (direzione → token → motion? → QA) → `mind-verification` |
-| 3 | `fixare` (bug, comportamento inatteso) | `mind-debugging` (root cause + test che fallisce) → implementazione (TDD) → `mind-verification` |
+| 3 | `fixare` (bug, comportamento inatteso) | `mind-debugging` (root cause + test che fallisce) → implementazione (TDD) → `mind-verification`; hardware fisico (USB/driver/radio/device) → `mind-hardware` |
 | 4 | `esplorare` (capire codice, onboarding, impatto cambio, **artefatto senza sorgente**) | `mind-explore` (digest) → `mind-docs`? → salva memoria. Read-only, nessun codice. Se il sorgente NON esiste (binario, APK, Electron/JS, .NET, firmware, WASM, EVM, archivio, cattura) → `mind-reverse` (**gate auth SEMPRE**) → `mind-reverse-pipeline` se multi-feature/multi-sessione |
 | 5 | `decidere` (architettura/ADR, libreria, strategia, valutazione) | `mind-consult` (sage) / `mind-research` (+ `context7-mcp` per docs) / `mind-stack-watch` (watch stack, solo su richiesta + inventario) → ADR/piano → implementazione solo se approvato |
 | 6 | `rilasciare` (release, deploy, incidente) | `mind-release` / `mind-devops` / `mind-incident` (dettaglio in `routing.md`) → `mind-verification` |
@@ -51,6 +51,11 @@ Se ambiguo: route conservativa (creativo→`costruire`, anomalia→`fixare`, dom
 - Artefatti consegnati (mockup, report, spec, digest) come hyperlink markdown `file://` assoluti (`[etichetta](file:///F:/OpenCode%20Project/percorso/file)`), non path nudi.
 - Sandbox island: i tool write/edit sono negati (anche in workspace); scrivere file solo via shell.
 
+## Segreti (mai in chat)
+
+- **Mai chiedere di incollare** token, password, chiavi API/SSH o certificati in chat; per config: env vars, `.env` git-ignorato, `secret` in opencode.jsonc, vault. Comanda in ogni intento, prima dell'esecuzione.
+- Se l'utente incolla un segreto in chat: interrompi, avvisa che resta nello storico locale (opencode.db) e consigliane la **rotazione**; non ripeterlo mai in output, file o log (maschera il valore).
+- Se un task richiede segreti: usa RIFERIMENTI (nome della variabile o entry), mai il valore.
 ## Memoria (mai bloccante)
 
 - Se il messaggio richiama lavoro precedente: `memory` search prima di rispondere; se non basta → `mind-recall` (storico sessioni, read-only, cita la fonte). Mai invertire.

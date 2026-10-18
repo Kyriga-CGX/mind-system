@@ -9,6 +9,7 @@ Formato rigido, parsabile anche da modelli piccoli (Qwen/DeepSeek):
 INTENT=costruire     → STAGE=brainstorming,spec → planning → implementation → GATE=verification
 INTENT=design-ui     → STAGE=design-track(direzione,tokens,motion?,qa) → GATE=verification
 INTENT=fixare        → STAGE=debugging(root-cause) → implementation(TDD) → GATE=verification
+                     | hardware fisico → mind-hardware (identifica,connetti,azioni con gate fisico) → GATE=verification
 INTENT=esplorare     → STAGE=explore(digest) → docs? → memory-save → GATE=none (read-only)
                        | artefatto senza sorgente → mind-reverse (gate auth SEMPRE) → GATE=verification
 INTENT=decidere      → STAGE=consult/research → ADR/piano → implementation-solo-se-approvato → GATE=verification
@@ -22,6 +23,7 @@ Un esempio per intent (quello che riduce gli errori su DeepSeek/Qwen):
 - `costruire`: "aggiungi login OAuth" → spec → piano → 2 subagent (FE/BE, file disgiunti) → verification (test verdi).
 - `design-ui`: "card pricing con hover" → direzione → token → motion? (sì, hover) → QA → verification.
 - `fixare`: "crash su checkout" → root cause + test che fallisce → fix → verification + regression.
+- `fixare` (hardware): "drone non compare" → VID/PID + log → driver + probe benigno → azioni fisiche solo con conferma → verification.
 - `esplorare`: "come funziona l'auth?" → digest → risposta + memoria. Nessun codice.
 - `esplorare` (artefatto chiuso): "come funziona questo binario/app senza sorgente?" → mind-reverse (auth-gate) → ledger con evidenza → spec. Se servono più feature/sessioni → mind-reverse-pipeline.
 - `decidere`: "quale ORM?" → research con fonti → raccomandazione → piano solo se approvi.
@@ -36,6 +38,7 @@ costruire:  mind-brainstorming → mind-planning → mind-implementation → min
 design-ui:  Design Track (vedi sotto) → mind-verification
 fixare:     mind-debugging → mind-implementation → mind-verification
             assessment offensivo → mind-breach (gate auth SEMPRE) → mind-security → implementation → mind-verification | assessment multi-sessione/bounty → mind-breach-pipeline (scope→…→retest, stato su file)
+            hardware fisico (USB/driver/radio/device, APK da cavo) → mind-hardware (azioni fisiche SOLO con conferma utente) → mind-verification
 esplorare:  mind-explore → mind-docs? → memory (nessun gate, read-only)
             artefatto senza sorgente → mind-reverse (gate auth SEMPRE; motore: leggi di ferro + evidenza) → multi-feature/multi-sessione → mind-reverse-pipeline (stato in .mind/reverse/<target>/) → GATE=verification
 decidere:   mind-consult (sage) / mind-architecture (ADR) / mind-research (+context7-mcp) / mind-stack-watch (watch novità stack, solo su richiesta + inventario) → piano solo se approvato
@@ -113,6 +116,7 @@ SE VUOTA/CORROTTA: procedi con default + segnala, mai bloccare.
 - **Skill in dubbio**: scegli quella più vicina al gate (verifica), richiama l'altra se serve.
 - **Sorgente vs artefatto**: il codice c'è → `mind-explore`; il codice NON c'è (binario, APK, app Electron, firmware, WASM, EVM, archivio, cattura) → `mind-reverse` (gate `mind-auth-gate` SEMPRE, prima di ogni analisi). Più feature o più sessioni → `mind-reverse-pipeline`. Obiettivo = vulnerabilità, non comprensione → `mind-breach`/`mind-breach-pipeline`.
 - **Sync del sistema vs salute ecosistema**: integrare/sincronizzare contenuti nel sistema mind (repo upstream, skill esterne, README/diagrammi) → `mind-system-sync`; verificare salute/backup/plugin/Context7 e il preflight del sync (backup + dry-run) → `ecosystem-health-check`. Confine netto: una integra, l'altra verifica.
+- **Hardware fisico**: periferica USB/seriale, driver, radio/Bluetooth, drone, tastiera/batterie/retroilluminazione, APK da dispositivo → `mind-hardware` (azioni fisiche sempre dietro conferma utente; l'app estratta va a `mind-reverse`).
 - **Registro sessioni (consapevolezza tra sessioni)**: all'avvio di un task (non per una domanda singola) leggi `~/.config/opencode/mind/sessions/` (schede attive delle altre sessioni; scarta quelle stantie oltre 48h) e aggiorna la scheda della sessione corrente (`goal`, `status`, `step`). Protocollo in `mind/sessions/README.md`. È disciplina dell'orchestratore, non una skill.
 
 ## Re-routing mid-sessione (enforcement 2026-10-16)

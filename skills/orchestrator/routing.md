@@ -29,6 +29,7 @@ La tabella di routing è la **fonte unica** per instradare un task alla sequenza
 | Bug | mind-debugging → mind-implementation → gate |
 | Bug hunting proattivo / review difensiva | mind-debugging (bug hunting) → mind-testing → gate |
 | Sicurezza / breach / threat model / hardening | mind-security → mind-implementation → gate |
+| Periferica/device fisico (USB, driver, radio, drone, tastiera, batterie) | mind-hardware (identifica→connetti→azioni fisiche dietro conferma) → (mind-debugging se il difetto è software) → mind-verification |
 | Ricerca tecnica / scelta libreria | mind-research (→ context7-mcp per docs) |
 | Ricerca approfondita con evidenza e raccomandazione documentata | mind-research-pipeline (domanda+criteri→fonti→sintesi per opzione→comparazione→raccomandazione→validazione) |
 | Performance / ottimizzazione | mind-performance (misura PRIMA) → mind-implementation → gate |

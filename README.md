@@ -10,7 +10,7 @@ Orchestratore a 8 intenti, 54 skill (35 di dominio + 18 pipeline + orchestratore
 
 | Versione | Dove | Cosa |
 |---|---|---|
-| **v2.0** (corrente, `main`) | questo repo | Orchestratore snello: 8 intenti, 5 precedenze, budget rigido, 1 gate. Catalogo in crescita: auth-gate riusabile, breach email-type + Report Pack (registro ID, baseline, retest→pack), `mind-system-sync` (sync/vendoring del sistema), `mind-reverse` (RE di artefatti senza sorgente — metodo vendorato da REA) |
+| **v2.0** (corrente, `main`) | questo repo | Orchestratore snello: 8 intenti, 5 precedenze, budget rigido, 1 gate. Catalogo in crescita: auth-gate riusabile, breach email-type + Report Pack (registro ID, baseline, retest→pack), `mind-system-sync` (sync/vendoring del sistema), `mind-reverse` (RE di artefatti senza sorgente — metodo vendorato da REA) + `mind-hardware` (device fisici, gate fisico) + regola "segreti mai in chat" |
 | **v1.0** | [Releases](../../releases/tag/v1.0) | Sistema precedente (tabella ~50 rotte, 17 precedenze) — zip scaricabile, congelata per sempre |
 
 ## Come funziona (in 30 secondi)
@@ -56,7 +56,7 @@ setx CONTEXT7_API_KEY "<valore>"   # poi riapri il terminale e riavvia opencode
 
 ## Gli 8 intenti
 
-> Gli 8 intenti sono le **porte d'ingresso**, non il sistema: dietro ci sono 54 skill, 18 pipeline, 23 agenti e 1 gate. Niente è stato rimosso dalla v1 — la ricchezza è nel catalogo qui sotto.
+> Gli 8 intenti sono le **porte d'ingresso**, non il sistema: dietro ci sono 55 skill, 18 pipeline, 23 agenti e 1 gate. Niente è stato rimosso dalla v1 — la ricchezza è nel catalogo qui sotto.
 
 | # | Intent | Rotta | Esempio |
 |---|---|---|---|
