@@ -10,14 +10,14 @@ Orchestratore a 8 intenti, 55 skill (36 di dominio + 18 pipeline + orchestratore
 
 | Versione | Dove | Cosa |
 |---|---|---|
-| **v2.0** (corrente, `main`) | questo repo | Orchestratore snello: 8 intenti, 5 precedenze, budget rigido, 1 gate. Catalogo in crescita: auth-gate riusabile, breach email-type + Report Pack (registro ID, baseline, retest→pack), `mind-system-sync` (sync/vendoring del sistema), `mind-reverse` (RE di artefatti senza sorgente — metodo vendorato da REA) + `mind-hardware` (device fisici, gate fisico) + regola "segreti mai in chat" + anti-slop universale (naming blacklist `stop-slop/references/naming.md`, struttura documenti, micro-copy; check nel gate mind-verification) |
+| **v2.0** (corrente, `main`) | questo repo | Orchestratore snello: 8 intenti, 5 precedenze, budget rigido, 1 gate. Catalogo in crescita: auth-gate riusabile, breach email-type + Report Pack (registro ID, baseline, retest→pack), `mind-system-sync` (sync/vendoring del sistema), `mind-reverse` (RE di artefatti senza sorgente — metodo vendorato da REA) + `mind-hardware` (device fisici, gate fisico) + regola "segreti mai in chat" + anti-slop universale (naming blacklist `stop-slop/references/naming.md`, struttura documenti, micro-copy; check nel gate mind-verification) + barra (`config/barra.md`: criteri di "fatto bene" e rifiuti d'approccio, iniettata a ogni richiesta: `MIND_BARRA`/`MIND_RIFIUTO`/`MIND_LOOP`) |
 | **v1.0** | [Releases](../../releases/tag/v1.0) | Sistema precedente (tabella ~50 rotte, 17 precedenze) — zip scaricabile, congelata per sempre |
 
 ## Come funziona (in 30 secondi)
 
 ```mermaid
 flowchart TD
-    U[Utente scrive] --> P[Plugin mind: bootstrap using-mind nel system prompt, ogni turno]
+    U[Utente scrive] --> P[Plugin mind: bootstrap using-mind + barra nel system prompt, ogni turno]
     P --> O{using-mind: quale degli 8 intenti?}
     O --> C[costruire] --> I[skill di dominio a catena]
     O --> D[design-ui] --> I
@@ -36,13 +36,15 @@ Il plugin `mind` inietta il bootstrap a ogni turno (con guardia anti-duplicazion
 
 ## Barra (cosa significa "fatto bene")
 
-`barra.md` tiene i criteri di qualità concordati con l'utente e le assunzioni già falsificate: due sezioni, `## Barra` e `## Rifiuti`.
+`barra.md` ha due sezioni: `## Barra` (criteri di qualità) e `## Rifiuti` (assunzioni già falsificate).
 
-- **Dove**: `~/.config/opencode/mind/barra.md` (globale, da `config/barra.md` di questo repo) e `<progetto>/.mind/barra.md` (progetto, sovrascrive la globale sui conflitti).
-- **Lettura garantita**: il plugin inietta la barra a ogni richiesta (`MIND_BARRA`); non dipende dal fatto che il modello carichi una skill.
-- **Scrittura**: la barra al primo task sostanziale (`mind-setup` domanda 8, o `mind-brainstorming`); i rifiuti **d'approccio** al momento del rifiuto, una riga: `AAAA-MM-GG | assunzione falsificata: "..." | atteso: "..."`.
-- **Chi la verifica**: `mind-verification` (riga "Barra rispettata"), Lust nella design pipeline, i subagent (la ricevono per iniezione; il path nel brief serve per i worktree, dove `.mind/barra.md` può mancare).
-- **Nota**: se il progetto ha `.mind/` nel `.gitignore`, la barra di progetto resta locale. Per versionarla: aggiungi `!.mind/barra.md`.
+- **Cosa entra nel globale**: solo criteri **trasferibili**, scritti come prove nominabili ("nomina la scelta che un template non farebbe; se non riesci a scriverla in una riga, non c'è"). Una riga entra in `## Rifiuti` solo se supera il test *"vale anche per un altro deliverable o un altro progetto?"*: i dettagli di un singolo caso restano nei file della pipeline (`.mind/design/03-scelta.md`, `05-feedback.md`), mai copiati in due posti.
+- **Dove**: globale `~/.config/opencode/mind/barra.md` (da `config/barra.md` di questo repo) e progetto `<progetto>/.mind/barra.md` (sovrascrive la globale sui conflitti). Un rifiuto specifico di un progetto va nel file di progetto, non nel globale.
+- **Lettura garantita**: il plugin inietta la barra a ogni richiesta (`MIND_BARRA`); non dipende dal fatto che il modello carichi una skill. Le istruzioni dirette dell'utente vincono sulla barra: se chiede qualcosa di diverso, si aggiorna la barra.
+- **Chi la scrive**: `mind-brainstorming`, una domanda sola, **solo se non esiste né la globale né quella di progetto**. `mind-setup` registra la risposta solo se l'utente la offre. Se l'utente dice di procedere senza criteri, resta la riga `- (nessun criterio dichiarato: procedi con i default)` e la domanda non si ripete.
+- **Formato di un rifiuto**: `AAAA-MM-GG | assunzione falsificata: "..." | atteso: "..."`, una riga, solo se riguarda l'**approccio** (non un dettaglio da ritoccare).
+- **Chi la verifica**: `mind-verification` (tabella obbligatoria `criterio -> evidenza`, non autocertificazione), Lust nella design pipeline (sezione `## Barra` nel report), i subagent (la ricevono per iniezione; il path nel brief serve nei worktree, dove `.mind/barra.md` può mancare).
+- **Nota**: se il progetto ha `.mind/` nel `.gitignore`, la barra di progetto resta locale; per versionarla aggiungi `!.mind/barra.md`.
 
 ## Struttura
 
@@ -53,6 +55,7 @@ Il plugin `mind` inietta il bootstrap a ogni turno (con guardia anti-duplicazion
 - `config/` — `opencode.jsonc`, `mind-memory.json`, `barra.md` (criteri "fatto bene" + rifiuti, deployato in `mind/barra.md`), `AGENTS.md` + subagent custom (`agents/sage.md`, `lust.md`, `forge.md`). Chiavi come `{env:VAR}` dall'ambiente all'avvio
 - `docs/` — appunti e note decisionali; `docs/session-registry.md` (registro condiviso tra sessioni in `~/.config/opencode/mind/sessions/`), `docs/system-diagram.md` (routing e pipeline per esteso), `docs/eval/` (report di valutazione delle skill)
 - `sync.ps1` — sincronizza **repo → macchina locale** (il repo è la source of truth)
+- `tests/` — `barra.test.mjs`: il meccanismo si riprova con `node tests/barra.test.mjs` (barra globale+progetto, guardie a tag, rifiuto al 1°, loop al 2°, contatore, stato vuoto, registratore isolato)
 
 ## Quickstart
 
