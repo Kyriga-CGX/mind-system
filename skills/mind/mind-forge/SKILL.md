@@ -46,6 +46,7 @@ Il plugin `mind` registra l'uso reale del sistema in `.mind/gaps/skills-used.jso
 - `noSkillTurns`: turni in cui NON è stata caricata nessuna skill mind né dispatchato un subagent.
 - `consecutiveNoSkill`: turni consecutivi senza skill (si azzera al primo turno "pieno").
 - `usedThisTurn`: flag interno del turno corrente.
+- `rejections` + `directory`: primo rifiuto di ogni serie consecutiva, con la directory della sessione. Una sessione con `rejections > 0` e nessuna riga in `## Rifiuti` del suo `barra.md` = il meccanismo non è stato scritto: lacuna di esecuzione, non di copertura.
 
 mind-forge **legge** quel file: non è un loop, è un registratore che accumula evidenza nel tempo.
 

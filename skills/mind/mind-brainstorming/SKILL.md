@@ -33,6 +33,7 @@ Ogni progetto passa da questo processo. Todo list, utility di una funzione, modi
 - Progetto troppo grande per un singolo spec: aiuta a decomporre in sub-progetti — quali sono i pezzi indipendenti, come si relazionano, in che ordine costruirli. Poi brainstorma il primo sub-progetto con il flusso normale. Ogni sub-progetto ha il proprio ciclo spec→plan→implementazione
 - Una domanda per messaggio. Se un argomento richiede più esplorazione, spezzalo in più domande
 - Focus: scopo, vincoli, criteri di successo
+- **Barra**: se non esiste né `~/.config/opencode/mind/barra.md` né un `.mind/barra.md` con `## Barra`, una domanda secca prima di tutto: "cosa deve avere o far dire 'fatto bene' questo lavoro? dammi 1-3 criteri verificabili o un riferimento reale". Scrivi la risposta in `.mind/barra.md`. Se il file esiste, leggi `## Rifiuti` e verifica di non riproporre un'assunzione già falsificata.
 - Preferisci domande a scelta multipla quando possibile; aperte ok
 
 ## Esplorazione degli approcci

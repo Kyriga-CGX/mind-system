@@ -24,6 +24,7 @@ Quando ti viene chiesto di progettare o verificare un motion, segui questi sette
 
 ## Ordine delle operazioni
 
+- Leggi `barra.md` (globale + progetto): il motion serve l'idea che deve sorprendere, non riempie un elenco di effetti; ciò che sta in `## Rifiuti` è già stato scartato.
 - Ottieni prima la direzione estetica: **invoca la skill `frontend-design`** prima di coreografare. La direzione estetica è un prerequisito del motion, mai un ripensamento.
 - Poi sfoglia `reference/motion-catalog.md` + `reference/sources.md` per esempi e tendenze già raccolti.
 - Poi consulta `priority-ladder.md` per la tecnologia (più bassa possibile).

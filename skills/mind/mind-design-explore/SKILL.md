@@ -36,6 +36,7 @@ L'output è una scelta informata dell'utente, non codice.
 |---|---|
 | `01-brief.md` | soggetto, audience, compito primario, contenuto reale, vincoli tecnici, brand esistente, livello di rischio |
 | `02-audit.md` | se UI esistente: difetti C1-C9, token hardcoded, baseline a11y |
+| `barra.md` (globale + `.mind/barra.md`) | criteri di "fatto bene" e rifiuti già registrati: ogni direzione si confronta con questi, non solo col brief |
 
 Regola: se manca il brief → fermati e torna allo Stage 1 della pipeline. Non inventare soggetto né audience.
 

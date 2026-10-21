@@ -69,17 +69,26 @@ Se ambiguo: route conservativa (creativo→`costruire`, anomalia→`fixare`, dom
 - A fine rotta: salva pattern, decisioni, errori superati, architettura (tool `memory` add).
 - Se la memoria è vuota o illeggibile: procedi con i default e segnalalo. Mai bloccare il task.
 
+## Barra (cosa significa "fatto bene")
+
+`barra.md` e' l'unico posto dove sta scritto cosa rende un lavoro fatto bene per questo progetto/utente, e quali assunzioni sono gia' state falsificate. Il plugin la inietta a ogni richiesta (`MIND_BARRA`): **leggerla non e' una scelta**, verificarla prima di consegnare si.
+
+- **Dove**: `~/.config/opencode/mind/barra.md` (globale, default) + `.mind/barra.md` di progetto (sovrascrive la globale sui conflitti).
+- **Struttura**: `## Barra` (criteri verificabili, niente "moderno/pulito/professionale") e `## Rifiuti` (una riga per rifiuto d'approccio: data | assunzione falsificata | atteso).
+- **Quando si scrive**: la barra al primo task sostanziale (una domanda, in `mind-brainstorming`); i rifiuti al momento del rifiuto, non a fine epic. Solo rifiuti di **approccio**: i dettagli non entrano.
+- **Chi la legge**: ogni rotta, i subagent (path passato nel brief da `mind-implementation`) e `mind-verification` come gate.
+
 ## Anti-loop (rifiuto ripetuto)
 
 Quando l'utente rifiuta **lo stesso** artefatto/risultato, non riproporre varianti della stessa soluzione:
 
 | Rifiuto | Cosa fai |
 |---|---|
-| **1°** | Aggiusta l'artefatto. Nessuna cerimonia. |
+| **1°** | Aggiusta l'artefatto. Se il rifiuto riguarda l'**approccio** (non un dettaglio): una riga in `## Rifiuti` di `.mind/barra.md`. Nessuna cerimonia oltre a questo. |
 | **2° consecutivo** | **STOP**: niente varianti. (1) nomina l'**assunzione** che il rifiuto falsifica; (2) formula un'**ipotesi nuova** (cosa cambia: approccio, strumento o assunzione — non il colore); (3) se il segnale è ambiguo fai **UNA** domanda diagnostica ("cosa vedi esattamente / cosa ti aspettavi"). Se non riesci a formulare un'ipotesi diversa → cambia rotta o proponi 2-3 opzioni concrete. |
 | **3°** | L'artefatto si **abbandona**: cambio di metodo/rotta. Mai una quarta proposta dello stesso tipo. |
 
-Registra i tentativi falliti (cosa NON ha funzionato) così non si ripropongono. Un rifiuto non è "aggiusta il dettaglio": è un segnale sull'approccio, finché non dimostri il contrario. Il plugin segnala da solo il 2° rifiuto consecutivo (`MIND_LOOP`).
+Registra i tentativi falliti nella barra (`## Rifiuti`), non a memoria: un rifiuto non è "aggiusta il dettaglio", è un segnale sull'approccio finché non dimostri il contrario. La barra è l'ipotesi, il rifiuto la sua falsificazione: chi riprende (altra sessione, subagent a contesto fresco) legge quel file. Il plugin segnala il 1° rifiuto (`MIND_RIFIUTO`) e il 2° consecutivo (`MIND_LOOP`).
 
 ## Design Track (sintesi — dettaglio in routing.md)
 

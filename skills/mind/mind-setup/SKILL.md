@@ -49,6 +49,7 @@ Ordine consigliato (adatta e riduci in base al progetto). Per ogni domanda: usa 
 | 5 | Convenzioni (test, lint, commit) | scelta multipla | sì test obbligatori (default) / solo dove serve |
 | 6 | Dove tenere docs/piani | scelta multipla | docs/ (default) / README / altro |
 | 7 | Cosa ricordare in memoria | scelta multipla | preferenze+decisioni (default) / solo decisioni / niente |
+| 8 | *(solo se l'utente la offre)* cosa rende un lavoro "fatto bene" | libera | non chiederla: è compito di `mind-brainstorming`. Se arriva, registrala |
 
 > Aggiungi domande **solo se necessarie** al task (es. "framework UI preferito" solo se il progetto è UI). Non fare domande di cui non userai la risposta.
 
@@ -61,6 +62,8 @@ memory mode=add content="<domanda>: <risposta>" scope=project type=configuration
 ```
 
 Preferenze trasversali (lingua, stile) → `scope=user`. Scelte del progetto → `scope=project`.
+
+Se l'utente offre la risposta 8, non lasciarla solo in memoria: scrivila in `.mind/barra.md` sotto `## Barra` (criteri verificabili, niente "moderno/pulito"). È il file che il plugin inietta a ogni richiesta; senza, un rifiuto non lascia traccia.
 
 ## FASE 4 — Consegna all'orchestratore
 

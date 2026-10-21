@@ -56,7 +56,7 @@ Ogni stage scrive il proprio file e aggiorna `state.json`. Lo stage successivo l
 ## Stage (in ordine)
 
 ### Stage 1 — Brief e soggetto
-Identifica soggetto, audience, compito primario della UI, contenuto reale, vincoli tecnici, brand esistente, livello di rischio accettato. Se il brief non dice cosa è il prodotto, proponi tu un soggetto concreto e confermalo con l'utente. Domande UNA alla volta (tool `question`), con default quando le opzioni sono note.
+Identifica soggetto, audience, compito primario della UI, contenuto reale, vincoli tecnici, brand esistente, livello di rischio accettato. Leggi `barra.md` (globale + progetto, se esiste) e riporta i suoi criteri in `01-brief.md`: entrano nel brief come vincoli. Se il brief non dice cosa è il prodotto, proponi tu un soggetto concreto e confermalo con l'utente. Domande UNA alla volta (tool `question`), con default quando le opzioni sono note.
 **Gate**: `01-brief.md` completo, nessun placeholder, soggetto confermato.
 
 ### Stage 2 — Audit dell'esistente (skip se greenfield)
@@ -67,7 +67,7 @@ Se esiste una UI: screenshot dello stato attuale e LEGGILO, gate C1-C9 (`design-
 
 ### Stage 3 — Esplorazione direzioni (GATE UTENTE)
 `mind-design-explore`: 2-3 direzioni estetiche DAVVERO distinte, ognuna con wireframe ASCII, token compatti, rationale legata al soggetto, singolo elemento caratteristico, auto-check C1-C9 e dei 5 tratti default AI, comparazione per criteri. Scrivi `03-concepts.md`.
-**Gate di approvazione (obbligatorio)**: presenta le direzioni con il tool `question` e fai scegliere l'utente. Registra in `03-scelta.md` scelta, motivo e concept scartati. Se l'utente chiede modifiche, itera la direzione scelta.
+**Gate di approvazione (obbligatorio)**: presenta le direzioni con il tool `question` e fai scegliere l'utente. Registra in `03-scelta.md` scelta, motivo e concept scartati. Ogni direzione si confronta con i criteri di `## Barra`: una direzione che non li tocca va scartata o motivata. Se l'utente chiede modifiche, itera la direzione scelta.
 Se il brief fissa già la direzione visiva → le parole del brief vincono: salta la divergenza, scrivi `03-scelta.md` citando il brief.
 
 ### Stage 4 — Token e DESIGN.md
@@ -76,6 +76,8 @@ Se manca `DESIGN.md` → `design-system/create.md` (survey, scansione codebase, 
 
 ### Stage 5 — Mockup della schermata chiave (GATE UTENTE)
 Costruisci UN mockup statico ad alta fedeltà della schermata più importante, con contenuto REALE e token del DESIGN.md. Screenshot → LEGGILO → autocritica (togli un accessorio prima di consegnare). Scrivi `05-mockup.md`.
+Verifica i criteri di `## Barra` uno per uno prima di presentare, ognuno con la sua evidenza.
+
 **Gate di approvazione (obbligatorio)**: presenta il mockup all'utente e itera finché non è approvato; esito in `05-feedback.md`. NESSUN codice di produzione prima di questa approvazione.
 **Presenta il mockup come link cliccabile**: nel `05-mockup.md` e nel messaggio all'utente cita il file con hyperlink `file://` assoluto (es. `[apri mockup](file:///F:/OpenCode%20Project/.../docs/mockups/nome.html)`) così si apre con Ctrl+click senza cercarlo.
 
@@ -96,7 +98,7 @@ Dal mockup estrai l'inventario dei componenti, mappa ognuno ai token del DESIGN.
 **Gate**: diff senza hex hardcoded né px letterali; token enforcement applicato, non solo dichiarato.
 
 ### Stage 10 — Qualità visiva
-Passata finale su ciò che è stato costruito: gate C1-C9, `enforce.md` (regole 1-5), pattern P1-P3 e F1-F7 applicati come dichiarato in `06-components.md`/`07-motion.md`, a11y (Axe-core 0 violazioni, contrasto AA 4.5:1 testo e 3:1 UI, focus da tastiera, label, landmark, `prefers-reduced-motion`), responsive su breakpoint reali, baseline visual regression (`mind-testing` 5.1). La review va fatta in CONTESTO FRESCO: dispatch del subagent **Lust** (design QA, read-only, non può modificare il codice). Scrivi `10-quality.md`.
+Passata finale su ciò che è stato costruito: gate C1-C9, `enforce.md` (regole 1-5), pattern P1-P3 e F1-F7 applicati come dichiarato in `06-components.md`/`07-motion.md`, a11y (Axe-core 0 violazioni, contrasto AA 4.5:1 testo e 3:1 UI, focus da tastiera, label, landmark, `prefers-reduced-motion`), responsive su breakpoint reali, baseline visual regression (`mind-testing` 5.1). La review va fatta in CONTESTO FRESCO: dispatch del subagent **Lust** (design QA, read-only, non può modificare il codice). Nel brief di Lust passa il path assoluto di `.mind/barra.md`: i criteri di `## Barra` vanno verificati uno per uno, non solo i gate C1-C9. Scrivi `10-quality.md`.
 **Gate**: 0 FAIL ingiustificati su C1-C9, 0 violazioni a11y, contrasto AA rispettato.
 
 ### Stage 11 — Gate finale

@@ -118,6 +118,7 @@ SE VUOTA/CORROTTA: procedi con default + segnala, mai bloccare.
 - **Sync del sistema vs salute ecosistema**: integrare/sincronizzare contenuti nel sistema mind (repo upstream, skill esterne, README/diagrammi) → `mind-system-sync`; verificare salute/backup/plugin/Context7 e il preflight del sync (backup + dry-run) → `ecosystem-health-check`. Confine netto: una integra, l'altra verifica.
 - **Hardware fisico**: periferica USB/seriale, driver, radio/Bluetooth, drone, tastiera/batterie/retroilluminazione, APK da dispositivo → `mind-hardware` (azioni fisiche sempre dietro conferma utente; l'app estratta va a `mind-reverse`).
 - **Registro sessioni (consapevolezza tra sessioni)**: all'avvio di un task (non per una domanda singola) leggi `~/.config/opencode/mind/sessions/` (schede attive delle altre sessioni; scarta quelle stantie oltre 48h) e aggiorna la scheda della sessione corrente (`goal`, `status`, `step`). Protocollo in `mind/sessions/README.md`. È disciplina dell'orchestratore, non una skill.
+- **Barra (`barra.md`)**: lettura garantita dal plugin a ogni richiesta (`MIND_BARRA`), scrittura a carico della rotta. Criteri di "fatto bene" + rifiuti d'approccio. Senza barra un rifiuto non lascia traccia e la sessione successiva riparte dall'assunzione sbagliata.
 
 ## Re-routing mid-sessione (enforcement 2026-10-16)
 
@@ -129,6 +130,6 @@ SE VUOTA/CORROTTA: procedi con default + segnala, mai bloccare.
 
 ## Retrospettiva fine-epic (proattivita 2026-10-16)
 
-- A epic chiuso, prima di mind-verification e memory-save, 3 domande obbligatorie: (1) cosa ho fatto a mano che una skill copriva? (2) cosa ha rifiutato lutente e perche? (3) cosa manca o duplica nel routing?
+- A epic chiuso, prima di mind-verification e memory-save, 3 domande obbligatorie: (1) cosa ho fatto a mano che una skill copriva? (2) cosa ha rifiutato lutente e perche: ogni rifiuto d'approccio ha una riga in `## Rifiuti` di `.mind/barra.md`? (3) cosa manca o duplica nel routing?
 - Se emerge un pattern (stesso lavoro manuale 2+ volte, rifiuto al 2o consecutivo, skill mai instradata): apri diagnosi mind-forge se manca copertura, oppure correggi il routing o vai di mind-eval. Non aspettare la segnalazione dellutente.
 - Salva esito e pattern in mind-memory: la proattivita si misura dai pattern chiusi, non dalle intenzioni.
