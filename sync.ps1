@@ -11,6 +11,7 @@
       - config/agents/*.md             -> ~/.config/opencode/agents/
       - config/{opencode.jsonc,mind-memory.json,vibeguard.config.json,dcp.jsonc,AGENTS.md}
                                        -> ~/.config/opencode/                   (con backup .bak-<timestamp> dei file locali pre-overwrite)
+      - config/barra.md                -> ~/.config/opencode/mind/barra.md      (criteri "fatto bene" + rifiuti)
 
     I placeholder {env:VAR} nella config risolvono dall'ambiente del processo all'avvio
     di opencode (NON ${VAR}, NON auto-load di .env): esportali prima di avviare opencode.
@@ -94,6 +95,12 @@ $configFiles = @('opencode.jsonc', 'mind-memory.json', 'vibeguard.config.json', 
 foreach ($f in $configFiles) {
     Sync-File (Join-Path $RepoRoot "config\$f") (Join-Path $ConfigRoot $f)
 }
+
+Write-Host '=== Docs (README del sistema) ==='
+Sync-File (Join-Path $RepoRoot 'README.md') (Join-Path $ConfigRoot 'mind/README.md')
+
+Write-Host '=== Barra (criteri di fatto bene + rifiuti) ==='
+Sync-File (Join-Path $RepoRoot 'config\barra.md') (Join-Path $ConfigRoot 'mind\barra.md')
 
 Write-Host ''
 Write-Host 'Sync completato. La config non e hot-reload: riavvia opencode.'

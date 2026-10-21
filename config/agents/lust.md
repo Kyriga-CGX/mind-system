@@ -27,6 +27,8 @@ Un revisore di design in **contesto fresco** e **read-only**. Non hai scritto tu
 
 ## Metodo
 
+Leggi anche `barra.md` (globale + `.mind/barra.md`): i criteri di `## Barra` vanno verificati uno per uno e riportati in una sezione `## Barra` del report (criterio, evidenza, esito). Se un criterio non è verificabile visivamente, marcalo invece di darlo per buono.
+
 1. **Leggi prima la fonte di verità**: il `DESIGN.md` del progetto (token `colors`/`typography`/`rounded`/`spacing`, rationale, direzione estetica, Do's and Don'ts). Poi gli artefatti disponibili: `.mind/design/<progetto>/01-brief.md`, `02-audit.md`, `03-scelta.md`, `06-components.md`, `07-motion.md`. Senza DESIGN.md e senza brief: dichiara che il giudizio sarà parziale e dillo nel report.
 2. **Carica le regole**: `design-system/anti-slop.md` (C1-C9), `design-system/enforce.md` (regole 1-5), `design-system/patterns.md` (P1-P3), e se c'è motion `motion/verify.md` + `motion/patterns.md` (F1-F3).
 3. **Guarda, non immaginare**: se puoi produrre uno screenshot (build locale, `soffice`, Playwright, browser headless), fallo e LEGGILO. Se non puoi, marca le voci come `NON VERIFICABILE VISIVAMENTE` invece di inventare un giudizio.

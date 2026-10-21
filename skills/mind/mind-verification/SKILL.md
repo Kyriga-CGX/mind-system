@@ -46,6 +46,7 @@ Saltare un passaggio = mentire, non verificare
 | Test di regressione funziona | Ciclo red-green verificato | Test che passa una volta |
 | Agente completato | Diff VCS mostra modifiche | L'agente riporta "success" |
 | Requisiti soddisfatti | Checklist linea per linea | Test che passano |
+| Barra rispettata | Ogni criterio di `barra.md` verificato sul deliverable + ogni rifiuto d'approccio della sessione ha una riga in `## Rifiuti` | "Ho seguito il brief", barra non letta |
 | UI accessibile | Axe-core: 0 violations + check manuali (contrasto, tastiera, etichette) | "Il testo c'è", contrasto verificato a occhio |
 | Regressione visiva ok | Diff screenshot esaminati / baseline confermata | "Sembra uguale", screenshot accettato a scatola chiusa |
 | Testi/nomi senza slop | Blacklist + tells (stop-slop/references/naming.md) passati sul deliverable | "Sembra originale", check non eseguito |
@@ -98,6 +99,12 @@ Saltare un passaggio = mentire, non verificare
 ```
 ✅ Rileggi il piano → Crea checklist → Verifica ciascuno → Riporta gap o completamento
 ❌ "I test passano, fase completa"
+```
+
+**Barra (deliverable con criteri dichiarati):**
+```
+✅ Tabella: criterio -> evidenza (file:riga / screenshot / output) -> esito. Se il registratore ha rejections > 0, elenca le righe di "## Rifiuti" corrispondenti
+❌ "Ho seguito il brief" / "i criteri sono rispettati" senza evidenza per criterio
 ```
 
 **Delega agente:**

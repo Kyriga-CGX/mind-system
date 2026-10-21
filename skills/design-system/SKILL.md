@@ -22,6 +22,7 @@ Determina se il progetto corrente ha già un `DESIGN.md` alla root.
 
 ## Ordine delle operazioni
 
+- Leggi `barra.md` (globale + progetto) e `## Rifiuti`: i token devono servire i criteri dell'utente, non un template.
 - Crea o scopri prima il DESIGN.md.
 - Poi esegui `frontend-design` per la direzione estetica.
 - Poi scrivi codice che si aggancia ai token del DESIGN.md.

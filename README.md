@@ -2,7 +2,7 @@
 
 Sistema mind: skill + orchestrazione + memoria per **opencode**.
 
-Orchestratore a 8 intenti, 54 skill (35 di dominio + 18 pipeline + orchestratore), Design Track first-class, un solo gate di verifica, memoria locale-first. Funziona con DeepSeek, Qwen e Muse.
+Orchestratore a 8 intenti, 55 skill (36 di dominio + 18 pipeline + orchestratore), Design Track first-class, un solo gate di verifica, memoria locale-first. Funziona con DeepSeek, Qwen e Muse.
 
 > I diagrammi sono **Mermaid** (GitHub li renderizza da solo). Dettaglio operativo dell'orchestratore in `skills/mind/using-mind/` (`SKILL.md` + `routing.md`).
 
@@ -32,15 +32,25 @@ flowchart TD
     M --> O
 ```
 
-Il plugin `mind` inietta il bootstrap a ogni turno (con guardia anti-duplicazione), registra le skill usate in `gaps/skills-used.json` e non fa rete (niente lentezza all'avvio). Quando una sessione accumula turni consecutivi senza alcuna skill o subagent (≥ soglia), inietta un **segnale di fuori-rotta** (`MIND_SIGNAL`) che invita a dichiarare la rotta o a giustificare perché non serve. Se l'utente rifiuta lo stesso risultato due volte di fila, inietta **`MIND_LOOP`** (regola anti-loop: niente varianti, cambia ipotesi). L'orchestratore dichiara la rotta in una riga (`INTENT=x → STAGE=… → GATE=verification`), invoca le skill a catena annunciando `Uso <skill> per <scopo>`, chiude con evidenza e salva in memoria.
+Il plugin `mind` inietta il bootstrap a ogni turno (con guardia anti-duplicazione), registra le skill usate in `gaps/skills-used.json` e non fa rete (niente lentezza all'avvio). Quando una sessione accumula turni consecutivi senza alcuna skill o subagent (≥ soglia), inietta un **segnale di fuori-rotta** (`MIND_SIGNAL`) che invita a dichiarare la rotta o a giustificare perché non serve. Se l'utente rifiuta lo stesso risultato due volte di fila, inietta **`MIND_LOOP`** (regola anti-loop: niente varianti, cambia ipotesi). A ogni richiesta inietta anche **`MIND_BARRA`** (vedi sezione Barra) e al primo rifiuto **`MIND_RIFIUTO`**, che chiede di registrare l'assunzione falsificata; il primo rifiuto di ogni serie finisce in `gaps/skills-used.json` (`rejections` + `directory`), così il drift tra rifiuti reali e righe scritte nella barra è misurabile. L'orchestratore dichiara la rotta in una riga (`INTENT=x → STAGE=… → GATE=verification`), invoca le skill a catena annunciando `Uso <skill> per <scopo>`, chiude con evidenza e salva in memoria.
+
+## Barra (cosa significa "fatto bene")
+
+`barra.md` tiene i criteri di qualità concordati con l'utente e le assunzioni già falsificate: due sezioni, `## Barra` e `## Rifiuti`.
+
+- **Dove**: `~/.config/opencode/mind/barra.md` (globale, da `config/barra.md` di questo repo) e `<progetto>/.mind/barra.md` (progetto, sovrascrive la globale sui conflitti).
+- **Lettura garantita**: il plugin inietta la barra a ogni richiesta (`MIND_BARRA`); non dipende dal fatto che il modello carichi una skill.
+- **Scrittura**: la barra al primo task sostanziale (`mind-setup` domanda 8, o `mind-brainstorming`); i rifiuti **d'approccio** al momento del rifiuto, una riga: `AAAA-MM-GG | assunzione falsificata: "..." | atteso: "..."`.
+- **Chi la verifica**: `mind-verification` (riga "Barra rispettata"), Lust nella design pipeline, i subagent (la ricevono per iniezione; il path nel brief serve per i worktree, dove `.mind/barra.md` può mancare).
+- **Nota**: se il progetto ha `.mind/` nel `.gitignore`, la barra di progetto resta locale. Per versionarla: aggiungi `!.mind/barra.md`.
 
 ## Struttura
 
-- `skills/mind/` — il fork mind: orchestratore `using-mind` (`SKILL.md` + `routing.md` + `fma-agents.md`) e 53 skill tra dominio (35) e pipeline (18)
+- `skills/mind/` — il fork mind: orchestratore `using-mind` (`SKILL.md` + `routing.md` + `fma-agents.md`) e 54 skill tra dominio (36) e pipeline (18)
 - `skills/<altre>` — skill storiche: context7-mcp, design-md, design-system, ecosystem-health-check, execution-hygiene, frontend-design, motion, orchestrator, stop-slop
-- `plugins/` — `mind.js` (bootstrap + registrazione skill + tracciamento uso + segnali `MIND_SIGNAL`/`MIND_LOOP`), `mind-memory.js` (memoria locale-first) e `vibeguard.js` (redazione segreti/PII verso il provider, port V2 di `opencode-vibeguard`). Vanno al top di `~/.config/opencode/plugins/`. **Forma OpenCode V2**: `export default { id, async setup(ctx) {...} }` con hook per dominio — un plugin in stile V1 non viene eseguito in V2 (verifica il log per `failed to load plugin`)
+- `plugins/` — `mind.js` (bootstrap + registrazione skill + tracciamento uso + segnali `MIND_SIGNAL`/`MIND_LOOP`/`MIND_BARRA`/`MIND_RIFIUTO`), `mind-memory.js` (memoria locale-first) e `vibeguard.js` (redazione segreti/PII verso il provider, port V2 di `opencode-vibeguard`). Vanno al top di `~/.config/opencode/plugins/`. **Forma OpenCode V2**: `export default { id, async setup(ctx) {...} }` con hook per dominio — un plugin in stile V1 non viene eseguito in V2 (verifica il log per `failed to load plugin`)
 - `config/dcp.jsonc` — soglie di Dynamic Context Pruning: compressione **lossy** solo oltre ~800K (con 1M di contesto non deve distruggere conversazione a 100K), deduplicazione e purge degli errori sempre attivi (lossless)
-- `config/` — `opencode.jsonc`, `mind-memory.json`, `AGENTS.md` + subagent custom (`agents/sage.md`, `lust.md`, `forge.md`). Chiavi come `{env:VAR}` dall'ambiente all'avvio
+- `config/` — `opencode.jsonc`, `mind-memory.json`, `barra.md` (criteri "fatto bene" + rifiuti, deployato in `mind/barra.md`), `AGENTS.md` + subagent custom (`agents/sage.md`, `lust.md`, `forge.md`). Chiavi come `{env:VAR}` dall'ambiente all'avvio
 - `docs/` — appunti e note decisionali; `docs/session-registry.md` (registro condiviso tra sessioni in `~/.config/opencode/mind/sessions/`), `docs/system-diagram.md` (routing e pipeline per esteso), `docs/eval/` (report di valutazione delle skill)
 - `sync.ps1` — sincronizza **repo → macchina locale** (il repo è la source of truth)
 
@@ -402,11 +412,12 @@ Ogni skill passa il suo **risultato** come input alla successiva; se manca o è 
 - Budget: max 3 subagent, max 10 iterazioni, stop a 3 fail. Review piano-vs-spec prima del dispatch. Regression check su codice esistente. Delivery in fasi per feature grandi. Design debt check post-UI.
 - Proattività: gap/rischi/miglioramenti → domanda con opzioni PRIMA di agire. Artefatti come link `file://` assoluti.
 - Lacune: routing sbagliato → correggi `routing.md`; skill scadente → `mind-eval`; caso non coperto → `mind-forge` (mai senza approvazione); manutenzione/integrazione del sistema → `mind-system-sync`.
-- Anti-loop: 1° rifiuto → aggiusta; 2° consecutivo → STOP e cambia ipotesi (mai varianti, mai "aggiusta il colore"); 3° → abbandona l'artefatto (cambio metodo/rotta).
+- Anti-loop: 1° rifiuto → aggiusta (+ una riga in `## Rifiuti` di `.mind/barra.md` se il rifiuto è d'approccio); 2° consecutivo → STOP e cambia ipotesi (mai varianti, mai "aggiusta il colore"); 3° → abbandona l'artefatto (cambio metodo/rotta).
 
 ## Sviluppo e rollback
 
 - Il repo è la source of truth: si lavora qui, `sync.ps1` allinea il locale.
+- Test del meccanismo barra: `node tests/barra.test.mjs` (globale+progetto, `MIND_RIFIUTO` al 1° rifiuto, `MIND_LOOP` al 2°, stato vuoto, registratore isolato).
 - Rollback: ogni release è un tag — la [v1.0](../../releases/tag/v1.0) resta scaricabile con il suo zip.
 
 ## Appendice — da v1 a v2: dove è finito tutto

@@ -76,6 +76,8 @@ const getEntry = (data, sessionID) => {
   if (typeof entry.noSkillTurns !== 'number') entry.noSkillTurns = 0;
   if (typeof entry.consecutiveNoSkill !== 'number') entry.consecutiveNoSkill = 0;
   if (typeof entry.usedThisTurn !== 'boolean') entry.usedThisTurn = false;
+  if (typeof entry.rejections !== 'number') entry.rejections = 0;
+  if (typeof entry.directory !== 'string') entry.directory = '';
   return entry;
 };
 
@@ -137,6 +139,23 @@ const recordSubagent = (sessionID, subagentType) => {
     writeGaps(data);
   } catch {
     // ignora
+  }
+};
+
+// Contatore rifiuti per sessione: serve a misurare il drift tra rifiuti reali e
+// righe scritte nella barra (meccanismo "esiste" vs "funziona").
+const recordRejection = (sessionID, directory) => {
+  if (!sessionID) return;
+  try {
+    const data = readGaps();
+    const entry = getEntry(data, sessionID);
+    entry.directory = directory || entry.directory || '';
+    entry.rejections = (typeof entry.rejections === 'number' ? entry.rejections : 0) + 1;
+    entry.updatedAt = new Date().toISOString();
+    prune(data);
+    writeGaps(data);
+  } catch {
+    // best-effort
   }
 };
 
@@ -223,17 +242,107 @@ const REJECTION_PATTERNS = [
   /(rifai|rifallo|riprova di nuovo)/i,
   /fuori rotta/i,
   /non è cambiato (niente|nulla)/i,
-  /(ti blocchi|sei bloccato|si blocca)/i
+  /(ti blocchi|sei bloccato|si blocca)/i,
+  // Rifiuto di merito (qualita'), non di dettaglio: "non sono innovative",
+  // "banale", "gia' visto", "non dice niente".
+  /non (sono|e'|è) .{0,30}(innovativ|original|nuov|divers|pazz|sorprend|wow)/i,
+  /\b(banal[ei]|generic[oa]|piatt[oi]|scontat[oi]|noios[oi])\b/i,
+  /già vist[oi]|gia vist[oi]/i,
+  /\b(non (mi )?(dice|fa|dicono|fanno) (niente|nulla))\b/i,
+  /\b(manca|mancano) (l'|il |la )?(idea|anima|carattere|personalit)/i,
+  /non .{0,40}da dire (niente|nulla|wow)/i,
+  /niente di (nuovo|speciale|particolare)/i
 ];
 
 const isRejection = (text) => REJECTION_PATTERNS.some((re) => re.test(text));
 
 const _rejectStreak = {};
 const _loopSignal = {};
+const _rifiutoSignal = {};
+
+// --- Barra: cosa significa "fatto bene" + rifiuti (assunzioni falsificate) ---
+// Un file per progetto (.mind/barra.md) e uno globale (mind/barra.md).
+// La lettura e' garantita dall'iniezione nel context; la scrittura la fa il modello.
+const BARRA_MAX_CHARS = 1800;
+
+const clip = (text, max) => (text.length > max ? text.slice(0, max) + '\n[...troncato]' : text);
+
+const barraFiles = (projectDir) => {
+  const files = [];
+  if (projectDir) files.push({ scope: 'progetto', p: path.join(projectDir, '.mind', 'barra.md') });
+  files.push({ scope: 'globale', p: path.join(configDir(), 'mind', 'barra.md') });
+  return files;
+};
+
+// La barra cresce in fondo ("## Rifiuti"): tagliare i primi N caratteri
+// farebbe sparire i rifiuti piu' recenti. Si tiene tutta la sezione Barra e
+// gli ultimi MAX_RIFIUTI.
+const MAX_RIFIUTI = 8;
+
+const clipRifiuti = (text) => {
+  const idx = text.indexOf('## Rifiuti');
+  if (idx === -1) return clip(text, BARRA_MAX_CHARS);
+  const testa = text.slice(0, idx).trim();
+  const righe = text.slice(idx).split('\n').filter((l) => l.trim().startsWith('- '));
+  return testa + '\n## Rifiuti\n' + righe.slice(-MAX_RIFIUTI).join('\n');
+};
+
+const readBarra = (projectDir) => {
+  const docs = [];
+  for (const f of barraFiles(projectDir)) {
+    try {
+      if (!fs.existsSync(f.p)) continue;
+      const text = fs.readFileSync(f.p, 'utf8').trim();
+      if (text) docs.push({ scope: f.scope, p: f.p, text: clipRifiuti(text) });
+    } catch {
+      // best-effort
+    }
+  }
+  return docs;
+};
+
+const buildBarraSignal = (projectDir) => {
+  const docs = readBarra(projectDir);
+  const paths = barraFiles(projectDir).map((f) => '- ' + f.scope + ': ' + f.p).join('\n');
+  if (!docs.length) {
+    return `<MIND_BARRA>
+Non esiste ancora una barra per questo progetto/utente: nessun criterio scritto di "fatto bene".
+File attesi:
+${paths}
+Al primo task sostanziale (non per una domanda singola) fai UNA domanda con il tool question: cosa deve avere o far dire "fatto bene" questo lavoro (1-3 criteri verificabili, o un riferimento reale). Poi scrivi la risposta in .mind/barra.md sotto "## Barra". Non inventare i criteri al posto dell'utente. Se l'utente dice di procedere senza criteri, scrivi .mind/barra.md con "## Barra" e la riga "- (nessun criterio dichiarato: procedi con i default)" e non richiederla piu'.
+</MIND_BARRA>`;
+  }
+  const body = docs.map((d) => '### ' + d.scope + ' (' + d.p + ')\n' + d.text).join('\n\n');
+  return `<MIND_BARRA>
+Criteri di "fatto bene" concordati: sono vincoli, non suggerimenti. La barra di progetto sovrascrive quella globale sui conflitti. Verifica l'artefatto contro questi criteri PRIMA di consegnarlo; se stai per ripetere un'assunzione elencata in "## Rifiuti", cambia approccio invece di rifinire il dettaglio. Le istruzioni dirette dell'utente vincono sulla barra: se chiede qualcosa di diverso, aggiorna la barra invece di forzare il criterio vecchio.
+
+${body}
+
+Se l'utente rifiuta l'APPROCCIO (non un dettaglio), aggiungi UNA riga sotto "## Rifiuti" nel file di progetto: - AAAA-MM-GG | assunzione falsificata: "..." | atteso: "..."
+</MIND_BARRA>`;
+};
+
+const buildRifiutoSignal = (projectDir) => {
+  const target = path.join(projectDir || process.cwd(), '.mind', 'barra.md');
+  return `<MIND_RIFIUTO>
+Segnale automatico mind: l'utente ha rifiutato il risultato.
+Se il rifiuto riguarda l'APPROCCIO (non un dettaglio da ritoccare), aggiungi UNA riga in ${target} sotto "## Rifiuti":
+- AAAA-MM-GG | assunzione falsificata: "..." | atteso: "..."
+Poi correggi con un'ipotesi nuova. Non registrare i rifiuti di dettaglio: il registro deve restare leggibile.
+</MIND_RIFIUTO>`;
+};
+
+const takeRifiutoSignal = (sessionID) => {
+  if (!sessionID) return null;
+  const text = _rifiutoSignal[sessionID];
+  if (!text) return null;
+  delete _rifiutoSignal[sessionID];
+  return text;
+};
 
 const buildLoopSignal = (n) => `<MIND_LOOP>
 Segnale automatico mind: l'utente ha rifiutato lo stesso risultato ${n} volte di fila.
-Applica la regola anti-loop: NON riproporre una variante della stessa soluzione. Nomina l'assunzione che il rifiuto falsifica, formula un'ipotesi nuova (approccio/strumento/assunzione) e, se il segnale e' ambiguo, fai UNA domanda diagnostica.
+Applica la regola anti-loop: NON riproporre una variante della stessa soluzione. Nomina l'assunzione che il rifiuto falsifica, formula un'ipotesi nuova (approccio/strumento/assunzione) e, se il segnale e' ambiguo, fai UNA domanda diagnostica. Se non l'hai ancora fatto, registra l'assunzione falsificata nella barra ("## Rifiuti" di .mind/barra.md).
 </MIND_LOOP>`;
 
 const takeLoopSignal = (sessionID) => {
@@ -247,8 +356,10 @@ const takeLoopSignal = (sessionID) => {
 export default {
   id: 'mind',
   async setup(ctx) {
+    const setupProjectDir = ctx?.directory || process.cwd();
     // 1) Bootstrap using-mind + segnale fuori-rotta nel context di ogni richiesta.
     await ctx.session.hook('context', (event) => {
+      const projectDir = event?.directory || setupProjectDir;
       try {
         if (!Array.isArray(event.system)) return;
         const sessionID = sessionIdOf(event);
@@ -266,7 +377,17 @@ export default {
           if (signal) event.system.unshift({ type: 'text', text: signal });
         }
 
-        if (!joined.includes('MIND_LOOP')) {
+        if (!joined.includes('<MIND_BARRA>')) {
+          const barra = buildBarraSignal(projectDir);
+          if (barra) event.system.unshift({ type: 'text', text: barra });
+        }
+
+        if (!joined.includes('<MIND_RIFIUTO>')) {
+          const rifiuto = takeRifiutoSignal(sessionID);
+          if (rifiuto) event.system.unshift({ type: 'text', text: rifiuto });
+        }
+
+        if (!joined.includes('<MIND_LOOP>')) {
           const loop = takeLoopSignal(sessionID);
           if (loop) event.system.unshift({ type: 'text', text: loop });
         }
@@ -287,9 +408,12 @@ export default {
         const text = event?.prompt?.text || '';
         if (text) {
           if (isRejection(text)) {
-            _rejectStreak[sessionID] = (_rejectStreak[sessionID] || 0) + 1;
-            if (_rejectStreak[sessionID] >= 2) {
-              _loopSignal[sessionID] = buildLoopSignal(_rejectStreak[sessionID]);
+            const n = (_rejectStreak[sessionID] || 0) + 1;
+            _rejectStreak[sessionID] = n;
+            _rifiutoSignal[sessionID] = buildRifiutoSignal(event?.directory || setupProjectDir);
+            if (n === 1) recordRejection(sessionID, event?.directory || setupProjectDir);
+            if (n >= 2) {
+              _loopSignal[sessionID] = buildLoopSignal(n);
             }
           } else {
             _rejectStreak[sessionID] = 0;

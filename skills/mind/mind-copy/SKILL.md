@@ -29,6 +29,7 @@ description: Scrittura di copy e contenuti (landing, pagine, email, messaggi, he
 ## FASE 1 — CONTESTO
 
 - [ ] `memory search`: voce / preferenze / tone of voice dell'utente e del progetto (mind-memory)
+- [ ] `barra.md` (globale + progetto): criteri di "fatto bene" e rifiuti passati; se il brief è generico, vincono loro
 - [ ] Guardare copy esistenti per coerenza di stile
 - [ ] Estrarre benefici REALI da codice / feature / dati — mai inventati
 

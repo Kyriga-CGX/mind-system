@@ -59,6 +59,8 @@ Ogni stage scrive il proprio file e aggiorna `state.json`. Lo stage successivo l
 **Gate di approvazione (obbligatorio)**: presenta il mockup mobile all'utente e chiedi conferma esplicita PRIMA di scrivere codice. Modifiche → itera e ri-approva. Registra in `02-feedback.md`.
 Se NON c'è UI → `02-design.md` = "skip" e prosegui.
 
+Brief ai subagent FE/BE: includi il path assoluto di `~/.config/opencode/mind/barra.md` e del `.mind/barra.md` del checkout principale. I criteri di `## Barra` si verificano prima di consegnare.
+
 ### Stage 3 — Contratti API/backend
 `mind-api` definisce endpoint, payload, status code, errori, auth, versioning → `03-contracts.md`. Se tocca auth/dati sensibili → `mind-security` (threat model) entra QUI, prima del codice. Contratti vincolanti per FE e BE.
 **Gate**: contratti senza ambiguità (tipo per ogni campo, errori definiti, gestione offline dei conflitti). Se i contratti sono il punto critico → approvazione utente come per il mockup.

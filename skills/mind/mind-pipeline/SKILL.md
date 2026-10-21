@@ -46,7 +46,7 @@ Ogni stage scrive il proprio file e aggiorna `state.json`. Lo stage successivo l
 ## Stage (in ordine)
 
 ### Stage 1 — Brief
-Leggi la richiesta, estrai l'intent utente, i vincoli e i criteri di done. Se ambiguo → domanda (tool `question`), una alla volta. Scrivi `01-brief.md` + `state.json`.
+Leggi la richiesta, estrai l'intent utente, i vincoli e i criteri di done. Leggi anche `barra.md` (globale + progetto, se esiste) e riporta i suoi criteri in `01-brief.md`: sono criteri di done, non decorazione. Se ambiguo → domanda (tool `question`), una alla volta. Scrivi `01-brief.md` + `state.json`.
 **Gate**: brief completo (niente placeholder).
 
 ### Stage 2 — Design + Mockup
@@ -61,6 +61,8 @@ Se tocca auth/dati sensibili: `mind-security` (threat model) entra QUI, prima de
 
 ### Stage 4 — Implementazione FE
 Subagent FE (in parallelo con BE SOLO se i contratti sono già definiti e i file non collidono — vedi controllo conflitti). TDD. Aggiorna `04-fe.md`.
+
+Brief ai subagent FE/BE: includi il path assoluto di `~/.config/opencode/mind/barra.md` e del `.mind/barra.md` del checkout principale, con l'istruzione di verificare i criteri prima di consegnare.
 
 ### Stage 5 — Implementazione BE
 Subagent BE. TDD. Aggiorna `05-be.md`.

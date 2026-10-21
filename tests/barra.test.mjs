@@ -1,0 +1,83 @@
+import fs from 'fs';
+import path from 'path';
+import os from 'os';
+import assert from 'assert';
+import { fileURLToPath } from 'url';
+
+const here = path.dirname(fileURLToPath(import.meta.url));
+const root = path.join(os.tmpdir(), 'mind-barra-test');
+fs.rmSync(root, { recursive: true, force: true });
+
+const cfgDir = path.join(root, 'cfg');
+const proj = path.join(root, 'proj');
+fs.mkdirSync(path.join(cfgDir, 'mind', 'skills', 'using-mind'), { recursive: true });
+fs.mkdirSync(path.join(proj, '.mind'), { recursive: true });
+fs.writeFileSync(path.join(cfgDir, 'mind', 'barra.md'), '# Barra\n\n## Barra\n- GLOBALE: criterio uno\n');
+fs.writeFileSync(path.join(cfgDir, 'mind', 'skills', 'using-mind', 'SKILL.md'), '---\nname: using-mind\ndescription: stub\n---\n\n# stub\n');
+
+const rifiuti = Array.from({ length: 12 }, (_, i) => '- 2026-10-' + String(i + 1).padStart(2, '0') + ' | assunzione falsificata: "a' + i + '" | atteso: "b' + i + '"');
+fs.writeFileSync(path.join(proj, '.mind', 'barra.md'), '# Barra\n\n## Barra\n- PROGETTO: criterio due\n\n## Rifiuti\n' + rifiuti.join('\n') + '\n');
+
+process.env.OPENCODE_CONFIG_DIR = cfgDir;
+
+const plugin = (await import('file://' + path.join(here, '..', 'plugins', 'mind.js'))).default;
+const hooks = {};
+const ctx = {
+  directory: proj,
+  session: { hook: async (n, f) => { hooks['s:' + n] = f; } },
+  tool: { hook: async (n, f) => { hooks['t:' + n] = f; } }
+};
+await plugin.setup(ctx);
+assert.ok(hooks['s:context'] && hooks['s:prompt'], 'hook registrati');
+
+const runContext = (sessionID, directory = proj) => {
+  const event = { system: [], sessionID, directory };
+  hooks['s:context'](event);
+  return event.system.map((p) => p.text || '').join('\n');
+};
+
+let t = runContext('ses_t1');
+assert.ok(t.includes('<MIND_BARRA>'), 'MIND_BARRA iniettata');
+assert.ok(t.includes('GLOBALE: criterio uno'), 'barra globale letta');
+assert.ok(t.includes('PROGETTO: criterio due'), 'barra progetto letta');
+assert.ok(t.includes('Le istruzioni dirette'), 'precedenza utente dichiarata');
+assert.ok(t.includes('"a11"'), 'rifiuto piu recente tenuto');
+assert.ok(!t.includes('"a0"'), 'rifiuto piu vecchio scartato (sezione, non prefisso)');
+
+// system array persistente: il nome del segnale nel bootstrap non deve disattivarlo
+const persistent = { system: [], sessionID: 'ses_p', directory: proj };
+hooks['s:context'](persistent);
+hooks['s:prompt']({ sessionID: 'ses_p', directory: proj, prompt: { text: 'non hanno cose assurde da dire wow' } });
+hooks['s:context'](persistent);
+const joined = persistent.system.map((p) => p.text || '').join('\n');
+assert.ok(joined.includes('<MIND_RIFIUTO>'), 'segnale iniettato con system array persistente');
+assert.ok(!joined.includes('<MIND_LOOP>'), 'niente loop al 1o');
+
+// rifiuto di merito: le frasi reali
+hooks['s:prompt']({ sessionID: 'ses_t1', directory: proj, prompt: { text: 'non sono innovative, sono banali e non dicono niente' } });
+t = runContext('ses_t1');
+assert.ok(t.includes('<MIND_RIFIUTO>'), 'MIND_RIFIUTO al 1o rifiuto');
+assert.ok(!t.includes('<MIND_LOOP>'), 'niente MIND_LOOP al 1o');
+
+hooks['s:prompt']({ sessionID: 'ses_t1', directory: proj, prompt: { text: 'manca la personalità, ancora lo stesso problema' } });
+t = runContext('ses_t1');
+assert.ok(t.includes('<MIND_LOOP>'), 'MIND_LOOP al 2o');
+
+hooks['s:prompt']({ sessionID: 'ses_t1', directory: proj, prompt: { text: 'ok procedi' } });
+hooks['s:prompt']({ sessionID: 'ses_t1', directory: proj, prompt: { text: 'non mi piace' } });
+t = runContext('ses_t1');
+assert.ok(t.includes('<MIND_RIFIUTO>') && !t.includes('<MIND_LOOP>'), 'streak resettato');
+
+const gaps = JSON.parse(fs.readFileSync(path.join(cfgDir, 'mind', 'gaps', 'skills-used.json'), 'utf8'));
+const entry = gaps.sessions.find((s) => s.sessionID === 'ses_t1');
+assert.ok(entry && entry.rejections === 2, 'contatore rifiuti persistito, solo primo di serie (atteso 2, trovato ' + (entry && entry.rejections) + ')');
+
+assert.strictEqual(entry.directory, proj, 'directory registrata');
+
+const proj2 = path.join(root, 'proj2');
+fs.mkdirSync(proj2, { recursive: true });
+process.env.OPENCODE_CONFIG_DIR = path.join(root, 'cfg-vuota');
+t = runContext('ses_t2', proj2);
+assert.ok(t.includes('Non esiste ancora una barra'), 'stato vuoto');
+
+console.log('TEST OK: barra globale+progetto, sezioni, precedenza, guardie a tag, frasi reali, rifiuto 1o, loop 2o, reset, contatore, stato vuoto, isolamento');
