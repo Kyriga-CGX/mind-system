@@ -1,4 +1,4 @@
-﻿{
+{
     "$schema":  "https://opencode.ai/config.json",
     "plugin":  [
                    "@tarquinen/opencode-dcp@3.2.0"
@@ -10,6 +10,15 @@
                              ]
                },
     "mcp":  {
+                "unity":  {
+                              "type":  "stdio",
+                              "command":  "C:\\Users\\Kyrig\\AppData\\Roaming\\Python\\Python312\\Scripts\\uvx.exe",
+                              "args":  ["--from", "mcpforunityserver", "mcp-for-unity", "--transport", "stdio"],
+                              "enabled":  true,
+                              "env":  {
+                                          "DISABLE_TELEMETRY":  "1"
+                                      }
+                          },
                 "context7":  {
                                  "type":  "remote",
                                  "url":  "https://mcp.context7.com/mcp",
