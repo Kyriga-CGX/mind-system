@@ -24,13 +24,17 @@ Per ogni task dichiara la rotta in una riga (`INTENT=x → STAGE=... → GATE=ve
 | # | Intent | Rotta |
 |---|---|---|
 | 1 | `costruire` (feature, UI+BE, lavoro creativo) | spec (`mind-brainstorming`) → piano (`mind-planning`) → implementazione → `mind-verification` |
-| 2 | `design-ui` (nuova UI, redesign, ritocco) | Design Track (direzione → token → motion? → QA) → `mind-verification` |
+| 2 | `design-ui` (nuova UI, redesign, ritocco, **icona/marchio**) | Design Track (direzione → token → motion? → `mind-mark` se serve un segno → QA) → `mind-verification` |
 | 3 | `fixare` (bug, comportamento inatteso) | `mind-debugging` (root cause + test che fallisce) → implementazione (TDD) → `mind-verification`; hardware fisico (USB/driver/radio/device) → `mind-hardware` |
 | 4 | `esplorare` (capire codice, onboarding, impatto cambio, **artefatto senza sorgente**) | `mind-explore` (digest) → `mind-docs`? → salva memoria. Read-only, nessun codice. Se il sorgente NON esiste (binario, APK, Electron/JS, .NET, firmware, WASM, EVM, archivio, cattura) → `mind-reverse` (**gate auth SEMPRE**) → `mind-reverse-pipeline` se multi-feature/multi-sessione |
 | 5 | `decidere` (architettura/ADR, libreria, strategia, valutazione) | `mind-consult` (sage) / `mind-research` (+ `context7-mcp` per docs) / `mind-stack-watch` (watch stack, solo su richiesta + inventario) → ADR/piano → implementazione solo se approvato |
 | 6 | `rilasciare` (release, deploy, incidente) | `mind-release` / `mind-devops` / `mind-incident` (dettaglio in `routing.md`) → `mind-verification` |
 | 7 | `scrivere` (docs, copy, i18n, dati puntuali) | skill di dominio (`mind-docs`, `mind-copy`→`stop-slop`, `mind-i18n`, `mind-data`) → `mind-verification` |
 | 8 | `manutenere` (sistema mind: sync upstream, skill esterne, vendoring, routing, README/diagrammi) | `mind-system-sync` → `mind-verification` |
+
+**Asset immagine** (raster, `.ico`, favicon, `.icns`, ritaglio, conversione di formato): `mind-image` → `mind-verification`. Non è un intento a sé: si aggancia alla rotta che lo richiede.
+
+**Videogioco** (concetto → verbo → feel → vertical slice → build): `mind-game-pipeline` (10 stage, gate G0-G9, 4 agenti dedicati: `game-director`, `game-art-director`, `feel-engineer`, `playtest-critic`); intervento puntuale su concept, feel, loop, direzione o playtest → `mind-game-design`. Dettaglio in `routing.md`.
 
 Se ambiguo: route conservativa (creativo→`costruire`, anomalia→`fixare`, domanda→`decidere`). Se la rotta si rivela sbagliata, rifalla. Mai due rotte insieme. Re-routing mid-sessione: se dopo 3 turni consecutivi non hai caricato nessuna skill mind ne dispatchato subagent, STOP e ridichiara la rotta prima di proseguire. Vale anche quando una domanda iniziale cresce in epic (analisi, design, implementazione, deploy): rifai la rotta invece di proseguire senza skill. Pipeline multi-stage SOLO se consegna unica + ≥3 stage + stato su file (regola in `routing.md`), altrimenti rotta singola.
 
@@ -92,7 +96,7 @@ Registra i tentativi falliti nella barra (`## Rifiuti`), non a memoria: un rifiu
 
 ## Design Track (sintesi — dettaglio in routing.md)
 
-`frontend-design` (direzione: personalità, signature element, restraint; prima cerca preferenze in memoria) → `design-system` (token + anti-slop 9 check, WCAG 4.5:1, `DESIGN.md` source of truth) → `motion` (solo se animato: ladder CSS→WAAPI→Motion→GSAP→SVG→Three.js, mai saltare al 3D; 3 strati, stagger <500ms) → Design QA (occhi freschi, subagent read-only: token? anti-slop? motion giustificato? Se FAIL → torna a enforce) → `mind-verification`.
+`frontend-design` (direzione: personalità, signature element, restraint; prima cerca preferenze in memoria) → `design-system` (token + anti-slop 9 check, WCAG 4.5:1, `DESIGN.md` source of truth) → `motion` (solo se animato: ladder CSS→WAAPI→Motion→GSAP→SVG→Three.js, mai saltare al 3D; 3 strati, stagger <500ms) → `mind-mark` (solo se serve un'icona o un marchio: si giudica a 16px, non a 1024; i colori vengono dai token) → `mind-image` (solo se serve un raster o un file di formato: .ico, favicon, .icns, ritaglio, conversione; il segno resta a `mind-mark`) → Design QA (occhi freschi, subagent read-only: token? anti-slop? motion giustificato? Se FAIL → torna a enforce) → `mind-verification`.
 
 ## Lacune del sistema (matrice)
 

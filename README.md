@@ -2,7 +2,7 @@
 
 Sistema mind: skill + orchestrazione + memoria per **opencode**.
 
-Orchestratore a 8 intenti, 55 skill (36 di dominio + 18 pipeline + orchestratore), Design Track first-class, un solo gate di verifica, memoria locale-first. Funziona con DeepSeek, Qwen e Muse.
+Orchestratore a 8 intenti, 59 skill (39 di dominio + 19 pipeline + orchestratore), Design Track first-class, un solo gate di verifica, memoria locale-first. Funziona con DeepSeek, Qwen e Muse.
 
 > I diagrammi sono **Mermaid** (GitHub li renderizza da solo). Dettaglio operativo dell'orchestratore in `skills/mind/using-mind/` (`SKILL.md` + `routing.md`).
 
@@ -48,11 +48,11 @@ Il plugin `mind` inietta il bootstrap a ogni turno (con guardia anti-duplicazion
 
 ## Struttura
 
-- `skills/mind/` — il fork mind: orchestratore `using-mind` (`SKILL.md` + `routing.md` + `fma-agents.md`) e 54 skill tra dominio (36) e pipeline (18)
+- `skills/mind/` — il fork mind: orchestratore `using-mind` (`SKILL.md` + `routing.md` + `fma-agents.md`) e 58 skill tra dominio (39) e pipeline (19)
 - `skills/<altre>` — skill storiche: context7-mcp, design-md, design-system, ecosystem-health-check, execution-hygiene, frontend-design, motion, orchestrator, stop-slop
 - `plugins/` — `mind.js` (bootstrap + registrazione skill + tracciamento uso + segnali `MIND_SIGNAL`/`MIND_LOOP`/`MIND_BARRA`/`MIND_RIFIUTO`), `mind-memory.js` (memoria locale-first) e `vibeguard.js` (redazione segreti/PII verso il provider, port V2 di `opencode-vibeguard`). Vanno al top di `~/.config/opencode/plugins/`. **Forma OpenCode V2**: `export default { id, async setup(ctx) {...} }` con hook per dominio — un plugin in stile V1 non viene eseguito in V2 (verifica il log per `failed to load plugin`)
 - `config/dcp.jsonc` — soglie di Dynamic Context Pruning: compressione **lossy** solo oltre ~800K (con 1M di contesto non deve distruggere conversazione a 100K), deduplicazione e purge degli errori sempre attivi (lossless)
-- `config/` — `opencode.jsonc`, `mind-memory.json`, `barra.md` (criteri "fatto bene" + rifiuti, deployato in `mind/barra.md`), `AGENTS.md` + subagent custom (`agents/sage.md`, `lust.md`, `forge.md`). Chiavi come `{env:VAR}` dall'ambiente all'avvio
+- `config/` — `opencode.jsonc`, `mind-memory.json`, `barra.md` (criteri "fatto bene" + rifiuti, deployato in `mind/barra.md`), `AGENTS.md` + subagent custom (`agents/sage.md`, `lust.md`, `forge.md`, `game-director.md`, `game-art-director.md`, `game-ui-designer.md`, `feel-engineer.md`, `playtest-critic.md`). Chiavi come `{env:VAR}` dall'ambiente all'avvio
 - `docs/` — appunti e note decisionali; `docs/session-registry.md` (registro condiviso tra sessioni in `~/.config/opencode/mind/sessions/`), `docs/system-diagram.md` (routing e pipeline per esteso), `docs/eval/` (report di valutazione delle skill)
 - `sync.ps1` — sincronizza **repo → macchina locale** (il repo è la source of truth)
 - `tests/` — `barra.test.mjs`: il meccanismo si riprova con `node tests/barra.test.mjs` (barra globale+progetto, guardie a tag, rifiuto al 1°, loop al 2°, contatore, stato vuoto, registratore isolato)
@@ -69,7 +69,7 @@ setx CONTEXT7_API_KEY "<valore>"   # poi riapri il terminale e riavvia opencode
 
 ## Gli 8 intenti
 
-> Gli 8 intenti sono le **porte d'ingresso**, non il sistema: dietro ci sono 55 skill, 18 pipeline, 23 agenti e 1 gate. Niente è stato rimosso dalla v1 — la ricchezza è nel catalogo qui sotto.
+> Gli 8 intenti sono le **porte d'ingresso**, non il sistema: dietro ci sono 59 skill, 19 pipeline, 28 agenti e 1 gate. Niente è stato rimosso dalla v1 — la ricchezza è nel catalogo qui sotto.
 
 | # | Intent | Rotta | Esempio |
 |---|---|---|---|
@@ -120,6 +120,20 @@ Se ambiguo: route conservativa (creativo→costruire, anomalia→fixare, domanda
 | `mind-copy` | Copy con tono/audience/obiettivo + pulizia `stop-slop` | landing, email, CTA, microcopy |
 | `stop-slop` | Rimuove i pattern AI dal testo | pulizia prosa esistente |
 | subagent `lust` | Design QA read-only in contesto fresco (token, anti-slop, a11y, responsive) | review visiva finale — MAI chi ha implementato |
+| `mind-image` | Raster e contenitori di icone: `.ico`, favicon set, `.icns`, ritaglio, conversione, upscale | produrre o convertire FILE immagine |
+| `mind-mark` | Disegno del segno: app icon, marchio, set di icone, adaptive; si giudica a 16px | il segno NON esiste ancora |
+
+### Videogiochi: verbo → feel → slice → build
+
+| Skill / agente | Cosa fa | Quando si usa |
+|---|---|---|
+| `mind-game-design` | Dottrina: verbo+vincolo, feel, loop/numeri, anti-slop 12 check, direzione/audio, playtest, asset/licenze | concept, tuning, direzione, playtest (anche senza pipeline) |
+| `mind-game-pipeline` | 11 stage con gate G0-G10, stato in `.mind/games/<slug>/`, 5 agenti | gioco end-to-end, dalla prova alla build |
+| `game-director` | concept, tre verbi, loop, scope, kill | Stage 0/1/3 (Grumman) |
+| `game-art-director` | GAME.md, palette, silhouette, audio, asset ledger | Stage 4/6 (Catherine) |
+| `game-ui-designer` | flusso, HUD, schermate, stati, input, accessibilità | Stage 5/6 (Rebecca) |
+| `feel-engineer` | prova in grigio, tuning data-driven, slice | Stage 2/3/6/7 (Dominic) |
+| `playtest-critic` | read-only, gioca e osserva, verdetto KEEP/ITERATE/KILL | Stage 2/6/8 (Kimblee) |
 
 ### Decidere: ricerca, architettura, consulenza
 
@@ -304,6 +318,57 @@ Per lavori strutturati (nuova UI, redesign, identità visiva) la Design Squad la
 
 `mind-release` (semver + changelog + tag) → `mind-devops` (build CI verde + rollback pronto) → verification. Rollout graduale di feature pronta: flag off → canary → A/B → 25→50→100% con metriche e baseline.
 
+## Videogiochi (game pipeline)
+
+`mind-game-pipeline` porta un gioco dal concetto a una build giocabile senza la sequenza che produce slop (contenuto → arte → "è un gioco?"). Undici stage con stato in `.mind/games/<slug>/`: brief e divieti → tre verbi con vincolo → prova di feel a 60 secondi in grigio → loop e numeri → direzione approvata → UI/UX (flusso, HUD, stati, input, accessibilità) → vertical slice → contenuto data-only → test/performance → build → verifica e postmortem.
+
+```mermaid
+flowchart TD
+    S0["0 · Brief e divieti<br/>game-director"] --> G0{"G0 verbo + 3 divieti + adapter"}
+    G0 -->|no| S0
+    G0 -->|sì| S1["1 · Tre verbi<br/>3 carte + test di morte"]
+    S1 --> G1{"G1 scelta dell'utente"}
+    G1 -->|nessuna passa| S1
+    G1 -->|carta scelta| S2["2 · Prova di feel 60s<br/>feel-engineer + playtest-critic<br/>grigio, zero asset, clip"]
+    S2 --> G2{"G2 replay desire ≥ 3/5"}
+    G2 -->|no, max 3 prove| S2
+    G2 -->|3ª prova no| KILL["KILL<br/>postmortem + memoria"]
+    G2 -->|sì| S3["3 · Loop e numeri"]
+    S3 --> G3{"G3 numeri con range + motivo"}
+    G3 -->|no| S3
+    G3 -->|sì| S4["4 · Direzione visiva/audio<br/>game-art-director"]
+    S4 --> G4{"G4 approvazione utente"}
+    G4 -->|no| S4
+    G4 -->|sì| S5["5 · UI/UX<br/>game-ui-designer<br/>flusso, HUD, stati, input, a11y"]
+    S5 --> G5{"G5 ≤ 3 input + gamepad + a11y"}
+    G5 -->|no| S5
+    G5 -->|sì| S6["6 · Vertical slice<br/>5 minuti, inizio-fine"]
+    S6 --> G6{"G6 un estraneo arriva alla fine"}
+    G6 -->|no| S6
+    G6 -->|sì| S7["7 · Contenuto data-only"]
+    S7 --> G7{"G7 solo dati + performance"}
+    G7 -->|no| S7
+    G7 -->|sì| S8["8 · Test e performance"]
+    S8 --> G8{"G8 suite verde + budget sul target"}
+    G8 -->|no| S8
+    G8 -->|sì| S9["9 · Build e distribuzione"]
+    S9 --> G9{"G9 build riproducibile + licenze"}
+    G9 -->|no| S9
+    G9 -->|sì| S10["10 · Verifica e postmortem<br/>mind-verification"]
+    S10 --> G10{"G10 evidenza + verdetto"}
+    G10 -->|ITERATE| S6
+    G10 -->|KEEP| DONE["Build pubblicabile"]
+    G10 -->|KILL| KILL
+```
+
+Tre decisioni che non sono un template:
+
+- **Niente arte prima del verbo**: la prova è una scena grigia, primitivi, zero asset; si passa solo se 3 tester su 5 rifanno l'azione senza che venga chiesto.
+- **Il divertimento è un'evidenza**: clip registrata + comportamento osservato + una domanda binaria. Mai "sembra divertente".
+- **Kill è un esito**: dopo 3 prove senza replay desire il concept si chiude con postmortem; massimo 2 concept.
+
+Cinque agenti: `game-director` (Grumman), `game-art-director` (Catherine), `game-ui-designer` (Rebecca), `feel-engineer` (Dominic), `playtest-critic` (Kimblee, read-only). La dottrina vive in `mind-game-design` (verbo/invenzione, feel, loop, anti-slop a 12 check, direzione, playtest, asset/licenze, scope, adapter). Il motore è un adapter: Unity o Godot, con i comandi di evidenza nel relativo reference; i gate non cambiano.
+
 ## Pipeline di dominio (quando servono)
 
 Regola unica: pipeline **solo** se consegna unica + ≥3 stage + stato su file (`.mind/delivery/<nome>/state.json`). Solo mockup e contratti critici richiedono approvazione utente; il resto fila. Ogni pipeline riusa le skill singole e chiude su `mind-verification`.
@@ -320,6 +385,7 @@ Regola unica: pipeline **solo** se consegna unica + ≥3 stage + stato su file (
 | `mind-data-pipeline` | estrazione→pulizia→validazione→trasformazione→caricamento→verifica→docs | ETL complesso (backup prima) |
 | `mind-performance-pipeline` | baseline→profiling→bottleneck→ottimizzazione→verifica→monitoraggio | intervento performance (stesso strumento prima/dopo) |
 | `mind-mobile-pipeline` | stack→design→contratti→FE→BE→device→test→signing→release→gate | app cross-platform fino allo store |
+| `mind-game-pipeline` | brief+divieti→tre verbi→feel 60s→loop/numeri→direzione→UI/UX→slice→contenuto→test/perf→build→verifica | videogioco end-to-end (engine-agnostic, 5 agenti, gate G0-G10) |
 | `mind-infra-pipeline` | scope→IaC→rete→secrets→immagini→orchestrazione→DNS→scaling→costi→monitor | ambiente cloud end-to-end |
 | `mind-observability-pipeline` | inventario→logging→metriche→tracing→alerting→dashboard/SLO→verifica | monitoring di un sistema |
 | `mind-ml-pipeline` | problema→dati→feature→modello→training→eval→deploy→drift | ciclo ML completo |
@@ -357,6 +423,11 @@ Regola unica: pipeline **solo** se consegna unica + ≥3 stage + stato su file (
 | Microcopy | Jean Havoc | `dico` | 💬 | CTA, errori, label |
 | Accessibilità | Maria Ross | `protego` | ♿ | contrasto, focus, label |
 | Design QA | Lust | `scrutor` | 👁️ | review read-only (`config/agents/lust.md`) |
+| Game director | Grumman | `guberno` | ♟️ | concept, verbi, loop, kill (`config/agents/game-director.md`) |
+| Game art director | Catherine Armstrong | `pingo` | 🖌️ | direzione visiva/audio (`config/agents/game-art-director.md`) |
+| Game UI/UX | Rebecca Catalina | `ordino` | 🎛️ | flusso, HUD, stati, input (`config/agents/game-ui-designer.md`) |
+| Feel engineer | Dominic | `tempero` | 🔩 | feel, tuning, slice (`config/agents/feel-engineer.md`) |
+| Playtest critic | Kimblee | `confringo` | 💣 | read-only, verdetto (`config/agents/playtest-critic.md`) |
 
 Il nome ruota a ogni dispatch (prompt + report), il verbo latino sostituisce "sto pensando", l'emoji è la firma. Una battuta anime ogni tanto, max una per subagent.
 
@@ -431,7 +502,7 @@ La v1 aveva ~50 righe di routing e 17 precedenze nel prompt. Niente è sparito: 
 
 | Intent v2 | Voci v1 assorbite |
 |---|---|
-| costruire | nuova feature, ADR, refactor, API, git, piano multi-step, review, testing |
+| costruire | nuova feature, ADR, refactor, API, git, piano multi-step, review, testing, videogioco end-to-end (game pipeline) |
 | design-ui | design-pipeline, design-explore, UI, motion, copy |
 | fixare | bug, bug-hunting, security, performance, data, migration |
 | esplorare | explore, reverse |

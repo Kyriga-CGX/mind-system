@@ -7,7 +7,7 @@ Formato rigido, parsabile anche da modelli piccoli (Qwen/DeepSeek):
 
 ```
 INTENT=costruire     → STAGE=brainstorming,spec → planning → implementation → GATE=verification
-INTENT=design-ui     → STAGE=design-track(direzione,tokens,motion?,qa) → GATE=verification
+INTENT=design-ui     → STAGE=design-track(direzione,tokens,motion?,mark?,qa) → GATE=verification
 INTENT=fixare        → STAGE=debugging(root-cause) → implementation(TDD) → GATE=verification
                      | hardware fisico → mind-hardware (identifica,connetti,azioni con gate fisico) → GATE=verification
 INTENT=esplorare     → STAGE=explore(digest) → docs? → memory-save → GATE=none (read-only)
@@ -22,6 +22,7 @@ Un esempio per intent (quello che riduce gli errori su DeepSeek/Qwen):
 
 - `costruire`: "aggiungi login OAuth" → spec → piano → 2 subagent (FE/BE, file disgiunti) → verification (test verdi).
 - `design-ui`: "card pricing con hover" → direzione → token → motion? (sì, hover) → QA → verification.
+- `design-ui` (segno): "icona per l'app" → mind-mark (brief → 3 direzioni monocrome → riduzione 16px → colore → export) → verification.
 - `fixare`: "crash su checkout" → root cause + test che fallisce → fix → verification + regression.
 - `fixare` (hardware): "drone non compare" → VID/PID + log → driver + probe benigno → azioni fisiche solo con conferma → verification.
 - `esplorare`: "come funziona l'auth?" → digest → risposta + memoria. Nessun codice.
@@ -36,6 +37,8 @@ Un esempio per intent (quello che riduce gli errori su DeepSeek/Qwen):
 ```
 costruire:  mind-brainstorming → mind-planning → mind-implementation → mind-verification
 design-ui:  Design Track (vedi sotto) → mind-verification
+            icona/marchio/favicon → mind-mark (brief → 3 direzioni mono → riduzione 16px → colore/varianti → export → verifica visiva) → mind-verification
+            asset raster / .ico / favicon set / .icns / ritaglio / conversione → mind-image (destinazione → scala fonti → costruzione → verifica a dimensione d'uso → formati) → mind-verification
 fixare:     mind-debugging → mind-implementation → mind-verification
             assessment offensivo → mind-breach (gate auth SEMPRE) → mind-security → implementation → mind-verification | assessment multi-sessione/bounty → mind-breach-pipeline (scope→…→retest, stato su file)
             hardware fisico (USB/driver/radio/device, APK da cavo) → mind-hardware (azioni fisiche SOLO con conferma utente) → mind-verification
@@ -54,7 +57,7 @@ pipeline SOLO SE (consegna unica E ≥3 stage E stato su file .mind/delivery/<no
 ALTRIMENTI rotta singola.
 ```
 
-Le pipeline di dominio (data, mobile, infra, observability, ml, rollout, decommission, incident, audit, migration, release, onboarding, research, performance, design, feature, stack-watch, breach, reverse) sono **varianti dello STAGE**, non voci di routing: si usano quando il task attraversa ≥3 fasi con consegna unica e stato su file. Un intervento puntuale usa sempre la rotta singola del dominio (es. `mind-incident`, `mind-security`, `mind-migration`, `mind-release`, `mind-research`, `mind-data`, `mind-performance`, `mind-devops`).
+Le pipeline di dominio (data, mobile, infra, observability, ml, rollout, decommission, incident, audit, migration, release, onboarding, research, performance, design, feature, stack-watch, breach, reverse, game) sono **varianti dello STAGE**, non voci di routing: si usano quando il task attraversa ≥3 fasi con consegna unica e stato su file. Un intervento puntuale usa sempre la rotta singola del dominio (es. `mind-incident`, `mind-security`, `mind-migration`, `mind-release`, `mind-research`, `mind-data`, `mind-performance`, `mind-devops`).
 
 Solo due approvazioni utente bloccano una pipeline: mockup e contratti critici. Il resto fila senza interruzioni. Mockup-first: ogni implementazione che crea un FE nuovo parte da un mockup; se il FE esiste gia, niente mockup rigenerato salvo richiesta esplicita dell'utente.
 
@@ -75,11 +78,33 @@ DESIGN-TRACK:
                   token var(--*), WCAG 4.5:1, catalogo ~80 brand OKLch, DESIGN.md source of truth)
   3. movimento  → motion SOLO se animato (ladder CSS→WAAPI→Motion→GSAP→SVG→Three.js,
                   mai saltare al 3D; 3 strati primary/secondary/ambient; stagger <500ms)
+  3b. segno     → mind-mark SOLO se serve icona/marchio/favicon (si parte da 16px:
+                  3 direzioni monocrome → riduzione → colore → export multi-piattaforma)
+  3c. immagine  → mind-image SOLO se serve un raster o un file di formato (.ico, favicon, icns)
   4. QA         → Design QA a occhi freschi (subagent read-only: token rispettati?
                   anti-slop pass? motion giustificato dal brief? Se FAIL → torna a enforce)
 ```
 
-## Handoff principali (solo 7, il resto vive nelle skill)
+## Game Track (videogiochi)
+
+```
+GAME-TRACK (mind-game-pipeline, stato in .mind/games/<slug>/):
+  0. brief e divieti   → game-director: verbo, 3 divieti, criterio osservabile, adapter
+  1. tre verbi         → game-director: 3 carte + test di morte → GATE utente (scelta)
+  2. prova di feel 60s → feel-engineer + playtest-critic: grigio, una scena, clip → GATE replay desire
+  3. loop e numeri     → game-director + feel-engineer: dati con range e motivo
+  4. direzione         → game-art-director: GAME.md + ASSETS.md → GATE utente (approvazione)
+  5. UI/UX             → game-ui-designer + art: flusso, HUD, schermate, stati, input, a11y → GATE utente (wireframe)
+  6. vertical slice    → feel-engineer + art + critic: 5 min, inizio-fine → GATE estraneo
+  7. contenuto/tooling → feel-engineer: data-only, localizzazione, a11y
+  8. test/performance  → mind-testing + critic: suite, playthrough, budget, regressione
+  9. build/distribuzione → mind-devops + mind-release: riproducibile, disclosure, rollback
+  10. verifica/postmortem → mind-verification: evidenza, KEEP/ITERATE/KILL, memoria
+```
+
+Intervento puntuale (concept, feel, loop, direzione, playtest, review anti-slop) → `mind-game-design`, senza pipeline.
+
+## Handoff principali (solo 9, il resto vive nelle skill)
 
 ```
 brainstorming → planning → implementation → verification
@@ -87,9 +112,10 @@ debugging → implementation → verification
 breach → security/implementation → verification (re-test: il PoC deve fallire)
 research/consult → planning/ADR → implementation (se approvato)
 explore → docs/memory
-design-track → implementation → verification
+design-track/mark → image → implementation → verification
 incident → debugging/security/devops → docs (postmortem)
 release → devops → verification
+game → game-design/implementation → verification
 ```
 
 Regola handoff: ogni skill passa il suo **risultato** come input alla successiva (spec→piano, piano→dispatch, root cause+test→fix, threat model→fix, raccomandazione+fonti→piano). Se il risultato manca o è placeholder, si torna alla skill precedente invece di proseguire.
@@ -118,6 +144,9 @@ SE VUOTA/CORROTTA: procedi con default + segnala, mai bloccare.
 - **Sync del sistema vs salute ecosistema**: integrare/sincronizzare contenuti nel sistema mind (repo upstream, skill esterne, README/diagrammi) → `mind-system-sync`; verificare salute/backup/plugin/Context7 e il preflight del sync (backup + dry-run) → `ecosystem-health-check`. Confine netto: una integra, l'altra verifica.
 - **Hardware fisico**: periferica USB/seriale, driver, radio/Bluetooth, drone, tastiera/batterie/retroilluminazione, APK da dispositivo → `mind-hardware` (azioni fisiche sempre dietro conferma utente; l'app estratta va a `mind-reverse`).
 - **Registro sessioni (consapevolezza tra sessioni)**: all'avvio di un task (non per una domanda singola) leggi `~/.config/opencode/mind/sessions/` (schede attive delle altre sessioni; scarta quelle stantie oltre 48h) e aggiorna la scheda della sessione corrente (`goal`, `status`, `step`). Protocollo in `mind/sessions/README.md`. È disciplina dell'orchestratore, non una skill.
+- **Immagine vs segno**: produrre o convertire un'immagine raster (foto, illustrazione, texture, hero) o un contenitore di file (`.ico`, favicon set, `.icns`, WebP/AVIF) → `mind-image`. Progettare il segno di un'icona → `mind-mark` (che poi passa i file a `mind-image`). UI e token → `frontend-design`/`design-system`.
+- **Segno vs file vs UI**: il *disegno* di un segno (app icon, marchio, set di icone, adaptive) → `mind-mark`, che parte da 16px; i *file* di un segno gia deciso e ogni raster (`.ico`, `.icns`, favicon set, export store, screenshot, ritaglio, upscale, colore) → `mind-image`. Favicon: è un file del sito → `mind-image`; se il segno non esiste, `mind-image` lo fa disegnare a `mind-mark`. La UI resta `frontend-design`/`design-system`. Identità visiva completa → `mind-design-pipeline`. Immagine dentro un documento → il documento a `mind-documents`, l'immagine a `mind-image`.
+- **Gioco vs web/app**: un videogioco end-to-end (verbo → feel → slice → build) → `mind-game-pipeline` (stato in `.mind/games/<slug>/`); intervento su concept/feel/loop/direzione/playtest → `mind-game-design`; UI web/app → `mind-pipeline`/`mind-mobile-pipeline`; asset raster o segno → `mind-image`/`mind-mark`; bug di codice → `mind-debugging`. La pipeline è engine-agnostic: il motore è un adapter registrato (Unity o Godot).
 - **Barra (`barra.md`)**: lettura garantita dal plugin a ogni richiesta (`MIND_BARRA`), scrittura a carico della rotta. Criteri di "fatto bene" + rifiuti d'approccio. Senza barra un rifiuto non lascia traccia e la sessione successiva riparte dall'assunzione sbagliata.
 
 ## Re-routing mid-sessione (enforcement 2026-10-16)

@@ -81,7 +81,7 @@ flowchart TD
     P --> O[using-mind<br/>identifica il task]
     O --> D{Macro-via?}
     D -->|1. Feature end-to-end<br/>>= 3 domini, consegna unica| M1[Delivery pipeline<br/>mind-pipeline]
-    D -->|2. Intervento strutturato<br/>>= 3 fasi, consegna unica| M2[Pipeline di dominio<br/>18 pipeline]
+    D -->|2. Intervento strutturato<br/>>= 3 fasi, consegna unica| M2[Pipeline di dominio<br/>19 pipeline]
     D -->|3. Task puntuale| M3[Rotta singola dedicata<br/>skill mind-*]
     D -->|4. Meta: consiglio / valutazione<br/>NON costruire| M4[mind-consult / mind-eval<br/>/ mind-architecture / mind-forge]
     D -->|5. Obiettivo lungo in autonomia<br/>più task, più sessioni| M5[mind-runner]
@@ -177,6 +177,8 @@ Le **8 porte d'ingresso** (intenti) di `using-mind` decidono *cosa* è la richie
 
 **Casi limite**: UI+BE → rotta del dominio predominante, gate unico. Dubbio → route conservativa. Fix rapido di bug già investigato → salta `mind-debugging`. Refactor vs migration → senza cambio stack = refactor. Copy vs pulizia → creare = `mind-copy`, pulire = `stop-slop`. Incident vs bug → produzione giù = `mind-incident`. Richiamo vs recall → prima `memory` search, poi `mind-recall`. Documenti vs codice → file .pdf/.docx/.xlsx/.pptx = `mind-documents`. Runner vs task singolo → un obiettivo/piano da portare a termine in autonomia = `mind-runner`; un singolo task = rotta specifica. Consulenza vs costruzione → "cosa mi consigli / come miglioreresti / è una buona idea" = `mind-consult` (subagent `sage`); se il consiglio sfocia in lavoro → rotta normale; se valuta il sistema → `mind-eval`; se è una decisione architetturale → `mind-architecture`. Pipeline vs rotta specifica → feature che attraversa UI+BE+integrazione+sicurezza con consegna unica = `mind-pipeline`; task di 1-2 domini = rotta dedicata; se la feature ha UI, il mockup va approvato dall'utente PRIMA del codice. Pipeline di dominio vs rotta singola → incidente/audit/migrazione/release/onboarding/ricerca/ETL/performance STRUTTURATO a stage (≥3 fasi, consegna unica) = pipeline di dominio; un intervento puntuale (singola vulnerabilità, singola migrazione, singola release, query dati, micro-ottimizzazione, bug di sviluppo, singolo deploy, singolo endpoint) = rotta singola dedicata. Mobile vs web → app mobile cross-platform = `mind-mobile-pipeline`; solo web = `mind-pipeline`; solo release su store di app già pronta = `mind-release-pipeline`. Design strutturato vs ritocco vs feature → nuova UI/redesign/identità visiva/design system da zero con consegna visiva = `mind-design-pipeline`; ritocco puntuale o modifica di una schermata esistente = rotta UI singola (`frontend-design` → `design-system` → `motion` se animazioni); feature con UI+BE+endpoint = `mind-pipeline`; solo token mancanti = `design-system` (create.md). Direzione già fissata vs da esplorare → il brief fissa la direzione visiva = `frontend-design` + `design-md`/`design-system` (le parole del brief vincono); direzione da scegliere = `mind-design-explore` con 2-3 direzioni e gate utente (una sola proposta = falsa scelta). Chi giudica il design → chi implementa NON si auto-valuta esteticamente: review in contesto fresco con il subagent `lust` (read-only), poi gate `mind-verification`. Lacuna del sistema (forge) → manca una capacità (nessuna skill copre un caso ricorrente; il registratore mostra sessioni fuori-rotta o skill mai usate) = `mind-forge` (diagnosi→proposta con gate→crea skill/agente→registra nel routing→`mind-eval`); lacuna di routing (skill ignorata) = correggi la tabella; lacuna di qualità (skill scadente) = `mind-eval`; mai creare senza approvazione utente, mai duplicare una skill esistente. Infra vs release → creare/modificare l'AMBIENTE = `mind-infra-pipeline`; pubblicare il CODICE in ambiente esistente = `mind-release`. Osservabilità vs incidente → costruire il monitoring = `mind-observability-pipeline`; incidente in corso senza visibilità = `mind-incident-pipeline` prima, poi observability come hardening. ML vs data → ciclo ML completo = `mind-ml-pipeline`; solo movimento/trasformazione dati = `mind-data-pipeline`; solo scelta libreria ML = `mind-research`. Rollout vs release → attivare GRADUALMENTE una feature già pronta (flag/canary/A-B, misurata) = `mind-feature-rollout-pipeline`; pubblicare una versione = `mind-release-pipeline` (la release include il flag default off, il rollout lo accende). Decommission vs migration → RIMUOVERE del tutto = `mind-decommission-pipeline`; SOSTITUIRE = `mind-migration-pipeline`; deprecation di un singolo endpoint = `mind-api`.
 
+**Gioco vs web/app**: videogioco end-to-end = `mind-game-pipeline` (stato in `.mind/games/<slug>/`, gate G0-G9, motore come adapter); intervento su concept/feel/loop/direzione/playtest = `mind-game-design`; UI web/app = `mind-pipeline`/`mind-mobile-pipeline`; asset raster o segno = `mind-image`/`mind-mark`; bug di codice = `mind-debugging`.
+
 ---
 
 ## 3bis. Pipeline di consegna (`mind-pipeline`)
@@ -210,9 +212,9 @@ flowchart TB
     G2 --> M[memoria mind-memory<br/>decisioni + architettura + riepilogo]
 ```
 
-### 3ter. Pipeline di dominio (16)
+### 3ter. Pipeline di dominio (17)
 
-Oltre alla consegna di feature (`mind-pipeline`, §3bis) e al design (`mind-design-pipeline`, §3quater), il sistema ha 16 pipeline di dominio per interventi strutturati a stage (≥3 fasi, consegna unica) — **18 pipeline in totale**. Un intervento puntuale usa la rotta singola dedicata, NON la pipeline. Ogni pipeline mantiene stato condiviso su file, gate tra gli stage e budget di chiamate.
+Oltre alla consegna di feature (`mind-pipeline`, §3bis) e al design (`mind-design-pipeline`, §3quater), il sistema ha 17 pipeline di dominio per interventi strutturati a stage (≥3 fasi, consegna unica) — **19 pipeline in totale**. Un intervento puntuale usa la rotta singola dedicata, NON la pipeline. Ogni pipeline mantiene stato condiviso su file, gate tra gli stage e budget di chiamate.
 
 | Pipeline | Stage | Trigger |
 |---|---|---|
@@ -226,12 +228,17 @@ Oltre alla consegna di feature (`mind-pipeline`, §3bis) e al design (`mind-desi
 | `mind-data-pipeline` | estrazione → pulizia → validazione → trasformazione → caricamento (backup PRIMA, transazione, idempotente) → verifica pre/post → documentazione | task dati/ETL complesso |
 | `mind-performance-pipeline` | baseline (misura PRIMA) → profiling → collo di bottiglia → ottimizzazione (una variabile per volta) → verifica (stesso strumento) → monitoraggio | intervento performance strutturato |
 | `mind-mobile-pipeline` | stack (context7-mcp) → design mobile (frontend-design, HIG/M3) → contratti (mind-api) → FE mobile → BE → device/push/storage/offline → test (emulatori+device) → build+signing → release (rollback) → gate+memoria | app mobile cross-platform dallo stack allo store |
+| `mind-game-pipeline` | brief+divieti (game-director) → tre verbi (gate utente) → feel 60s in grigio (gate replay desire) → loop/numeri → direzione (gate utente) → UI/UX (gate wireframe) → vertical slice (gate estraneo) → contenuto data-only → test/perf → build/disclosure → verifica+postmortem | videogioco end-to-end, engine-agnostic, 5 agenti |
 | `mind-infra-pipeline` | scope (provider/budget/compliance) → provisioning IaC → rete/security → secrets → immagini/container → orchestrazione → DNS/cert → scaling/resilienza → costi → monitoring | setup ambiente, provisioning, deploy cloud |
 | `mind-observability-pipeline` | inventario → logging centralizzato → metriche (RED/USE) → tracing → alerting → dashboard/SLO → verifica → gate | osservabilità/monitoring/telemetria di un sistema |
 | `mind-ml-pipeline` | problema+metrica → dati (split) → cleaning/feature (leakage) → selezione modello → training (riproducibile) → eval (test set, fairness) → deploy servizio → monitoraggio drift | modello, predizione, classificazione, ML |
 | `mind-feature-rollout-pipeline` | flag design (default off) → metriche con baseline PRIMA → canary → A/B → espansione 25→50→100% → rollout completo (cleanup) → post-verifica | attivare gradualmente una feature già pronta, canary, A/B |
 | `mind-decommission-pipeline` | inventario consumatori → valutazione impatto → piano deprecation (periodo) → avvisi/docs → migrazione → shutdown controllato → cleanup → gate | ritirare/spegnere un servizio o feature attivo |
 | `mind-reverse-pipeline` | scope+auth-gate -> identita -> classificazione -> inventario -> tracking per feature -> corroborazione -> ledger -> spec/ricostruzione -> verifica -> report | reverse multi-feature/multi-sessione, artefatto senza sorgente |
+
+### 3ter-bis. Game pipeline (`mind-game-pipeline`)
+
+Videogioco end-to-end, engine-agnostic (Unity o Godot come adapter): 11 stage, stato in `.mind/games/<slug>/`, 5 agenti dedicati (`game-director`, `game-art-director`, `game-ui-designer`, `feel-engineer`, `playtest-critic`). Tre regole non negoziabili: niente arte prima che il verbo regga (prova in grigio, clip registrata), il divertimento è un'evidenza (3/5 replay desire, non un aggettivo), il kill è un esito (max 2 concept, max 3 prove). La dottrina sta in `mind-game-design`; i gate G0-G9 e i template degli artefatti stanno nella pipeline.
 
 ### 3quater. Design pipeline (`mind-design-pipeline`)
 
@@ -331,6 +338,11 @@ flowchart LR
 | Microcopy / voce UI | Jean Havoc | `dico` | 💬 | Stage 8 con `mind-copy` |
 | User advocate / accessibilità | Maria Ross | `protego` | ♿ | contrasto, focus, label (Stage 10) |
 | Design QA / review visiva (read-only) | Lust | `scrutor` | 👁️ | subagent dedicato `config/agents/lust.md`, review in contesto fresco |
+| Game director | Grumman | `guberno` | ♟️ | concept, tre verbi, loop, kill (`config/agents/game-director.md`) |
+| Game art director | Catherine Armstrong | `pingo` | 🖌️ | GAME.md, palette, silhouette, audio (`config/agents/game-art-director.md`) |
+| Game UI/UX | Rebecca Catalina | `ordino` | 🎛️ | flusso, HUD, stati, input (`config/agents/game-ui-designer.md`) |
+| Feel engineer | Dominic | `tempero` | 🔩 | feel, tuning, slice (`config/agents/feel-engineer.md`) |
+| Playtest critic | Kimblee | `confringo` | 💣 | read-only, verdetto KEEP/ITERATE/KILL (`config/agents/playtest-critic.md`) |
 
 **Regole**: il nome del personaggio è usato OGNI volta che si dispatcha un subagent (rotazione), nel prompt e nel report (`**Edward Elric** (implementer): DONE`). Ogni agente ha un **verbo/spinner** unico, **sempre in latino** (1ª persona singolare, presente indicativo: `…Edward aequiparo…`, `…Riza recenseo…`) e una **emoji-signature** (`⚗️ Edward`, `👁️ Lust`): il verbo sostituisce il generico "sto pensando" e rende visibile CHI sta agendo, l'emoji è la firma visiva che sopravvive agli aggiornamenti dell'app. Il latino dà uniformità ai verbi e li distingue dal linguaggio normale. **Ogni tanto** (non sempre) si apre il prompt/report con una battuta dell'anime (elenco in `fma-agents.md`), max una per subagent, coerente col contesto.
 
@@ -430,6 +442,7 @@ flowchart TD
 | `mind-data-pipeline` | `data`/`implementation`/`verification` | backup prima + verifica pre/post |
 | `mind-performance-pipeline` | `performance`/`implementation`/`verification` | stesso strumento di misura prima/dopo |
 | `mind-mobile-pipeline` | `frontend-design`/`api`/`implementation`/`release` | app buildata+firmata → store |
+| `mind-game-pipeline` | `game-design`/`implementation`/`testing`/`verification` | build giocabile + evidenza + verdetto |
 | `mind-infra-pipeline` | `devops`/`security`/`observability` | ambiente IaC + rete/secrets + monitoring |
 | `mind-observability-pipeline` | `devops`/`incident-pipeline` | log/metriche/tracing/alert → dashboard+SLO |
 | `mind-ml-pipeline` | `data`/`api`/`performance`/`security` | modello valutato + servizio + drift |
