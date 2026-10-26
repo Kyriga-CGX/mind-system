@@ -1,4 +1,4 @@
-import fs from 'fs';
+﻿import fs from 'fs';
 import path from 'path';
 import os from 'os';
 import assert from 'assert';
@@ -85,6 +85,16 @@ assert.ok(!sec.includes('SuperSegreta1'), 'password mascherata');
 assert.ok(!sec.includes('ghp_ABCDEFGHIJKLMNOP'), 'token github mascherato');
 assert.ok(sec.includes('[REDACTED]'), 'segnaposto presente');
 
+// 6b) forma V2 dell'evento: argomenti in `args`, skill con `id`, subagent come tool omonimo
+hooks['s:prompt']({ sessionID: 'ses_v2', directory: proj, prompt: { text: 'controlla il risultato' } });
+hooks['t:execute.after']({ sessionID: 'ses_v2', tool: 'skill', callID: 'c1', args: { id: 'mind-verification' } });
+hooks['t:execute.after']({ sessionID: 'ses_v2', tool: 'subagent', callID: 'c2', args: { agent: 'explore' } });
+const v2uses = uses().filter((u) => u.sid === 'ses_v2');
+assert.deepStrictEqual(v2uses.map((u) => [u.k, u.v]), [['skill', 'mind-verification'], ['subagent', 'explore']], 'forma V2: args.id e args.agent');
+const gapsV2 = JSON.parse(fs.readFileSync(path.join(cfgDir, 'mind', 'gaps', 'skills-used.json'), 'utf8'));
+const entryV2 = gapsV2.sessions.find((s) => s.sessionID === 'ses_v2');
+assert.strictEqual(entryV2.skills['mind-verification'], 1, 'registratore: skill V2 contata');
+assert.strictEqual(entryV2.subagents['explore'], 1, 'registratore: subagent V2 contato');
 // 7) report: conta i turni con e senza rotta ed elenca solo gli ambigui
 const { buildReport, loadRecords } = await import('file://' + path.join(here, '..', 'tools', 'routing-sample-report.mjs'));
 let md = buildReport(loadRecords(samplePath()), { limit: 50 });
