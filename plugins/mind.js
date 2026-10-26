@@ -1,12 +1,13 @@
-import path from 'path';
+﻿import path from 'path';
 import fs from 'fs';
 import os from 'os';
 
 // ---------------------------------------------------------------------------
-// mind — plugin OpenCode V2 (definizione { id, setup }).
+// mind â€” plugin OpenCode V2 (definizione { id, setup }).
 // Runtime: (1) bootstrap di using-mind nel context di ogni richiesta modello,
 // (2) segnale di fuori-rotta quando la sessione accumula turni senza skill,
-// (3) registratore d'uso skill/subagent in mind/gaps/skills-used.json.
+// (3) registratore d'uso skill/subagent in mind/gaps/skills-used.json,
+// (4) campione dei turni in mind/gaps/routing-sample.jsonl (prompt corto redatto + rotta).
 // Best-effort: non deve mai bloccare l'app.
 //
 // NOTA: questa e' la porta V1 -> V2. In V1 l'entrypoint era
@@ -24,6 +25,82 @@ const configDir = () => {
 const mindSkillsDir = () => path.join(configDir(), 'mind', 'skills');
 
 const gapsFilePath = () => path.join(configDir(), 'mind', 'gaps', 'skills-used.json');
+
+// ---------------------------------------------------------------------------
+// Campione delle richieste (routing-sample.jsonl).
+// Il contatore noSkillTurns dice QUANTI turni non hanno caricato skill, non
+// PERCHE': una domanda one-shot e una richiesta mal instradata pesano uguale.
+// Qui si salva la prima riga di ogni turno (corta, redatta) + cosa e' stato
+// caricato, cosi' un campione etichettato puo' dire quale skill manca davvero.
+// Locale, append-only, best-effort: mai rete, mai blocco.
+// ---------------------------------------------------------------------------
+
+const SAMPLE_MAX_CHARS = 200;
+const SAMPLE_DEFAULT_MAX_BYTES = 2 * 1024 * 1024;
+
+const sampleFilePath = () => path.join(configDir(), 'mind', 'gaps', 'routing-sample.jsonl');
+
+const redactSample = (text) => {
+  let out = String(text || '');
+  out = out.replace(/\b(password|passwd|pwd|token|secret|api[-_ ]?key)\b\s*[:=]\s*\S+/gi, '$1=[REDACTED]');
+  const patterns = [
+    /\b(?:sk|rk|pk)-[A-Za-z0-9_-]{12,}/g,
+    /\bgh[pousr]_[A-Za-z0-9]{20,}/g,
+    /\bAKIA[0-9A-Z]{16}\b/g,
+    /\bxox[baprs]-[A-Za-z0-9-]{10,}/g,
+    /\b[A-Fa-f0-9]{40,}\b/g,
+  ];
+  for (const re of patterns) out = out.replace(re, '[REDACTED]');
+  return out;
+};
+
+const samplePrompt = (text) => {
+  const flat = redactSample(text).replace(/\s+/g, ' ').trim();
+  return flat.length > SAMPLE_MAX_CHARS ? flat.slice(0, SAMPLE_MAX_CHARS) + '\u2026' : flat;
+};
+
+const sampleEnabled = () => process.env.MIND_SAMPLE !== 'off';
+
+const sampleMaxBytes = () => {
+  const n = Number(process.env.MIND_SAMPLE_MAX_BYTES);
+  return Number.isFinite(n) && n > 0 ? n : SAMPLE_DEFAULT_MAX_BYTES;
+};
+
+const rotateSample = (p) => {
+  try {
+    if (!fs.existsSync(p) || fs.statSync(p).size < sampleMaxBytes()) return;
+    fs.copyFileSync(p, p + '.1');
+    fs.writeFileSync(p, '', 'utf8');
+  } catch {
+    // best-effort
+  }
+};
+
+const appendSample = (record) => {
+  if (!sampleEnabled()) return;
+  try {
+    const p = sampleFilePath();
+    fs.mkdirSync(path.dirname(p), { recursive: true });
+    rotateSample(p);
+    fs.appendFileSync(p, JSON.stringify(record) + '\n', 'utf8');
+  } catch {
+    // best-effort
+  }
+};
+
+const _turnOf = {};
+
+const recordSampleTurn = (sessionID, turn, text, directory) => {
+  if (!sessionID || !turn) return;
+  _turnOf[sessionID] = turn;
+  appendSample({ t: 'turn', ts: new Date().toISOString(), sid: sessionID, n: turn, dir: directory || '', p: samplePrompt(text) });
+};
+
+const recordSampleUse = (sessionID, kind, value) => {
+  const turn = _turnOf[sessionID];
+  if (!turn) return;
+  appendSample({ t: 'use', ts: new Date().toISOString(), sid: sessionID, n: turn, k: kind, v: String(value || '') });
+};
 
 const THRESHOLD_NO_SKILL = 3;
 const MAX_SESSIONS = 200;
@@ -89,7 +166,7 @@ const prune = (data) => {
 
 // Nuovo turno utente: chiude il precedente e apre il nuovo.
 const recordTurnStart = (sessionID) => {
-  if (!sessionID) return;
+  if (!sessionID) return 0;
   try {
     const data = readGaps();
     const entry = getEntry(data, sessionID);
@@ -104,8 +181,10 @@ const recordTurnStart = (sessionID) => {
     entry.updatedAt = new Date().toISOString();
     prune(data);
     writeGaps(data);
+    return entry.turns;
   } catch {
     // ignora
+    return 0;
   }
 };
 
@@ -190,7 +269,7 @@ const getBootstrapContent = () => {
   _bootstrapCache = `<EXTREMELY_IMPORTANT>
 Hai "mind" attivo.
 
-**La skill using-mind è già caricata qui sotto — NON richiamarla di nuovo con il tool skill.**
+**La skill using-mind Ã¨ giÃ  caricata qui sotto â€” NON richiamarla di nuovo con il tool skill.**
 
 ${content}
 </EXTREMELY_IMPORTANT>`;
@@ -230,7 +309,7 @@ const partText = (part) => {
 
 // --- Anti-loop: rifiuto ripetuto dello stesso risultato ---
 // L'hook `prompt` di V2 vede il testo dell'utente: contiamo i rifiuti consecutivi
-// e al 2° iniettiamo MIND_LOOP, che richiama la regola anti-loop di using-mind.
+// e al 2Â° iniettiamo MIND_LOOP, che richiama la regola anti-loop di using-mind.
 const REJECTION_PATTERNS = [
   /non va( bene)?/i,
   /non funziona/i,
@@ -238,16 +317,16 @@ const REJECTION_PATTERNS = [
   /non mi piace/i,
   /ancora (lontan|sbagliat|uguale|lo stesso|non|peggio)/i,
   /(lo )?stesso (problema|errore|risultato|effetto)/i,
-  /(hai sbagliato|è sbagliato|non è (giusto|corretto|quello))/i,
+  /(hai sbagliato|Ã¨ sbagliato|non Ã¨ (giusto|corretto|quello))/i,
   /(rifai|rifallo|riprova di nuovo)/i,
   /fuori rotta/i,
-  /non è cambiato (niente|nulla)/i,
+  /non Ã¨ cambiato (niente|nulla)/i,
   /(ti blocchi|sei bloccato|si blocca)/i,
   // Rifiuto di merito (qualita'), non di dettaglio: "non sono innovative",
   // "banale", "gia' visto", "non dice niente".
-  /non (sono|e'|è) .{0,30}(innovativ|original|nuov|divers|pazz|sorprend|wow)/i,
+  /non (sono|e'|Ã¨) .{0,30}(innovativ|original|nuov|divers|pazz|sorprend|wow)/i,
   /\b(banal[ei]|generic[oa]|piatt[oi]|scontat[oi]|noios[oi])\b/i,
-  /già vist[oi]|gia vist[oi]/i,
+  /giÃ  vist[oi]|gia vist[oi]/i,
   /\b(non (mi )?(dice|fa|dicono|fanno) (niente|nulla))\b/i,
   /\b(manca|mancano) (l'|il |la )?(idea|anima|carattere|personalit)/i,
   /non .{0,40}da dire (niente|nulla|wow)/i,
@@ -403,9 +482,10 @@ export default {
         const sessionID = sessionIdOf(event);
         if (!sessionID) return;
         _lastSessionID = sessionID;
-        recordTurnStart(sessionID);
+        const turn = recordTurnStart(sessionID);
 
         const text = event?.prompt?.text || '';
+        if (turn) recordSampleTurn(sessionID, turn, text, event?.directory || setupProjectDir);
         if (text) {
           if (isRejection(text)) {
             const n = (_rejectStreak[sessionID] || 0) + 1;
@@ -433,8 +513,11 @@ export default {
         const input = event?.input || {};
         if (tool === 'skill') {
           recordSkill(sessionID, input.name);
+          recordSampleUse(sessionID, 'skill', input.name);
         } else if (tool === 'task') {
-          recordSubagent(sessionID, input.subagent_type || input.subagentType);
+          const subagent = input.subagent_type || input.subagentType;
+          recordSubagent(sessionID, subagent);
+          recordSampleUse(sessionID, 'subagent', subagent);
         }
       } catch {
         // best-effort
