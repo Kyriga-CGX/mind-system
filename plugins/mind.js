@@ -158,6 +158,16 @@ const getEntry = (data, sessionID) => {
   return entry;
 };
 
+// Il turno in cui arriva una skill/subagent non deve restare contato come
+// "senza skill": al turn start il conteggio e' ottimistico e va corretto qui.
+const markUsed = (entry) => {
+  if (!entry.usedThisTurn) {
+    entry.noSkillTurns = Math.max(0, (entry.noSkillTurns || 0) - 1);
+    entry.consecutiveNoSkill = Math.max(0, (entry.consecutiveNoSkill || 0) - 1);
+  }
+  entry.usedThisTurn = true;
+};
+
 const prune = (data) => {
   if (data.sessions.length > MAX_SESSIONS) {
     data.sessions = data.sessions.slice(-MAX_SESSIONS);
@@ -195,7 +205,7 @@ const recordSkill = (sessionID, skillName) => {
     const data = readGaps();
     const entry = getEntry(data, sessionID);
     entry.skills[skillName] = (entry.skills[skillName] || 0) + 1;
-    entry.usedThisTurn = true;
+    markUsed(entry);
     entry.updatedAt = new Date().toISOString();
     prune(data);
     writeGaps(data);
@@ -212,7 +222,7 @@ const recordSubagent = (sessionID, subagentType) => {
     const entry = getEntry(data, sessionID);
     const key = subagentType || 'unknown';
     entry.subagents[key] = (entry.subagents[key] || 0) + 1;
-    entry.usedThisTurn = true;
+    markUsed(entry);
     entry.updatedAt = new Date().toISOString();
     prune(data);
     writeGaps(data);

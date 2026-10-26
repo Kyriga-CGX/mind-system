@@ -12,6 +12,7 @@ import { pathToFileURL } from 'url';
 
 export const parseRecords = (text) =>
   String(text || '')
+    .replace(/^\uFEFF/, '')
     .split('\n')
     .filter((l) => l.trim())
     .map((l) => {
