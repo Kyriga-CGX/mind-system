@@ -55,7 +55,8 @@ Il plugin `mind` inietta il bootstrap a ogni turno (con guardia anti-duplicazion
 - `config/` — `opencode.jsonc`, `mind-memory.json`, `barra.md` (criteri "fatto bene" + rifiuti, deployato in `mind/barra.md`), `AGENTS.md` + subagent custom (`agents/sage.md`, `lust.md`, `forge.md`, `game-director.md`, `game-art-director.md`, `game-ui-designer.md`, `feel-engineer.md`, `playtest-critic.md`). Chiavi come `{env:VAR}` dall'ambiente all'avvio
 - `docs/` — appunti e note decisionali; `docs/session-registry.md` (registro condiviso tra sessioni in `~/.config/opencode/mind/sessions/`), `docs/system-diagram.md` (routing e pipeline per esteso), `docs/eval/` (report di valutazione delle skill)
 - `sync.ps1` — sincronizza **repo → macchina locale** (il repo è la source of truth)
-- `tests/` — `barra.test.mjs`: il meccanismo si riprova con `node tests/barra.test.mjs` (barra globale+progetto, guardie a tag, rifiuto al 1°, loop al 2°, contatore, stato vuoto, registratore isolato)
+- `tests/` — `barra.test.mjs` (barra globale+progetto, guardie a tag, rifiuto al 1°, loop al 2°, contatore, stato vuoto) e `routing-sample.test.mjs` (prompt normalizzato/troncato/redatto, numerazione dei turni, rotazione, merge del report, best-effort): `node tests/barra.test.mjs` e `node tests/routing-sample.test.mjs`
+- `tools/routing-sample-report.mjs` — legge `mind/gaps/routing-sample.jsonl` e stampa i turni **senza** skill da etichettare: `node tools/routing-sample-report.mjs --limit=50`
 
 ## Quickstart
 
