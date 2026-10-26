@@ -1,4 +1,4 @@
-﻿import fs from 'fs';
+import fs from 'fs';
 import path from 'path';
 import os from 'os';
 import assert from 'assert';
@@ -62,13 +62,24 @@ const entry1 = gaps1.sessions.find((s) => s.sessionID === 'ses_r1');
 assert.strictEqual(entry1.noSkillTurns, 0, 'noSkillTurns non conta il turno con skill (trovato ' + entry1.noSkillTurns + ')');
 assert.strictEqual(entry1.consecutiveNoSkill, 0, 'consecutiveNoSkill azzerato quando la skill arriva');
 
+// 2c) il conteggio avviene alla chiusura: un turno senza skill si conta al turno dopo
+const readEntry = (sid) => JSON.parse(fs.readFileSync(path.join(cfgDir, 'mind', 'gaps', 'skills-used.json'), 'utf8')).sessions.find((s) => s.sessionID === sid);
+hooks['s:prompt']({ sessionID: 'ses_cnt', directory: proj, prompt: { text: 'primo turno senza skill' } });
+hooks['s:prompt']({ sessionID: 'ses_cnt', directory: proj, prompt: { text: 'secondo turno' } });
+assert.strictEqual(readEntry('ses_cnt').noSkillTurns, 1, 'turno 1 chiuso senza skill -> 1');
+hooks['t:execute.after']({ sessionID: 'ses_cnt', tool: 'skill', args: { id: 'mind-debugging' } });
+assert.strictEqual(readEntry('ses_cnt').noSkillTurns, 1, 'la skill nel turno 2 non cancella il turno 1');
+assert.strictEqual(readEntry('ses_cnt').consecutiveNoSkill, 0, 'serie azzerata dalla skill');
+hooks['s:prompt']({ sessionID: 'ses_cnt', directory: proj, prompt: { text: 'terzo turno' } });
+assert.strictEqual(readEntry('ses_cnt').noSkillTurns, 1, 'turno 2 con skill non viene contato');
+
 // 3) skill non-mind: registrata comunque (misuriamo l'instradamento, non il catalogo)
 hooks['t:execute.after']({ sessionID: 'ses_r1', tool: 'skill', input: { name: 'frontend-design' } });
 assert.ok(uses().some((u) => u.v === 'frontend-design'), 'anche le skill fuori mind entrano nel campione');
 
 // 4) secondo prompt -> turno 2, n incrementale
 hooks['s:prompt']({ sessionID: 'ses_r1', directory: proj, prompt: { text: 'ok procedi' } });
-ts = turns();
+ts = turns().filter((x) => x.sid === 'ses_r1');
 assert.strictEqual(ts.length, 2, 'secondo turno');
 assert.strictEqual(ts[1].n, 2, 'numerazione progressiva');
 

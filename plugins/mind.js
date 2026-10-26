@@ -158,14 +158,11 @@ const getEntry = (data, sessionID) => {
   return entry;
 };
 
-// Il turno in cui arriva una skill/subagent non deve restare contato come
-// "senza skill": al turn start il conteggio e' ottimistico e va corretto qui.
+// Uso di una skill/subagent nel turno aperto: il turno non sara' contato come
+// "senza skill" alla sua chiusura, e la serie consecutiva si interrompe subito.
 const markUsed = (entry) => {
-  if (!entry.usedThisTurn) {
-    entry.noSkillTurns = Math.max(0, (entry.noSkillTurns || 0) - 1);
-    entry.consecutiveNoSkill = Math.max(0, (entry.consecutiveNoSkill || 0) - 1);
-  }
   entry.usedThisTurn = true;
+  entry.consecutiveNoSkill = 0;
 };
 
 const prune = (data) => {
@@ -180,13 +177,15 @@ const recordTurnStart = (sessionID) => {
   try {
     const data = readGaps();
     const entry = getEntry(data, sessionID);
-    entry.turns += 1;
-    if (!entry.usedThisTurn) {
+    // Chiude il turno precedente: lo si conta "senza skill" solo se esisteva ed
+    // era davvero senza. Niente incremento ottimistico del turno che si apre.
+    if (entry.turns > 0 && !entry.usedThisTurn) {
       entry.noSkillTurns += 1;
       entry.consecutiveNoSkill += 1;
     } else {
       entry.consecutiveNoSkill = 0;
     }
+    entry.turns += 1;
     entry.usedThisTurn = false;
     entry.updatedAt = new Date().toISOString();
     prune(data);
