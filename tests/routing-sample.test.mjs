@@ -56,6 +56,12 @@ const us = uses();
 assert.strictEqual(us.length, 2, 'due righe use');
 assert.deepStrictEqual(us.map((u) => [u.k, u.v, u.n]), [['skill', 'mind-brainstorming', 1], ['subagent', 'explore', 1]], 'tipo, valore, turno');
 
+// 2b) il turno in cui arriva la skill non resta contato come "senza skill"
+const gaps1 = JSON.parse(fs.readFileSync(path.join(cfgDir, 'mind', 'gaps', 'skills-used.json'), 'utf8'));
+const entry1 = gaps1.sessions.find((s) => s.sessionID === 'ses_r1');
+assert.strictEqual(entry1.noSkillTurns, 0, 'noSkillTurns non conta il turno con skill (trovato ' + entry1.noSkillTurns + ')');
+assert.strictEqual(entry1.consecutiveNoSkill, 0, 'consecutiveNoSkill azzerato quando la skill arriva');
+
 // 3) skill non-mind: registrata comunque (misuriamo l'instradamento, non il catalogo)
 hooks['t:execute.after']({ sessionID: 'ses_r1', tool: 'skill', input: { name: 'frontend-design' } });
 assert.ok(uses().some((u) => u.v === 'frontend-design'), 'anche le skill fuori mind entrano nel campione');
@@ -96,7 +102,8 @@ const entryV2 = gapsV2.sessions.find((s) => s.sessionID === 'ses_v2');
 assert.strictEqual(entryV2.skills['mind-verification'], 1, 'registratore: skill V2 contata');
 assert.strictEqual(entryV2.subagents['explore'], 1, 'registratore: subagent V2 contato');
 // 7) report: conta i turni con e senza rotta ed elenca solo gli ambigui
-const { buildReport, loadRecords } = await import('file://' + path.join(here, '..', 'tools', 'routing-sample-report.mjs'));
+const { buildReport, loadRecords, parseRecords } = await import('file://' + path.join(here, '..', 'tools', 'routing-sample-report.mjs'));
+assert.ok(buildReport(parseRecords('\uFEFF{"t":"turn","sid":"ses_bom","n":1,"p":"x"}'), { limit: 5 }).includes('turni: 1'), 'BOM ignorato dal report');
 let md = buildReport(loadRecords(samplePath()), { limit: 50 });
 assert.ok(/turni:\s*\d+/.test(md), 'conteggio turni nel report');
 assert.ok(md.includes('senza skill'), 'sezione turni senza skill');
