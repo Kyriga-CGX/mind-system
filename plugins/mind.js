@@ -510,12 +510,16 @@ export default {
         const sessionID = sessionIdOf(event);
         if (!sessionID) return;
         const tool = event?.tool;
-        const input = event?.input || {};
+        // V2: la firma e' (input, output) e gli argomenti del tool stanno in
+        // input.args. event.input non esiste -> il registratore restava cieco
+        // dal 14/10/2026 (skill tool passato a { id } e a tool 'subagent').
+        const args = event?.args || event?.input || {};
         if (tool === 'skill') {
-          recordSkill(sessionID, input.name);
-          recordSampleUse(sessionID, 'skill', input.name);
-        } else if (tool === 'task') {
-          const subagent = input.subagent_type || input.subagentType;
+          const skill = args.id || args.name || args.skill;
+          recordSkill(sessionID, skill);
+          recordSampleUse(sessionID, 'skill', skill);
+        } else if (tool === 'task' || tool === 'subagent') {
+          const subagent = args.agent || args.subagent_type || args.subagentType;
           recordSubagent(sessionID, subagent);
           recordSampleUse(sessionID, 'subagent', subagent);
         }
