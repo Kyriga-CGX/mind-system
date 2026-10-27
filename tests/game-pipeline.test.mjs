@@ -122,6 +122,19 @@ assert.ok(blenderRef.includes('BLENDER_EEVEE'), 'blender.md senza nome engine ve
 assert.ok(blenderRef.includes('bake_space_transform'), 'blender.md senza parametri export verificati');
 assert.ok(blenderRef.includes('validate_asset.py'), 'blender.md senza gate di validazione');
 assert.ok(read(path.join(designDir, 'SKILL.md')).includes('blender.md'), 'dottrina non aggancia blender.md');
+// 6c. Vendor: strumenti esterni con provenienza e licenza
+const vendor = path.join(designDir, 'references', 'vendor', 'blender-agent-skills');
+for (const f of ['VENDOR.md', 'LICENSE', 'blender-asset-qa/scripts/qa_check.py', 'blender-export-pipelines/scripts/export_asset.py', 'blender-game-optimization/scripts/make_lods.py', 'blender-character-rigging/scripts/rig_check.py']) {
+  assert.ok(exists(path.join(vendor, f)), 'manca vendor ' + f);
+}
+assert.ok(read(path.join(vendor, 'VENDOR.md')).includes('71d031d'), 'VENDOR.md senza commit upstream');
+assert.ok(read(path.join(vendor, 'LICENSE')).toLowerCase().includes('mit'), 'licenza del vendor non MIT');
+const qa = read(path.join(vendor, 'blender-asset-qa/scripts/qa_check.py'));
+assert.ok(qa.includes('zfighting') && qa.includes('floating'), 'qa_check.py non sembra il QA geometrico');
+assert.ok(!fs.existsSync(path.join(vendor, 'blender-asset-qa/SKILL.md')), 'SKILL.md upstream non rimosso (rischio auto-load)');
+const report = path.join(root, 'docs', 'research', 'blender-unity-agent-tools-2026-10-27.md');
+assert.ok(exists(report), 'manca il report di valutazione dei repo');
+assert.ok(read(report).includes('arjun988') && read(report).includes('EL4CTEO'), 'report senza verdetto sui candidati');
 
 // 7. Igiene dei file nuovi
 const newFiles = [
