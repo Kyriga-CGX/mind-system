@@ -44,6 +44,7 @@ Texture e HDRI usano lo stesso comando con `--type textures` / `--type hdris` e 
 |---|---|
 | Prodotto internamente | diritti dell'autore (tu), eventuali tool AI usati |
 | Generato da script (Blender) | versione dello strumento, licenza degli add-on, path dello script; l'output di Blender e' tuo, il GPL non si propaga al file esportato (`blender.md`) |
+| Generato da AI (3D) | modello e **versione dei pesi**, licenza del modello, seed, immagine o prompt di input; l'asset passa dal QA come qualsiasi altro (`generative-3d.md`) |
 | CC0 (es. Kenney) | che la pagina dell'asset sia davvero CC0, non solo la home del sito |
 | CC-BY | attribuzione esatta, anche nella build |
 | Asset Store | EULA per-seat, restrizioni su redistribuzione, cosa succede se il team cresce |
