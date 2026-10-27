@@ -56,10 +56,10 @@ for index, z in enumerate((0.15, 0.60)):
     assign_materials(strap, [plate])
     straps.append(strap)
 
-bpy.ops.mesh.primitive_cube_add(size=1.0, location=(0, -(D / 2), 0.55))
+bpy.ops.mesh.primitive_cube_add(size=1.0, location=(0, -(D / 2) + 0.01, 0.55))
 status = bpy.context.active_object
 status.name = "status_light"
-status.scale = (0.5, 0.02, 0.03)
+status.scale = (0.5, 0.04, 0.03)
 bpy.ops.object.transform_apply(location=False, rotation=False, scale=True)
 assign_materials(status, [accent])
 
@@ -76,6 +76,15 @@ assign_materials(crate, [hull, plate, accent])
 bevel(crate, 0.006, 2)
 weighted_normals(crate)
 apply_modifiers(crate)
+
+bpy.context.view_layer.objects.active = crate
+bpy.ops.object.mode_set(mode='EDIT')
+bpy.ops.mesh.select_all(action='SELECT')
+bpy.ops.uv.smart_project(angle_limit=1.15192, island_margin=0.02)
+bpy.ops.object.mode_set(mode='OBJECT')
+
+bpy.context.scene.cursor.location = (0.0, 0.0, 0.0)
+bpy.ops.object.origin_set(type='ORIGIN_CURSOR')
 
 report([crate], "prop_crate_a")
 render_preview(os.path.join(OUT, "prop_crate_a.png"), target=(0, 0, H / 2), distance=3.3, elevation=24, azimuth=36)

@@ -79,7 +79,7 @@ def assign_materials(obj, materials, per_face=None):
             poly.material_index = min(idx, len(materials) - 1)
 
 
-def export_unity(filepath, objects=None):
+def export_unity(filepath, objects=None, armature=False, triangulate=True):
     """FBX per Unity: -Z forward, Y up, trasformazione cotta, scala 1:1.
 
     `objects` None = selezione corrente. La sonda assi (vedi blender.md) va fatta
@@ -91,6 +91,7 @@ def export_unity(filepath, objects=None):
         for obj in objects:
             obj.select_set(True)
         bpy.context.view_layer.objects.active = objects[0]
+    extra = {"use_triangles": True} if triangulate else {}
     bpy.ops.export_scene.fbx(
         filepath=filepath,
         use_selection=True,
@@ -98,10 +99,11 @@ def export_unity(filepath, objects=None):
         axis_forward='-Z',
         axis_up='Y',
         apply_scale_options='FBX_SCALE_ALL',
-        bake_space_transform=True,
+        bake_space_transform=not armature,
         mesh_smooth_type='FACE',
         add_leaf_bones=False,
         path_mode='COPY',
+        **extra,
     )
     return filepath
 

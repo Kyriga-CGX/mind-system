@@ -11,12 +11,32 @@ Misurato in questa sessione: giro 1, un cubo smussato (slop 3D); giro 3, una cas
 | Versione | Blender 5.2.3 LTS, `C:\Program Files\Blender Foundation\Blender 5.2\blender.exe` |
 | Engine EEVEE | `BLENDER_EEVEE`. `BLENDER_EEVEE_NEXT` è 4.2–4.5 e su 5.2 solleva TypeError (verificato) |
 | Headless | `blender -b --factory-startup --python gen_<asset>.py` — nessuna UI, nessun Unity aperto |
-| Export FBX | `axis_forward='-Z'`, `axis_up='Y'`, `apply_scale_options='FBX_SCALE_ALL'`, `bake_space_transform=True`, `mesh_smooth_type='FACE'`, `add_leaf_bones=False`, `path_mode='COPY'`, `object_types={'MESH','ARMATURE'}` |
+| Export FBX | `axis_forward='-Z'`, `axis_up='Y'`, `apply_scale_options='FBX_SCALE_ALL'`, `mesh_smooth_type='FACE'`, `add_leaf_bones=False`, `path_mode='COPY'`, `object_types={'MESH','ARMATURE'}`, `use_triangles=True` |
+| `bake_space_transform` | **sperimentale**: solo mesh statiche. Con un'armatura va lasciato `False` (gonfia la scala dello scheletro). Il nostro `export_unity(..., armature=True)` lo spegne |
 | Enum scala | `FBX_SCALE_NONE` \| `FBX_SCALE_UNITS` \| `FBX_SCALE_CUSTOM` \| `FBX_SCALE_ALL` |
 | Round-trip | cubo da 1 m -> FBX -> riimportato: dimensioni 1.0 (scala 1:1 tenuta) |
 | glTF | `export_scene.gltf(export_format='GLB', export_yup=True)` disponibile |
 | Camera/luci | orientare con `(target - location).to_track_quat('-Z','Y')`. Con arctangenti calcolati a mano il render esce nero (verificato) |
 | Bridge MCP | il tool `blender_bridge` (unityMCP) richiede Blender aperto con addon su `127.0.0.1:9876` **e** Unity in esecuzione: con Unity chiuso risponde "No Unity Editor instances found". Per il batch non serve |
+
+## Strumenti esterni venduti (MIT, verificati su 5.2)
+
+Da `EL4CTEO/blender-skills` (commit `71d031d`, MIT) sono state prese 4 skill su 22 — vedi `vendor/blender-agent-skills/VENDOR.md` per il criterio e per cosa è stato scartato. Non si modificano: si wrappano.
+
+| Strumento | Cosa fa | Quando |
+|---|---|---|
+| `blender-asset-qa/scripts/qa_check.py` | z-fighting, isole staccate, normali invertite, facce degeneri, vertici duplicati, n-gon, UV a area zero/sovrapposte, pesi, `ground_z`. Profili `game` / `render` / `print` | **sempre**, prima dell'export |
+| `blender-asset-qa/scripts/review_shots.py` | fogli multi-angolo, un colore per oggetto (le parti staccate si vedono subito) | quando il render singolo nasconde il problema |
+| `blender-export-pipelines/scripts/export_asset.py` | preset di export per motore, con round-trip verificato | se `asset_lib.export_unity` non basta (skeletal, batch) |
+| `blender-game-optimization/scripts/make_lods.py` | catena LOD | asset che restano in scena a distanza |
+| `blender-character-rigging/scripts/*` | rig da metarig, binding, controllo pesi, pose di stress | personaggi: la parte scriptabile |
+
+Uso:
+```
+blender -b asset.blend --python vendor/blender-agent-skills/blender-asset-qa/scripts/qa_check.py -- --objects prop_crate_a --profile game
+```
+
+Il risultato è JSON: `pass: false` con `errors` = si corregge e si riesegue. Un warning si chiude in due modi soltanto: corretto, oppure accettato con il motivo scritto (una luce che deve essere staccata è legittima; una parte che galleggia per errore no).
 
 ## Quando conviene, quando no
 
@@ -46,7 +66,7 @@ Regola: se l'asset è composto da parti **descrivibili a parole** (pannelli, cin
 
 - 1 unità Blender = 1 metro. Un cubo `size=1` è un cubo da un metro.
 - Unity è Y-up, -Z forward; l'export cotto (`bake_space_transform`) evita rotazioni spurie sull'oggetto.
-- Pivot: prop al centro XY con la base a z=0; personaggi ai piedi (origine sul punto di appoggio).
+- Pivot: **in basso al centro** per i prop (origine sul punto di appoggio, non al centro del volume), ai piedi e fra i piedi per i personaggi. In Unity l'asset si appoggia a terra senza correzioni.
 - Un prop = un oggetto con più slot materiale. Niente gerarchie profonde: Unity le appiattisce e il pivot si perde.
 - Nomi `prop_crate_a`, `char_knight_a`, `env_wall_02`: snake_case, niente `.001`, niente spazi o parentesi.
 - **Sonda assi, una volta per progetto**: esporta un cubo da 1 m con un marcatore rosso sul fronte Blender (-Y), aprilo in Unity, verifica scala `(1,1,1)`, rotazione `(0,0,0)` e che il marcatore guardi -Z. Se non torna, si cambiano i parametri di export e si ripete. Non si va avanti "tanto si sistema in Unity".
@@ -61,6 +81,8 @@ Regola: se l'asset è composto da parti **descrivibili a parole** (pannelli, cin
 | `transform_apply` senza specificare i flag | applica anche la posizione e il pivot finisce nel vuoto |
 | Script che assume la selezione attiva | in headless la selezione è spesso vuota: selezionare esplicitamente prima di `join`/`export` |
 | `sys.exit(1)` per far fallire il gate | in Blender il codice di uscita non è affidabile: usare `os._exit(1)` dopo `flush` |
+| Esportare senza unwrap | le facce hanno area zero in UV: il bake e le texture si rompono, e nessun controllo "esiste una UV map?" lo vede |
+| Fidarsi del proprio validatore | il nostro dichiarava PASS un asset con 23 facce UV a area zero, una parte staccata e il 100% di UV sovrapposte: serve un QA che misuri, non che elenchi |
 
 ## Provenienza e licenza
 
@@ -77,6 +99,8 @@ blender -b tools/blender/_out/prop_crate_a.blend --python tools/blender/validate
 
 - [ ] L'asset nasce da uno script versionato, non da un `.blend` modificato a mano senza traccia.
 - [ ] Preview renderizzata e LETTA (non solo prodotta).
-- [ ] `validate_asset.py` 10/10 PASS con i limiti del progetto.
+- [ ] `qa_check.py` con profilo `game`: `pass: true`, nessun `errors`, ogni warning accettato con motivo scritto.
+- [ ] `validate_asset.py` 10/10 PASS con i limiti del progetto (naming, unità, pivot, budget).
+- [ ] UV unwrap fatto: zero facce UV a area zero (senza, il bake è rotto).
 - [ ] Import in Unity: scala 1, rotazione 0, pivot corretto, materiali agganciati.
 - [ ] Riga in `ASSETS.md` con script, versione Blender, licenza.
