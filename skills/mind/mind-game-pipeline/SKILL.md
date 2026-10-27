@@ -114,6 +114,7 @@ Owner: `game-art-director`. Produce `04-direzione.md` + `ASSETS.md`.
 - GAME.md: frase, 3 riferimenti (≥2 fuori dai videogiochi), palette a ruoli, silhouette, camera, **un** effetto firma, UI, audio (→ `direzione-visiva-audio.md`).
 - Piano asset con fonte, licenza, AI si/no, costo, priorita' (→ `asset-provenienza.md`).
 - Asset 3D: generati da script (`tools/blender/gen_*.py`) e validati prima dell'import; il `.fbx` e' un artefatto, lo script e' la fonte (→ `blender.md`).
+- Prima di modellare: cerca in CC0 con `tools/polyhaven/ph.mjs` (Poly Haven, md5 verificato e riga di ledger automatica). L'ordine e' CC0 -> interno -> AI -> comprato (→ `asset-provenienza.md`).
 - 12 check anti-slop compilati (→ `anti-slop-giochi.md`).
 
 **Gate G4 (utente)**: direzione approvata prima di produrre un asset; nessun asset con "uso commerciale: da verificare"; i 12 check passano o le deviazioni sono motivate dal brief.

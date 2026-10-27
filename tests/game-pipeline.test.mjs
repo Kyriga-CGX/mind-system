@@ -2,6 +2,7 @@ import fs from 'fs';
 import path from 'path';
 import assert from 'assert';
 import { fileURLToPath } from 'url';
+import { execFileSync } from 'node:child_process';
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const root = path.join(here, '..');
@@ -135,6 +136,16 @@ assert.ok(!fs.existsSync(path.join(vendor, 'blender-asset-qa/SKILL.md')), 'SKILL
 const report = path.join(root, 'docs', 'research', 'blender-unity-agent-tools-2026-10-27.md');
 assert.ok(exists(report), 'manca il report di valutazione dei repo');
 assert.ok(read(report).includes('arjun988') && read(report).includes('EL4CTEO'), 'report senza verdetto sui candidati');
+// 6d. Sourcing CC0: tool con self-test offline (niente rete nei test)
+const phTool = path.join(designDir, 'tools', 'polyhaven', 'ph.mjs');
+assert.ok(exists(phTool), 'manca tools/polyhaven/ph.mjs');
+const phSrc = read(phTool);
+for (const token of ['api.polyhaven.com', 'CC0', 'md5', '--ledger', 'source.json']) {
+  assert.ok(phSrc.includes(token), 'ph.mjs senza ' + token);
+}
+const selfTest = execFileSync(process.execPath, [phTool, '--self-test'], { encoding: 'utf8' });
+assert.ok(selfTest.includes('SELF-TEST OK'), 'self-test CC0 fallito: ' + selfTest);
+assert.ok(read(path.join(designDir, 'references', 'asset-provenienza.md')).includes('tools/polyhaven/ph.mjs'), 'asset-provenienza non documenta il tool CC0');
 
 // 7. Igiene dei file nuovi
 const newFiles = [

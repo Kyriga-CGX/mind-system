@@ -37,7 +37,7 @@ Il criterio di scarto: una raccolta di skill si giudica da script + test + fresc
 
 ## Cosa resta scoperto
 
-- **Sourcing CC0** (Poly Haven, Kenney, Sketchfab): non integrato. È il prossimo guadagno vero perché riduce il lavoro manuale e ha un impatto legale positivo (licenze pulite registrabili in `ASSETS.md`).
+- **Sourcing CC0**: chiuso con un tool nostro (`tools/polyhaven/ph.mjs`) invece che con l'MCP. Poly Haven e' l'unica fonte CC0 fra quelle che l'MCP offre, ed e' una HTTP API con md5. Verificato su `Barrel_01`: 5 file, 3.84 MB, md5 di tutti corrispondente, riga di ledger generata. Kenney (zip) e Sketchfab (auth) restano fuori: il primo e' un download manuale, il secondo richiede un token.
 - **Rig e animazione di un personaggio**: `character-rigging` copre rig/binding/pesi; la recitazione e le pose artistiche restano manuali.
 - **Retopo/UV pulite**: presenti upstream (`blender-retopology-uv`), non vendute. Si prendono quando gli asset cominciano a essere scultorei davvero.
 

@@ -23,6 +23,21 @@ Regola: **"da verificare" non e' una licenza**. Un asset con uso commerciale "da
 
 Per un asset **generato da script** (Blender, ImageMagick, un generatore di icone) la colonna `fonte` e' il **path dello script**, non il file prodotto: il `.fbx` e un artefatto rigenerabile, lo script e' il sorgente. Registra anche versione dello strumento e licenza degli add-on usati (`blender.md`).
 
+## Prima di modellare: CC0
+
+L'ordine di scelta di un asset e': **CC0 esistente -> prodotto internamente -> generato da AI -> comprato**. Modellare da zero ciò che è già CC0 è tempo speso due volte, e ogni asset che entra deve avere una riga nel ledger.
+
+Poly Haven (CC0, nessuna attribuzione richiesta) si scarica con il tool della skill:
+
+```
+node tools/polyhaven/ph.mjs search barrel --type models
+node tools/polyhaven/ph.mjs fetch Barrel_01 --res 1k --format fbx --out assets/cc0 --ledger ASSETS.md
+```
+
+Cosa fa: risolve la risoluzione, scarica il file **e le sue dipendenze** (`.bin`, texture) o le mappe separate per FBX, verifica l'**md5** che l'API dichiara, scrive `source.json` accanto all'asset (autori, pagina, licenza, data, hash) e **appende la riga nel ledger**. Un asset che arriva senza riga non entra nel build.
+
+Texture e HDRI usano lo stesso comando con `--type textures` / `--type hdris` e `--format` diverso.
+
 ## Fonti e trappole comuni
 
 | Fonte | Cosa verificare |
