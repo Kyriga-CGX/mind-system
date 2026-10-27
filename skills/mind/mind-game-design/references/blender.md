@@ -52,7 +52,7 @@ Il risultato è JSON: `pass: false` con `errors` = si corregge e si riesegue. Un
 | Personaggio finito (anatomia, volto, abiti, texture dipinte) | no | richiede scultura con giudizio e centinaia di micro-decisioni visive |
 | Animazione recitata | no | il timing è direzione, non un parametro |
 
-Prima di generare, però, si guarda se esiste già in CC0 (`asset-provenienza.md`): un barile CC0 scaricato in 4 secondi batte un barile generato in 20 iterazioni, e la licenza è pulita.
+Prima di generare, però, si guarda se esiste già in CC0 (`asset-provenienza.md`): un barile CC0 scaricato in 4 secondi batte un barile generato in 20 iterazioni, e la licenza è pulita. Se invece serve un oggetto **unico** e non descrivibile a parole, la strada non è scrivere più codice: è image→3D locale (`generative-3d.md`).
 
 Regola: se l'asset è composto da parti **descrivibili a parole** (pannelli, cinghie, viti, tubi, moduli), è scriptabile. Se è composto da curve e volumi che "devono sembrare giusti", serve un artista. Un personaggio è la seconda categoria: lo scriptabile è lo scheletro della produzione (base mesh, rig, LOD, collisioni), non il risultato.
 

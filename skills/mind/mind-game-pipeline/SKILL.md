@@ -42,6 +42,7 @@ La pipeline esiste per impedire la sequenza che produce slop: **contenuto -> art
 | Bug riproducibile | `mind-debugging` |
 | Asset raster / icone | `mind-image` / `mind-mark` |
 | Asset 3D (prop, kit, blockout) | adapter Blender: `tools/blender` (→ `mind-game-design/references/blender.md`) |
+| Asset unici non modellabili a parole | image→3D locale (trellis.cpp, Vulkan) + QA obbligatorio (→ `mind-game-design/references/generative-3d.md`) |
 | Dubbio | se attraversa ≥3 fasi con consegna unica e stato su file → pipeline |
 
 ## Stato condiviso
