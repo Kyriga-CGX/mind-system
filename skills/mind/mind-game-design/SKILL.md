@@ -108,6 +108,7 @@ Gate: **almeno 3 su 5 rifanno l'azione senza che venga chiesto**, oppure una sol
 - [ ] UI: un solo linguaggio, niente default del motore; dropdown, scrollbar, slider e toggle col tema di progetto (→ `references/controlli-motore.md`).
 - [ ] UI/UX: flusso, HUD, schermate, stati, input e accessibilita' (→ F4b, `references/ui-ux-gioco.md`).
 - [ ] Piano asset con licenze e provenienza (→ `references/asset-provenienza.md`).
+- [ ] Asset 3D da script versionati, non da `.blend` modificati a mano senza traccia (→ `references/blender.md`, gate `validate_asset.py`).
 
 Gate: l'utente approva `GAME.md` prima che venga prodotto un solo asset.
 

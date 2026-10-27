@@ -108,7 +108,18 @@ Ambiente verificato: **Godot 4.7.2** in `%LOCALAPPDATA%\Programs\godot-4.7.2`. S
 - Performance: monitor integrato + misura su target.
 - MCP: ecosistema piu' giovane; verifica il server prima di inserirlo nella pipeline.
 
-## Cosa non cambia
+## Blender (produzione asset 3D)
+
+Adapter separato dal motore: Blender produce, Unity o Godot importano. Non sostituisce l'artista, automatizza la parte descrivibile a parole (prop hard-surface, kit modulari, blockout, LOD, collisioni, pivot, naming, export).
+
+- Generatori: `tools/blender/gen_<asset>.py` + `asset_lib.py`. Lo script e' il sorgente, il `.fbx` e' un artefatto.
+- Gate: `tools/blender/validate_asset.py` (10 check: tris, manifold, UV, nomi, scale, pivot, materiali, unita').
+- Export verificato su Blender 5.2.3 LTS per Unity: -Z forward, Y up, `FBX_SCALE_ALL`, `bake_space_transform` (round-trip 1 m tenuto).
+- Sonda assi una volta per progetto: cubo 1 m con marcatore sul fronte, aperto in Unity, scala e rotazione verificate a occhio.
+
+Dettaglio, verita' datate, errori gia' pagati e verdetti per tipo di asset: `blender.md`.
+
+## Cosa noncambia
 
 Verbo, feel, loop, anti-slop, playtest, licenze, gate, kill criteria. Se un adapter non riesce a produrre evidenza, il problema e' l'adapter, non il gate.
 
