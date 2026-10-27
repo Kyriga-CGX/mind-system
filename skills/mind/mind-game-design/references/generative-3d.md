@@ -55,12 +55,14 @@ La catena non è negoziabile:
 
 ## Misurazione reale (questa macchina, 2026-10-27)
 
-Input: render 768×768 con alpha di una cassa fatta in Blender (1,02×1,27×0,75 m). Il PC stava **anche giocando**: GPU condivisa, quindi questi tempi sono un tetto, non un benchmark.
+Input: render 768×768 con alpha di una cassa fatta in Blender (1,02×1,27×0,75 m). Due corse, stesso input e stesso seed: la scheda libera è il numero di riferimento, quella con il gioco aperto è il tetto.
 
 | Fase | Numero |
 |---|---|
 | Download pesi (curl `-C -`) | 15,34 GB in **6,5 min** |
-| Generazione `--res 512` | **949 s (15:49)**; remesh da 8,9M facce, decimate a 137.806 |
+| Generazione `--res 512`, scheda libera | **758,6 s (12:38)**; remesh da 8,9M facce, decimate a 137.806 |
+| Stessa corsa con il gioco aperto | 949,1 s (15:49): **+20%**, e non è un errore di misura — la GPU è la stessa, il tempo no |
+| Ripetibilità | stesso input + seed 42: 137.806 facce, GLB 3,97 MB, planar 2.981 facce, 48 edge: **identici**. Un nuovo giro è confrontabile |
 | Output GLB | 3,97 MB, 1 oggetto, 1 UV, 1 materiale, 2 texture, dimensioni 0,80×1,00×0,61 m (**scala non metrica**) |
 | QA sul grezzo | PASS con warning pesanti: **14.986 boundary edges**, 288 isole, 7.480 vertici duplicati, **UV coverage 18,9%** |
 | Planar 5° → 2.981 facce | `pass=false` per **48 edge non-manifold** (cuciture UV), boundary 119, UV coverage **74,3%**. Visivamente: spigoli e cinghie reggono |
