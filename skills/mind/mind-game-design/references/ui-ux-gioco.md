@@ -160,6 +160,13 @@ L'accessibilità non è un menu in fondo: è un vincolo di progettazione. Se la 
 | Focus solo al mouse | gamepad e tastiera rotti |
 | "Premi un tasto" come unica schermata | nessun flusso |
 | Bottoni con gradienti e ombre generiche | stile di default |
+| Dropdown, scrollbar o slider con la grafica del motore | la UI non è stata progettata, è stata accettata (→ `controlli-motore.md`) |'@
+E $g '## Output' @'
+## Controlli del motore (dropdown, scrollbar, slider, toggle)
+
+Il controllo che non entra nell'inventario esce con la pelle del motore: `Dropdown` di Unity, `OptionButton` di Godot, la loro scrollbar, il loro toggle. Un tema per progetto, assegnato alla radice, e nessuno sprite o skin di default in build. Selettori USS per UI Toolkit, `StyleBoxFlat` e `Theme` per Godot, template di uGUI per uGUI: dettagli, checklist e i cinque scatti di verifica in `controlli-motore.md`.
+
+## Output
 | Testo minuscolo "per eleganza" | illeggibile a distanza |
 | Menu che copre il gioco senza pausa | stato ambiguo |
 | Stato vuoto senza azione | il giocatore si blocca |
@@ -189,4 +196,4 @@ L'accessibilità non è un menu in fondo: è un vincolo di progettazione. Se la 
 <tempo al primo input, input al gioco, errori osservati>
 ```
 
-Gate: nessuna schermata senza wireframe e matrice di stati; nessun flusso senza via d'uscita; accessibilità minima presente; il gioco è raggiungibile in ≤3 input (salvo motivo dichiarato).
+Gate: nessuna schermata senza wireframe e matrice di stati; nessun flusso senza via d'uscita; accessibilità minima presente; il gioco è raggiungibile in ≤3 input (salvo motivo dichiarato); nessun controllo nativo del motore lasciato al default.

@@ -38,7 +38,7 @@ for (const [dir, name] of [[designDir, 'mind-game-design'], [pipeDir, 'mind-game
   assert.ok(desc.includes('NON'), 'description senza confine NON in ' + name);
 }
 
-const designRefs = ['verbo-e-inventiva', 'feel', 'loop-e-numeri', 'anti-slop-giochi', 'direzione-visiva-audio', 'ui-ux-gioco', 'playtest', 'asset-provenienza', 'scope-e-taglio', 'engine-adapters'];
+const designRefs = ['verbo-e-inventiva', 'feel', 'loop-e-numeri', 'anti-slop-giochi', 'direzione-visiva-audio', 'ui-ux-gioco', 'controlli-motore', 'playtest', 'asset-provenienza', 'scope-e-taglio', 'engine-adapters'];
 for (const r of designRefs) {
   const p = path.join(designDir, 'references', r + '.md');
   assert.ok(exists(p), 'manca reference ' + r);

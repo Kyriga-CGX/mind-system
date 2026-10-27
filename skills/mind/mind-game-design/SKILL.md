@@ -105,7 +105,7 @@ Gate: **almeno 3 su 5 rifanno l'azione senza che venga chiesto**, oppure una sol
 - [ ] Regola di silhouette: giocatore/minaccia/ricompensa leggibili a 64 px e in scala di grigi.
 - [ ] **Un** effetto firma; al massimo 2 effetti secondari.
 - [ ] Audio a 4 strati (musica, ambiente, SFX, UI), silenzio usato come strumento.
-- [ ] UI: un solo linguaggio, niente default del motore.
+- [ ] UI: un solo linguaggio, niente default del motore; dropdown, scrollbar, slider e toggle col tema di progetto (→ `references/controlli-motore.md`).
 - [ ] UI/UX: flusso, HUD, schermate, stati, input e accessibilita' (→ F4b, `references/ui-ux-gioco.md`).
 - [ ] Piano asset con licenze e provenienza (→ `references/asset-provenienza.md`).
 
@@ -123,9 +123,10 @@ La UI non e' la pelle del gioco: e' il modo in cui il giocatore capisce cosa puo
 - [ ] **Accessibilita'**: sottotitoli, scala UI, contrasto, riduzione shake/flash, assist, ridondanza dei canali.
 - [ ] **Localizzazione**: chiavi esterne, stringa piu' lunga, RTL, font, niente testo in texture.
 - [ ] **Performance UI**: canvas, atlanti, niente layout per frame, overdraw.
+- [ ] **Controlli del motore** (→ `references/controlli-motore.md`): un tema per progetto, zero sprite/skin di default in build, lista del dropdown e scrollbar comprese.
 - [ ] **Onboarding**: insegna con il livello; massimo 3 righe prima del primo gesto; tutorial saltabile.
 
-Gate: nessuna schermata senza wireframe e stati; nessun flusso senza via d'uscita; il gioco si raggiunge in ≤3 input (salvo motivo dichiarato); accessibilita' minima presente; percorso gamepad completo.
+Gate: nessuna schermata senza wireframe e stati; nessun flusso senza via d'uscita; il gioco si raggiunge in ≤3 input (salvo motivo dichiarato); accessibilita' minima presente; percorso gamepad completo; nessun controllo con la pelle di default del motore.
 
 ### F5 — Playtest e verdetto
 

@@ -96,7 +96,7 @@ Registra i tentativi falliti nella barra (`## Rifiuti`), non a memoria: un rifiu
 
 ## Design Track (sintesi — dettaglio in routing.md)
 
-`frontend-design` (direzione: personalità, signature element, restraint; prima cerca preferenze in memoria) → `design-system` (token + anti-slop 9 check, WCAG 4.5:1, `DESIGN.md` source of truth) → `motion` (solo se animato: ladder CSS→WAAPI→Motion→GSAP→SVG→Three.js, mai saltare al 3D; 3 strati, stagger <500ms) → `mind-mark` (solo se serve un'icona o un marchio: si giudica a 16px, non a 1024; i colori vengono dai token) → `mind-image` (solo se serve un raster o un file di formato: .ico, favicon, .icns, ritaglio, conversione; il segno resta a `mind-mark`) → Design QA (occhi freschi, subagent read-only: token? anti-slop? motion giustificato? Se FAIL → torna a enforce) → `mind-verification`.
+`frontend-design` (direzione: personalità, signature element, restraint; prima cerca preferenze in memoria) → `design-system` (token + anti-slop 9 check, WCAG 4.5:1, controlli nativi N1-N8 da `native-controls.md`, `DESIGN.md` source of truth) → `motion` (solo se animato: ladder CSS→WAAPI→Motion→GSAP→SVG→Three.js, mai saltare al 3D; 3 strati, stagger <500ms) → `mind-mark` (solo se serve un'icona o un marchio: si giudica a 16px, non a 1024; i colori vengono dai token) → `mind-image` (solo se serve un raster o un file di formato: .ico, favicon, .icns, ritaglio, conversione; il segno resta a `mind-mark`) → Design QA (occhi freschi, subagent read-only: token? anti-slop? motion giustificato? Se FAIL → torna a enforce) → `mind-verification`.
 
 ## Lacune del sistema (matrice)
 

@@ -28,6 +28,7 @@ Ispeziona il progetto per capire quale infrastruttura di token esiste già, prim
 - `*/theme.*`, `vite.config.*` o file di configurazione CSS — design token, variabili CSS, temi di component library.
 - Qualsiasi file CSS globale (`global.css`, `index.css`, `App.css`) — variabili correnti e valori hardcodati.
 - Le component library presenti (shadcn/ui, TailwindUI, Radix, Mantine, Chakra) e i loro token di default.
+- I controlli nativi già trattati: cerca `scrollbar-color`, `scrollbar-width`, `::-webkit-scrollbar`, `appearance:`, `accent-color`, `color-scheme`. Quello che c'è già è la base da cui partire, non da riscrivere.
 
 Registra: quali token esistono già, quali sono hardcodati inline e quali mancano. Questa scansione ti dice dove il DESIGN.md si aggancerà concretamente al codebase.
 
@@ -40,8 +41,10 @@ Scrivi `DESIGN.md` alla root del progetto. Segui esattamente lo standard DESIGN.
   - `typography:` — le display/body/utility face e la scala tipografica.
   - `rounded:` — la scala dei radius.
   - `spacing:` — la scala di spaziatura e l'unità base.
+  - `controls:` — solo se la UI ha form, liste o contenitori scrollabili: tecnica scelta per `<select>`, scrollbar, checkbox/radio, range, file, date e focus ring, con la data `verified`.
 - **Rationale in prosa** — in italiano, spiega *perché* esistono questi token: il soggetto, il pubblico, il compito della pagina. Ogni token deve avere una ragione, non solo un valore.
 - **Direzione estetica** — una breve sezione che descrive la sensazione visiva e il singolo elemento caratteristico. È l'ancora anti-slop: deve essere specifica del prodotto, non una descrizione di maniera.
+- **Controlli** — se la UI ha form, liste o contenitori scrollabili: una tabella superficie -> tecnica -> versione/licenza -> `verified: AAAA-MM-GG`, secondo `native-controls.md`. Senza questa sezione i controlli nativi restano al default del browser, e in tema scuro si vede.
 
 Scrivi il file in modo chiaro e completo, così che l'enforcement (vedi `enforce.md`) e la revisione anti-slop (vedi `anti-slop.md`) abbiano una fonte di verità concreta.
 

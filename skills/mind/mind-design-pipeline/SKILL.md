@@ -14,7 +14,9 @@ description: Pipeline di design end-to-end per UI nuove o rifatte (brief → aud
 5. **Si guarda, non si immagina**: mockup e risultato finale vanno VISTI (screenshot letti dall'agente, o verifica nel browser chiesta all'utente). Un'affermazione estetica senza screenshot non è verificata.
 6. **Skip solo per assenza**: niente audit senza UI esistente, niente motion senza animazioni, niente copy senza testi nuovi. Mai saltare per fretta.
 7. **Budget di chiamate**: ogni stage produce UN artefatto in `.mind/design/<progetto>/`; nessuno riesplora ciò che un artefatto già contiene.
-8. **Gate finale unico**: `mind-verification` (evidenza fresca) + salvataggio in `mind-memory`.
+8. **Nessun controllo nativo al default**: `<select>`, scrollbar, checkbox, radio, range, file, date, placeholder, autofill e focus ring non sono componenti "minori". Ognuno è stilizzato con i token o dichiarato nativo per scelta, con il motivo scritto (`design-system/native-controls.md`). Un menu bianco su tema scuro non è un dettaglio da rifinire: è un FAIL.
+9. **La ricerca si fa, ma non decide il look**: prima si legge il progetto (stack, librerie, DESIGN.md), poi si verifica online la tecnica o la libreria, poi si registra con versione, licenza e data `verified`. La differenza tra un prodotto e la demo di una libreria sono i token, non l'ultima release.
+10. **Gate finale unico**: `mind-verification` (evidenza fresca) + salvataggio in `mind-memory`.
 
 ## Quando si attiva
 
@@ -44,6 +46,7 @@ Cartella di lavoro: `.mind/design/<progetto-o-feature>/` (slug kebab-case).
 | `05-mockup.md` | mockup hi-fi della schermata chiave: path del file, screenshot, note di autocritica |
 | `05-feedback.md` | esito approvazione mockup, iterazioni incluse |
 | `06-components.md` | inventario componenti, mapping ai token, pattern P1-P3 con criterio binario e motivazione |
+| `06-controls.md` | superfici native N1-N8: per ognuna STILIZZATA o NATIVA PER SCELTA con motivo, tecnica/gradino, versione, licenza, data `verified` |
 | `07-motion.md` | archetipo, livello della priority-ladder, tre strati, pattern F1-F7 (conoscenza operativa vendored in `motion/reference/companions-vendored.md`), report di `verify.md` (o "skip") |
 | `08-copy.md` | microcopy, CTA, stati di errore, empty states + esito `stop-slop` (o "skip") |
 | `09-fe.md` | implementazione FE: file toccati, enforcement token, subagent usati, esito fix loop |
@@ -62,6 +65,8 @@ Identifica soggetto, audience, compito primario della UI, contenuto reale, vinco
 ### Stage 2 — Audit dell'esistente (skip se greenfield)
 Se esiste una UI: screenshot dello stato attuale e LEGGILO, gate C1-C9 (`design-system/anti-slop.md`), ricerca di hex e px hardcoded, baseline a11y (contrasto, focus da tastiera, label), eventuale audit motion (`motion/verify.md`). Scrivi `02-audit.md` con l'elenco dei difetti da correggere, per gravità.
 **Research-first sul web**: prima di modellare o disegnare da zero un asset complesso (3D, shader, particellari, fisica), cerca online su siti e gallery di design di qualita (es. Awwwards, Behance, Dribbble, Mobbin, SiteInspire) se esiste gia qualcosa da riusare e migliorare; verifica la licenza prima di riusare. Il custom da zero solo dove sta la firma (concept + signature). Salva i riferimenti trovati in `02-audit.md`. Commodity si riusa, identita si inventa, mai il contrario.
+
+**Research-first sui controlli**: quando una superficie nativa non basta (ricerca in un select, multi-select, date range, virtualizzazione), verifica online PRIMA di scegliere: docs ufficiali per l'API in questa versione, MDN/caniuse per il supporto reale, registry per versione/licenza/ultimo rilascio. Registra l'esito in `06-controls.md` con la data. Il gradino più basso che copre il requisito vince: CSS nativo, poi headless, poi styled. Dettaglio e registro candidati in `design-system/native-controls.md`.
 
 **Gate**: ogni check con PASS/FAIL motivato. Senza UI esistente → `02-audit.md` = "skip".
 
@@ -85,6 +90,11 @@ Verifica i criteri di `## Barra` uno per uno prima di presentare, ognuno con la 
 Dal mockup estrai l'inventario dei componenti, mappa ognuno ai token del DESIGN.md, decidi i pattern di maturità P1-P3 (`design-system/patterns.md`) con criterio binario APPLICATO / NON APPLICATO e motivazione. Definisci la gerarchia: chi è il protagonista e chi sta in silenzio. Scrivi `06-components.md`.
 **Gate**: nessun componente senza token, gerarchia esplicita.
 
+### Stage 6b — Superfici native (gate N1-N8)
+Compila `06-controls.md` seguendo `design-system/native-controls.md`: `<select>` e lista opzioni, scrollbar (pagina, panel, textarea, tabella), checkbox/radio/switch, range/number, file/date/color, testo di sistema (placeholder, selection, autofill, caret), overlay (`::backdrop`, popover, tooltip), stati (`hover`, `:focus-visible`, `:disabled`, `:invalid`, `:read-only`). Ognuna: **STILIZZATA** con token, oppure **NATIVA PER SCELTA** con una riga di motivo. Da qui escono anche `scrollbar-color`/`scrollbar-width`, `color-scheme`, `accent-color` e il focus ring, che entrano nei token.
+
+**Gate**: nessuna riga vuota, nessun "da fare dopo"; le scelte di gradino 1 o 2 hanno versione, licenza e data `verified`.
+
 ### Stage 7 — Motion (skip se non serve)
 `motion`: tipo di motion → `priority-ladder.md` (livello più basso sufficiente) → `philosophy.md` (UN archetipo, tre strati, regola del terzo, frequency gate) → `patterns.md` (F1-F7: atmosfera F1-F3, ricette F4, performance F5, icone F6, esserini F7) → `verify.md` (report con audit tecnico e marcatura esplicita di ciò che è `NON VERIFICABILE VISIVAMENTE`). Scrivi `07-motion.md`.
 **Gate**: report completo, `prefers-reduced-motion` rispettato, una sola coreografia di load.
@@ -95,11 +105,11 @@ Dal mockup estrai l'inventario dei componenti, mappa ognuno ai token del DESIGN.
 
 ### Stage 9 — Implementazione FE
 `mind-implementation`: dispatch dei subagent (Design Squad in `using-mind/fma-agents.md`) su unità indipendenti — componenti, sezioni, responsive — con controllo dei conflitti file PRIMA del dispatch, TDD dove testabile, enforcement dei token durante la scrittura (`design-system/enforce.md`). Scrivi `09-fe.md`.
-**Gate**: diff senza hex hardcoded né px letterali; token enforcement applicato, non solo dichiarato.
+**Gate**: diff senza hex hardcoded né px letterali; token enforcement applicato, non solo dichiarato; nessun controllo nativo toccato in questo stage resta al default del browser.
 
 ### Stage 10 — Qualità visiva
 Passata finale su ciò che è stato costruito: gate C1-C9, `enforce.md` (regole 1-5), pattern P1-P3 e F1-F7 applicati come dichiarato in `06-components.md`/`07-motion.md`, a11y (Axe-core 0 violazioni, contrasto AA 4.5:1 testo e 3:1 UI, focus da tastiera, label, landmark, `prefers-reduced-motion`), responsive su breakpoint reali, baseline visual regression (`mind-testing` 5.1). La review va fatta in CONTESTO FRESCO: dispatch del subagent **Lust** (design QA, read-only, non può modificare il codice). Nel brief di Lust passa il path assoluto di `.mind/barra.md`: i criteri di `## Barra` vanno verificati uno per uno, non solo i gate C1-C9. Scrivi `10-quality.md`.
-**Gate**: 0 FAIL ingiustificati su C1-C9, 0 violazioni a11y, contrasto AA rispettato.
+**Gate**: 0 FAIL ingiustificati su C1-C9, 0 violazioni a11y, contrasto AA rispettato, N1-N8 passati sui cinque scatti (dark, zoom 200%, tastiera, contrasto forzato, dati estremi).
 
 ### Stage 11 — Gate finale
 `mind-verification` su tutto il delta: test verdi, build ok, requisiti di `01-brief.md` rispettati uno per uno, screenshot del risultato LETTI, regressione ok. Se qualcosa fallisce → torna allo stage che lo ha prodotto (fix loop con budget R≤3, poi subagent nuovo con modello superiore). Scrivi `11-verification.md`.
@@ -133,6 +143,11 @@ Chi riprende il lavoro legge `state.json` e sa sempre: soggetto, audience e comp
 | Mockup con lorem ipsum e metriche inventate | contenuto reale, dati con fonte (C5) |
 | Applicare i pattern P1-P3 prima del gate anti-slop | prima C1-C9, poi la maturità |
 | Hex e px hardcoded nel diff | token del DESIGN.md via `enforce.md` |
+| Dropdown, scrollbar, checkbox e date picker lasciati al default del browser | Stage 6b: N1-N8, ogni superficie stilizzata o dichiarata nativa |
+| Adottare una libreria di componenti per avere "i controlli fatti" | prima il gradino 0 (CSS nativo), poi headless per il comportamento; una styled lib cambia i tuoi token, non i suoi |
+| Ricerca online senza registrare l'esito | versione, licenza e data `verified` in `06-controls.md` |'@
+E $f '- **→ design-md / design-system**: Stage 4 (`create.md` per il DESIGN.md), Stage 9-10 (`enforce.md`, `anti-slop.md`, `patterns.md`).' @'
+- **→ design-md / design-system**: Stage 4 (`create.md` per il DESIGN.md), Stage 6b e 9-10 (`native-controls.md` per le superfici native, `enforce.md`, `anti-slop.md`, `patterns.md`).
 | Chi implementa si auto-valuta esteticamente | review in contesto fresco: subagent Lust, read-only |
 | Animazioni sparse per "dare vita" | una coreografia di load + motion che risponde alle azioni |
 | Dire "è bello" senza screenshot | screenshot letti o verifica nel browser chiesta all'utente |
