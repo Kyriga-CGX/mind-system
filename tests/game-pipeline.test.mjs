@@ -113,7 +113,7 @@ assert.ok(read(probe).includes('mcpforunityserver'), 'probe non usa il server Un
 assert.ok(read(path.join(root, 'README.md')).includes('flowchart TD'), 'README senza diagramma mermaid');
 
 // 6b. Adapter Blender: tool eseguibili + reference agganciata
-for (const f of ['asset_lib.py', 'gen_crate.py', 'validate_asset.py']) {
+for (const f of ['asset_lib.py', 'gen_crate.py', 'from_generated.py', 'validate_asset.py']) {
   const p = path.join(designDir, 'tools', 'blender', f);
   assert.ok(exists(p), 'manca tool Blender ' + f);
   assert.ok(read(p).length > 800, 'tool Blender troppo corto: ' + f);

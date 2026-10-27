@@ -89,7 +89,7 @@ La tabella di routing è la **fonte unica** per instradare un task alla sequenza
 16. `mind-mark` entra SOLO quando il task produce un segno (icona app, favicon, adaptive, tray) o una sua variante: non per UI, non per illustrazioni raster, non per animazioni.
 17. `mind-image` entra quando il task produce o converte un'immagine raster o un contenitore di icone (`.ico`, favicon set, `.icns`): non per progettare il segno (→ `mind-mark`), non per UI o token (→ `frontend-design`/`design-system`), non per documenti (→ `mind-documents`).
 18. mind-forge (subagent forge = Sheska) entra SOLO per una lacuna di COPERTURA del sistema con evidenza (richiesta esplicita, registratore ~/.config/opencode/mind/gaps/skills-used.json, richieste fuori-rotta). Lacuna di ROUTING → correggi il routing; lacuna di QUALITÀ → mind-eval. Non crea nulla senza approvazione utente.
-19. `mind-game-pipeline` entra SOLO per un videogioco end-to-end (≥3 fasi, consegna unica, stato in `.mind/games/<slug>/`). Intervento puntuale su concept/feel/loop/direzione/playtest → `mind-game-design`. UI web/app → `mind-pipeline`/`mind-mobile-pipeline`. Asset → `mind-image`/`mind-mark`.
+19. `mind-game-pipeline` entra SOLO per un videogioco end-to-end (≥3 fasi, consegna unica, stato in `.mind/games/<slug>/`). Intervento puntuale su concept/feel/loop/direzione/playtest → `mind-game-design`. UI web/app → `mind-pipeline`/`mind-mobile-pipeline`. Asset raster → `mind-image`/`mind-mark`; mesh 3D → CC0, poi script Blender, poi trellis.cpp (`mind-game-design/references/generative-3d.md`, installato in `D:\trellis-studio`).
 
 ## Regole di orchestrazione (gate e sequenza)
 

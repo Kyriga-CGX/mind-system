@@ -36,6 +36,8 @@ Per ogni task dichiara la rotta in una riga (`INTENT=x → STAGE=... → GATE=ve
 
 **Videogioco** (concetto → verbo → feel → vertical slice → build): `mind-game-pipeline` (10 stage, gate G0-G9, 4 agenti dedicati: `game-director`, `game-art-director`, `feel-engineer`, `playtest-critic`); intervento puntuale su concept, feel, loop, direzione o playtest → `mind-game-design`. Dettaglio in `routing.md`.
 
+**Mesh e asset 3D di un gioco**: l'ordine è CC0 (`polyhaven/ph.mjs`) → script Blender (`gen_*.py`) → **image→3D locale con trellis.cpp**, installato su questa macchina in `D:\trellis-studio` (binari in `runtime\`, pesi in `models\`, backend Vulkan; il percorso canonico è `%APPDATA%\trellis-studio\config.json`). Il generativo è l'eccezione per ciò che è unico e non descrivibile a parole, non il default: regole, parametri, catena di QA e divieti in `mind-game-design/references/generative-3d.md`.
+
 Se ambiguo: route conservativa (creativo→`costruire`, anomalia→`fixare`, domanda→`decidere`). Se la rotta si rivela sbagliata, rifalla. Mai due rotte insieme. Re-routing mid-sessione: se dopo 3 turni consecutivi non hai caricato nessuna skill mind ne dispatchato subagent, STOP e ridichiara la rotta prima di proseguire. Vale anche quando una domanda iniziale cresce in epic (analisi, design, implementazione, deploy): rifai la rotta invece di proseguire senza skill. Pipeline multi-stage SOLO se consegna unica + ≥3 stage + stato su file (regola in `routing.md`), altrimenti rotta singola.
 
 ## Precedenze (solo 5)
