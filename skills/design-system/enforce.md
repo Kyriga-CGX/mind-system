@@ -46,6 +46,16 @@ Al termine della modifica, fai una passata di verifica sul diff: non devono rest
 - Cerca i pattern di violazione (`#` seguito da hex, `px` inline, `em`/`rem` a caso, valori non mappati sulla scala) e sostituiscili con i token.
 - Verifica di aver usato **tutti** i token coerenti, non solo quelli che sembrano ovvi.
 
+## Regola 6 — Nessun controllo nativo al default del browser
+
+Vale per `<select>`, scrollbar, checkbox, radio, range, file input, date input, placeholder, autofill, focus ring, `::backdrop`. Sono le superfici che escono con la pelle del sistema operativo perché nessuno le mette nell'inventario dei componenti (`native-controls.md`).
+
+- Ogni superficie è **STILIZZATA** con i token (colore, radius, spaziatura, focus) oppure **NATIVA PER SCELTA** con una riga di motivo. Non esiste "non ci ho pensato".
+- Divieti espliciti: `outline: none` senza anello sostitutivo; `overflow: hidden` per nascondere una scrollbar; `appearance: none` su un select senza una freccia disegnata; checkbox custom con `display: none` sull'input.
+- Scrollbar: `scrollbar-color` e `scrollbar-width` sono le proprietà standard (Baseline). `::-webkit-scrollbar` è un innesto per radius e forme, non la base.
+- `color-scheme` va dichiarato su `:root`: decide lo sfondo dei controlli nativi in light/dark, e senza di esso il tema scuro resta bianco nei punti che non controlli.
+- Se il progetto adotta una libreria di controlli, i suoi token vanno rimappati sui token del DESIGN.md: una libreria con il suo look è una scelta da dichiarare nel brief, non un default.
+
 ## Uso dell'enforcement
 
 Quando lavori su una UI: (1) reperisci la mappa dal DESIGN.md, (2) riscrivi ogni hex in `var(--color-*)`, (3) riscrivi ogni spaziatura px nei `--space-*`, (4) verifica il contrasto (4.5:1 testo, 3:1 UI) e scegli token alternativi se serve, (5) assicurati di rispettare i Do's and Don'ts e (6) controlla che non resti hex/spacing letterale residuo. **Tutto questo è automatico**: applichi le correzioni direttamente al codice, senza aspettare che qualcun altro lo segnali. Un lavoro sulla UI che consegna hex hardcoded o px letterali è incompleto.

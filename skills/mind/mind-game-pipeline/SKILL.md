@@ -127,8 +127,9 @@ Owner: `game-ui-designer` + `game-art-director`. Produce `05-uiux.md` + wirefram
 - **Accessibilita'**: sottotitoli, scala UI, contrasto, riduzione shake/flash, assist, ridondanza dei canali.
 - **Localizzazione**: chiavi esterne, stringa piu' lunga, RTL, font, niente testo in texture.
 - **Performance UI**: canvas, atlanti, niente layout per frame, overdraw (→ `mind-game-design/references/ui-ux-gioco.md`).
+- **Controlli del motore**: dropdown, scrollbar, slider, toggle e input field con il tema di progetto, mai con la skin di default; lista del dropdown e scrollbar comprese (→ `mind-game-design/references/controlli-motore.md`).
 
-**Gate G5**: ogni schermata ha wireframe e matrice di stati; ogni flusso ha una via d'uscita; accessibilita' minima presente; gioco raggiungibile in ≤3 input (salvo motivo dichiarato); percorso gamepad completo.
+**Gate G5**: ogni schermata ha wireframe e matrice di stati; ogni flusso ha una via d'uscita; accessibilita' minima presente; gioco raggiungibile in ≤3 input (salvo motivo dichiarato); percorso gamepad completo; i cinque scatti mostrano zero controlli con la skin di default del motore.
 
 ### Stage 6 — Vertical slice
 

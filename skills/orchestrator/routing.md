@@ -15,7 +15,7 @@ La tabella di routing è la **fonte unica** per instradare un task alla sequenza
 | Disegno di icona o marchio (app icon, marchio, set di icone, adaptive) | mind-mark (brief→3 direzioni monocrome→riduzione 16px→colore→verifica visiva) → mind-image per i file → mind-verification |
 | Immagine raster / asset grafico / ritaglio / conversione formato | mind-image (destinazione→scala fonti→costruzione→verifica a dimensione d'uso→formati) → mind-verification |
 | Icona di file Windows / favicon / .icns | mind-image (formati: ICO 16-256, DIB sotto 256 e PNG a 256; favicon set; icns) → verifica del file |
-| Costruire o modificare UI | frontend-design (direzione, consulta design-references) → design-md (solo se manca DESIGN.md) → design-system (enforce) → motion (solo se tocca animazioni) → gate |
+| Costruire o modificare UI | frontend-design (direzione, consulta design-references) → design-md (solo se manca DESIGN.md) → design-system (enforce + controlli nativi N1-N8) → motion (solo se tocca animazioni) → gate |
 | Animazione / motion / 3D | motion → frontend-design (solo se serve direzione) → gate |
 | Prosa / testi / copy (pulizia esistente) | stop-slop |
 | Copywriting / contenuti / landing / email | mind-copy → stop-slop → (frontend-design se in UI) → gate |
@@ -139,3 +139,4 @@ La tabella di routing è la **fonte unica** per instradare un task alla sequenza
 - **Design strutturato vs ritocco vs feature**: nuova UI/redesign/identità visiva/design system da zero → `mind-design-pipeline`; ritocco o modifica di una schermata esistente → rotta UI singola; feature con UI+BE+endpoint → `mind-pipeline`; solo token mancanti → `design-system` (create.md).
 - **Direzione già fissata vs da esplorare**: brief che fissa la direzione → `frontend-design` + `design-md`/`design-system`; direzione da scegliere → `mind-design-explore` (2-3 direzioni + gate utente; una sola proposta = falsa scelta).
 - **Chi giudica il design**: chi implementa non si auto-valuta → subagent `lust` (design QA read-only) poi gate `mind-verification`.
+- **Controllo nativo senza grafica** (dropdown, scrollbar, checkbox, file/date input che sembrano del sistema operativo): non serve una pipeline → rotta UI singola `design-system` + `native-controls.md` (gate N1-N8). Se il progetto non ha `DESIGN.md`, prima `create.md`. Se la UI è un gioco → `mind-game-design/references/controlli-motore.md`.

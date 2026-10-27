@@ -115,7 +115,7 @@ Se ambiguo: route conservativa (creativo→costruire, anomalia→fixare, domanda
 | Skill | Cosa fa | Quando si usa |
 |---|---|---|
 | `frontend-design` | Direzione estetica: personalità, signature element, restraint | PRIMA di qualsiasi UI |
-| `design-system` | Crea/applica `DESIGN.md`, enforce token `var(--*)`, anti-slop 9 check, WCAG 4.5:1 | token, stili, design system |
+| `design-system` | Crea/applica `DESIGN.md`, enforce token `var(--*)`, anti-slop 9 check, WCAG 4.5:1, controlli nativi (N1-N8: select, scrollbar, checkbox, file/date, focus) | token, stili, design system, controlli con la pelle del browser |
 | `motion` | Ladder anti-3D (CSS→WAAPI→Motion→GSAP→SVG→Three.js), 3 strati, stagger <500ms, pattern F1-F7 (ricette, icone, esserini vivi), reference vendored anti-rot | animazioni e movimento |
 | `mind-design-explore` | 2-3 direzioni visive distinte + scelta utente | serve un concept prima di costruire |
 | `mind-copy` | Copy con tono/audience/obiettivo + pulizia `stop-slop` | landing, email, CTA, microcopy |
@@ -368,7 +368,7 @@ Tre decisioni che non sono un template:
 - **Il divertimento è un'evidenza**: clip registrata + comportamento osservato + una domanda binaria. Mai "sembra divertente".
 - **Kill è un esito**: dopo 3 prove senza replay desire il concept si chiude con postmortem; massimo 2 concept.
 
-Cinque agenti: `game-director` (Grumman), `game-art-director` (Catherine), `game-ui-designer` (Rebecca), `feel-engineer` (Dominic), `playtest-critic` (Kimblee, read-only). La dottrina vive in `mind-game-design` (verbo/invenzione, feel, loop, anti-slop a 12 check, direzione, playtest, asset/licenze, scope, adapter). Il motore è un adapter: Unity o Godot, con i comandi di evidenza nel relativo reference; i gate non cambiano.
+Cinque agenti: `game-director` (Grumman), `game-art-director` (Catherine), `game-ui-designer` (Rebecca), `feel-engineer` (Dominic), `playtest-critic` (Kimblee, read-only). La dottrina vive in `mind-game-design` (verbo/invenzione, feel, loop, anti-slop a 12 check, direzione, playtest, asset/licenze, scope, adapter). Il motore è un adapter: Unity o Godot, con i comandi di evidenza nel relativo reference; i gate non cambiano. I controlli nativi del motore (dropdown, scrollbar, slider, toggle) hanno una regola propria: un tema per progetto, zero skin di default in build (`controlli-motore.md`).
 
 ## Pipeline di dominio (quando servono)
 

@@ -16,6 +16,7 @@ Determina se il progetto corrente ha già un `DESIGN.md` alla root.
 1. **Se un DESIGN.md NON esiste** — invoca la pipeline di creazione. Leggi e segui `create.md`. Guida il survey, la scansione del codebase, la scrittura del DESIGN.md e la validazione.
 2. **Riferisci le regole di enforcement** — leggi `enforce.md`. Qui l'enforcement dei token è **automatico**, non un semplice suggerimento. Qualsiasi lavoro sulla UI deve usare i token definiti nel DESIGN.md.
 3. **Riferisci le regole anti-slop** — leggi `anti-slop.md` quando rivedi o scrivi UI, per individuare i pattern di default che fanno sembrare un design generato da una AI.
+3b. **Superfici native** — leggi `native-controls.md` prima di dichiarare finita una UI. `<select>`, scrollbar, checkbox, file e date input non entrano mai nell'inventario dei componenti e arrivano con la pelle del sistema operativo: ognuno va STILIZZATO con i token o dichiarato NATIVO PER SCELTA, con il motivo scritto.
 4. **Ottieni prima la direzione estetica** — prima di scrivere qualsiasi codice UI, invoca la skill `frontend-design`. Fornisce la direzione estetica distintiva e con un punto di vista che i token del DESIGN.md devono servire. Il design è un prerequisito del codice, mai un ripensamento.
 5. **Consulta le fonti di riferimento** — se serve ispirazione o direzione, leggi `frontend-design/design-references.md` (gallerie awwwards/refs.gallery/godly, tipografia fontsinuse/typewolf, colore huemint/Material 3, design system Refactoring UI/nngroup).
 6. **Applica i pattern di maturità** — per superare il layout "democratico" e rendere la UI viva e con gerarchia, leggi `patterns.md` (gerarchia bento asimmetrica, materialità vetro, striscia stato cockpit) e applica SOLO ciò che il brief e i token del DESIGN.md consentono.
@@ -30,9 +31,10 @@ Determina se il progetto corrente ha già un `DESIGN.md` alla root.
 
 ## Ambito
 
-Questa skill governa stili, token, colore, tipografia, spaziature e forme per la UI. Non reimplementa la logica applicativa; si limita a orientare come la UI viene progettata e costruita, così da renderla intenzionale invece che generata.
+Questa skill governa stili, token, colore, tipografia, spaziature, forme e controlli nativi per la UI. Non reimplementa la logica applicativa; si limita a orientare come la UI viene progettata e costruita, così da renderla intenzionale invece che generata.
 
 ## Vincoli
 
 - Non sono richieste dipendenze MCP esterne. Tutto il necessario vive in questa directory della skill e nello standard DESIGN.md.
 - L'enforcement dei token è automatico: una UI che ignora i token del DESIGN.md è un difetto, non un suggerimento.
+- La scelta di una tecnica o di una libreria per i controlli si verifica online al momento dell'adozione e si registra con versione, licenza e data `verified` (`native-controls.md`, protocollo di ricerca). Già presenti nel progetto? Prima si legge il progetto, poi si cerca.
