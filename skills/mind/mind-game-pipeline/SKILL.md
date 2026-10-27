@@ -41,6 +41,7 @@ La pipeline esiste per impedire la sequenza che produce slop: **contenuto -> art
 | Solo build/release di un gioco gia' pronto | `mind-release-pipeline` |
 | Bug riproducibile | `mind-debugging` |
 | Asset raster / icone | `mind-image` / `mind-mark` |
+| Asset 3D (prop, kit, blockout) | adapter Blender: `tools/blender` (→ `mind-game-design/references/blender.md`) |
 | Dubbio | se attraversa ≥3 fasi con consegna unica e stato su file → pipeline |
 
 ## Stato condiviso
@@ -112,6 +113,7 @@ Owner: `game-director` + `feel-engineer`. Produce `03-loop.md`.
 Owner: `game-art-director`. Produce `04-direzione.md` + `ASSETS.md`.
 - GAME.md: frase, 3 riferimenti (≥2 fuori dai videogiochi), palette a ruoli, silhouette, camera, **un** effetto firma, UI, audio (→ `direzione-visiva-audio.md`).
 - Piano asset con fonte, licenza, AI si/no, costo, priorita' (→ `asset-provenienza.md`).
+- Asset 3D: generati da script (`tools/blender/gen_*.py`) e validati prima dell'import; il `.fbx` e' un artefatto, lo script e' la fonte (→ `blender.md`).
 - 12 check anti-slop compilati (→ `anti-slop-giochi.md`).
 
 **Gate G4 (utente)**: direzione approvata prima di produrre un asset; nessun asset con "uso commerciale: da verificare"; i 12 check passano o le deviazioni sono motivate dal brief.

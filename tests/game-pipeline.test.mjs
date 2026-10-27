@@ -38,7 +38,7 @@ for (const [dir, name] of [[designDir, 'mind-game-design'], [pipeDir, 'mind-game
   assert.ok(desc.includes('NON'), 'description senza confine NON in ' + name);
 }
 
-const designRefs = ['verbo-e-inventiva', 'feel', 'loop-e-numeri', 'anti-slop-giochi', 'direzione-visiva-audio', 'ui-ux-gioco', 'controlli-motore', 'playtest', 'asset-provenienza', 'scope-e-taglio', 'engine-adapters'];
+const designRefs = ['verbo-e-inventiva', 'feel', 'loop-e-numeri', 'anti-slop-giochi', 'direzione-visiva-audio', 'ui-ux-gioco', 'controlli-motore', 'blender', 'playtest', 'asset-provenienza', 'scope-e-taglio', 'engine-adapters'];
 for (const r of designRefs) {
   const p = path.join(designDir, 'references', r + '.md');
   assert.ok(exists(p), 'manca reference ' + r);
@@ -110,6 +110,18 @@ const probe = path.join(root, 'tests', 'mcp_probe.py');
 assert.ok(exists(probe), 'manca tests/mcp_probe.py');
 assert.ok(read(probe).includes('mcpforunityserver'), 'probe non usa il server Unity');
 assert.ok(read(path.join(root, 'README.md')).includes('flowchart TD'), 'README senza diagramma mermaid');
+
+// 6b. Adapter Blender: tool eseguibili + reference agganciata
+for (const f of ['asset_lib.py', 'gen_crate.py', 'validate_asset.py']) {
+  const p = path.join(designDir, 'tools', 'blender', f);
+  assert.ok(exists(p), 'manca tool Blender ' + f);
+  assert.ok(read(p).length > 800, 'tool Blender troppo corto: ' + f);
+}
+const blenderRef = read(path.join(designDir, 'references', 'blender.md'));
+assert.ok(blenderRef.includes('BLENDER_EEVEE'), 'blender.md senza nome engine verificato');
+assert.ok(blenderRef.includes('bake_space_transform'), 'blender.md senza parametri export verificati');
+assert.ok(blenderRef.includes('validate_asset.py'), 'blender.md senza gate di validazione');
+assert.ok(read(path.join(designDir, 'SKILL.md')).includes('blender.md'), 'dottrina non aggancia blender.md');
 
 // 7. Igiene dei file nuovi
 const newFiles = [

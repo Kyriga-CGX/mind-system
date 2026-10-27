@@ -21,11 +21,14 @@ Un file `ASSETS.md` nel progetto. Nessun file entra nel build senza una riga.
 
 Regola: **"da verificare" non e' una licenza**. Un asset con uso commerciale "da verificare" non entra in una build pubblicabile.
 
+Per un asset **generato da script** (Blender, ImageMagick, un generatore di icone) la colonna `fonte` e' il **path dello script**, non il file prodotto: il `.fbx` e un artefatto rigenerabile, lo script e' il sorgente. Registra anche versione dello strumento e licenza degli add-on usati (`blender.md`).
+
 ## Fonti e trappole comuni
 
 | Fonte | Cosa verificare |
 |---|---|
 | Prodotto internamente | diritti dell'autore (tu), eventuali tool AI usati |
+| Generato da script (Blender) | versione dello strumento, licenza degli add-on, path dello script; l'output di Blender e' tuo, il GPL non si propaga al file esportato (`blender.md`) |
 | CC0 (es. Kenney) | che la pagina dell'asset sia davvero CC0, non solo la home del sito |
 | CC-BY | attribuzione esatta, anche nella build |
 | Asset Store | EULA per-seat, restrizioni su redistribuzione, cosa succede se il team cresce |
