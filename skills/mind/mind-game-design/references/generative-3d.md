@@ -25,7 +25,7 @@ Le "skill di 3D" più stellinate (`achimala/dream-loop` 1.7k★, `viettranx/3dvi
 - **L'output è consumabile**: dopo la generazione fa weld → remesh manifold → decimazione QEM interna → unwrap xatlas → bake PBR → GLB. Non è una zuppa di triangoli da 5 milioni di facce.
 - **Offline e in batch**: nessun account, nessuna quota, un binario + `--models <dir>`.
 
-Costi reali, non stimati: ~16.5 GB di pesi, 3–6 minuti per asset (l'autore misura 6:09 su iGPU Radeon 8060S con Vulkan, 12:39 su input pesante), 300k facce di default — da abbassare subito per un prop.
+Costi: ~16.5 GB di pesi (15,34 GB reali) e il tempo **misurato qui** nella sezione «Misurazione reale»: non il numero del README.
 
 ```
 trellis-cli input.png out/prop.glb --models D:\models\trellis2 --res 1024
@@ -52,6 +52,24 @@ La catena non è negoziabile:
 | Introdurre un'API a consumo senza numeri | costo per asset, licenza dell'output, chi paga: tre risposte prima di una riga di codice |
 | Vendorizzare "skill di visualizzazione" | producono render, non asset: catalogo gonfio e capacità zero |
 | Generare e importare senza QA | l'unico caso in cui il generativo peggiora il progetto invece di accelerarlo |
+
+## Misurazione reale (questa macchina, 2026-10-27)
+
+Input: render 768×768 con alpha di una cassa fatta in Blender (1,02×1,27×0,75 m). Il PC stava **anche giocando**: GPU condivisa, quindi questi tempi sono un tetto, non un benchmark.
+
+| Fase | Numero |
+|---|---|
+| Download pesi (curl `-C -`) | 15,34 GB in **6,5 min** |
+| Generazione `--res 512` | **949 s (15:49)**; remesh da 8,9M facce, decimate a 137.806 |
+| Output GLB | 3,97 MB, 1 oggetto, 1 UV, 1 materiale, 2 texture, dimensioni 0,80×1,00×0,61 m (**scala non metrica**) |
+| QA sul grezzo | PASS con warning pesanti: **14.986 boundary edges**, 288 isole, 7.480 vertici duplicati, **UV coverage 18,9%** |
+| Planar 5° → 2.981 facce | `pass=false` per **48 edge non-manifold** (cuciture UV), boundary 119, UV coverage **74,3%**. Visivamente: spigoli e cinghie reggono |
+| Collapse → 3.000 facce | `pass=false`, 12 edge; **visivamente le cinghie si sciolgono** |
+| Collapse → 6.000 facce | idem 12 edge: il problema non è il budget, è il metodo |
+
+Verdetto: **silhouette sì, dettaglio di superficie no**. Pannellature e viti del riferimento non ci sono: il modello ricostruisce ciò che vede nella sagoma. Va bene per un prop di sfondo o per un blockout da rifinire, non per l'oggetto-icona.
+
+I 48 edge non-manifold sono cuciture UV (open boundary 119): si accettano **solo** con il render guardato e nessun buco visibile, e vanno scritti in `10-verifica.md` come warning accettato. Se il difetto si vede, si alza `--faces` o si ripara a mano.
 
 ## Gate
 
@@ -118,6 +136,13 @@ curl.exe -X POST http://127.0.0.1:8080/generate -F "image=@rif.png" -F "resoluti
 | `--no-texture` | blockout di silhouette | toglie il bake, dimezza il tempo |
 | `--webp on` | default | texture più leggere; `off` se l'importer Unity non legge WebP |
 
+Due cose che l'immagine non porta e vanno imposte a valle:
+
+| Cosa | Come |
+|---|---|
+| **Scala metrica** | `--size 1.25` in `from_generated.py`. Image→3D normalizza: la cassa da 1,25 m è uscita 1,0×0,8×0,6. Senza `--size`, in Unity è un oggetto di dimensioni casuali |
+| **Tipo di decimazione** | `--mode planar` (default) per hard-surface: dissolve a 5°, spigoli intatti. `--mode collapse` solo per forme organiche: su una cassa scioglie le cinghie (provato a 3.000 facce) |
+
 **Verificato sul binario il 2026-10-27**: questa build **non ha `--faces`** (`unknown option: --faces`), anche se il README lo documenta. Decima da sola a **300K facce con `--res 1024`, 150K con `--res 512`**, e non espone un target. Il budget si fa **dopo, in Blender**, con `tools/blender/from_generated.py`. Regola: il README si legge, il binario si interroga (`trellis-cli --help`).
 | `--bg-removal auto` | default | un'immagine già ritagliata tiene l'alpha, altrimenti BiRefNet |
 
@@ -152,4 +177,7 @@ curl.exe -X POST http://127.0.0.1:8080/generate -F "image=@rif.png" -F "resoluti
 | Generare prima del gate G4 | si producono asset per una direzione che l'utente non ha approvato |
 | Batch di 20 asset senza QA | venti problemi identici scoperti in engine, tutti insieme |
 | Fidarsi del bake | un atlas, una vista: il retro non è mai stato guardato |
-| Generare ciò che Poly Haven ha già | licenza pulita in 4 secondi contro 6 minuti e una QA in più |
+| Generare ciò che Poly Haven ha già | licenza pulita in 4 secondi contro 16 minuti e una QA in più |
+| Usare `--mode collapse` su un hard-surface | gli spigoli si sciolgono: planar costa uguale e tiene la forma |
+| Importare senza `--size` | in Unity l'asset ha dimensioni casuali: la scala non è nell'immagine |
+| Generare in batch con la GPU occupata | 16 minuti per asset diventano ore, e i tempi non sono più confrontabili |
