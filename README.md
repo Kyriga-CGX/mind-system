@@ -53,7 +53,7 @@ Il plugin `mind` inietta il bootstrap a ogni turno (con guardia anti-duplicazion
 - `plugins/` — `mind.js` (bootstrap + registrazione skill + tracciamento uso + segnali `MIND_SIGNAL`/`MIND_LOOP`/`MIND_BARRA`/`MIND_RIFIUTO`), `mind-memory.js` (memoria locale-first) e `vibeguard.js` (redazione segreti/PII verso il provider, port V2 di `opencode-vibeguard`). Vanno al top di `~/.config/opencode/plugins/`. **Forma OpenCode V2**: `export default { id, async setup(ctx) {...} }` con hook per dominio — un plugin in stile V1 non viene eseguito in V2 (verifica il log per `failed to load plugin`)
 - `config/dcp.jsonc` — soglie di Dynamic Context Pruning: compressione **lossy** solo oltre ~800K (con 1M di contesto non deve distruggere conversazione a 100K), deduplicazione e purge degli errori sempre attivi (lossless)
 - `config/` — `opencode.jsonc`, `mind-memory.json`, `barra.md` (criteri "fatto bene" + rifiuti, deployato in `mind/barra.md`), `AGENTS.md` + subagent custom (`agents/sage.md`, `lust.md`, `forge.md`, `game-director.md`, `game-art-director.md`, `game-ui-designer.md`, `feel-engineer.md`, `playtest-critic.md`). Chiavi come `{env:VAR}` dall'ambiente all'avvio
-- `docs/` — appunti e note decisionali; `docs/session-registry.md` (registro condiviso tra sessioni in `~/.config/opencode/mind/sessions/`), `docs/system-diagram.md` (routing e pipeline per esteso), `docs/eval/` (report di valutazione delle skill)
+- `docs/` — appunti e note decisionali; `docs/session-registry.md` (registro condiviso tra sessioni in `~/.config/opencode/mind/sessions/`), `docs/system-diagram.md` (routing e pipeline per esteso), `docs/eval/` (report di valutazione delle skill), `docs/research/` (ricerche datate con numeri e verdetto, es. tool Blender+Unity per un agente)
 - `sync.ps1` — sincronizza **repo → macchina locale** (il repo è la source of truth)
 - `tests/` — `barra.test.mjs` (barra globale+progetto, guardie a tag, rifiuto al 1°, loop al 2°, contatore, stato vuoto) e `routing-sample.test.mjs` (prompt normalizzato/troncato/redatto, numerazione dei turni, rotazione, merge del report, best-effort): `node tests/barra.test.mjs` e `node tests/routing-sample.test.mjs`
 - `tools/routing-sample-report.mjs` — legge `mind/gaps/routing-sample.jsonl` e stampa i turni **senza** skill da etichettare: `node tools/routing-sample-report.mjs --limit=50`
@@ -369,6 +369,18 @@ Tre decisioni che non sono un template:
 - **Kill è un esito**: dopo 3 prove senza replay desire il concept si chiude con postmortem; massimo 2 concept.
 
 Cinque agenti: `game-director` (Grumman), `game-art-director` (Catherine), `game-ui-designer` (Rebecca), `feel-engineer` (Dominic), `playtest-critic` (Kimblee, read-only). La dottrina vive in `mind-game-design` (verbo/invenzione, feel, loop, anti-slop a 12 check, direzione, playtest, asset/licenze, scope, adapter). Il motore è un adapter: Unity o Godot, con i comandi di evidenza nel relativo reference; i gate non cambiano. I controlli nativi del motore (dropdown, scrollbar, slider, toggle) hanno una regola propria: un tema per progetto, zero skin di default in build (`controlli-motore.md`).
+
+### Asset 3D
+
+Ordine dal più economico al più caro, e non si salta: **CC0 → script Blender → generativo locale**.
+
+- **CC0 prima di tutto**: `tools/polyhaven/ph.mjs` interroga l'API di Poly Haven, verifica gli md5 e scrive la riga di provenienza. Verificato su `Barrel_01`: 5 file, 3.84 MB, tutti gli hash corrispondenti. Kenney (zip) e Sketchfab (token) restano manuali.
+- **La fonte è lo script, non il `.blend`**: `tools/blender/asset_lib.py` (export Unity verificato: `bake_space_transform` spento con armature, `use_triangles=True` sulle n-gon, round-trip 1 m = 1.0) più `gen_<asset>.py` versionati. Il `.blend` si rigenera.
+- **QA geometrico prima dell'export**: `qa_check.py --profile game` (vendor `EL4CTEO/blender-skills`, 4 skill su 22, MIT). Sul primo asset ha bocciato 23 facce UV ad area zero e una parte staccata che il nostro `validate_asset.py` dava 10/10 PASS. Da lì `qa_check.py` gira sempre prima dell'export. Un warning si chiude corretto o accettato con il motivo scritto.
+- **Generativo locale come eccezione**: `trellis.cpp` (immagine → GLB texturizzato) su backend Vulkan, pesi `microsoft/TRELLIS.2-4B` MIT non gated. L'output è materia prima: QA, decimazione (`from_generated.py --faces N`), LOD, e nessun personaggio animabile senza retopologia. Cosa entra e cosa no in `generative-3d.md`.
+- **Passaporto**: una riga in `ASSETS.md` per ogni file (fonte, licenza, seed o prompt, versione dei pesi). Nessun asset "preso da internet" senza riga.
+
+Riferimenti: `blender.md` (comandi e trappole misurate su Blender 5.2), `generative-3d.md`, `asset-provenienza.md`, `controlli-motore.md`; ricerca datata in `docs/research/blender-unity-agent-tools-2026-10-27.md`.
 
 ## Pipeline di dominio (quando servono)
 
