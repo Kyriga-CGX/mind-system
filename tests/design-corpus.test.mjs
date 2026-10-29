@@ -146,4 +146,19 @@ ok('esperimento: verdetto A', exp.includes('A: 0 su 9'));
 ok('esperimento: verdetto B', exp.includes('B: 9 su 9'));
 ok('esperimento: dichiara la circolarita', exp.toLowerCase().includes('circolare'));
 
+// 12. pelle e materiali: la skill e agganciata e il metodo e dichiarato
+const skinPath = path.join(root, 'skills', 'design-system', 'skin.md');
+ok('skin.md esiste', fs.existsSync(skinPath));
+const skin = fs.readFileSync(skinPath, 'utf8');
+ok('skin: una ricetta per N superfici', skin.includes('una ricetta di superficie applicata a molte superfici'));
+ok('skin: vocabolario materiale', skin.includes('Vocabolario') && skin.includes('--glint'));
+ok('skin: tre livelli di profondita', skin.includes('tre livelli') || skin.includes('Tre livelli'));
+ok('skin: keyframe per evento', skin.includes('drawerIn') && skin.includes('fadeInUp'));
+ok('skin: struttura evolutiva', skin.includes('evolutiva'));
+ok('skin: divieto di copiare', skin.includes('clone di Pane') && skin.includes('Divieto'));
+ok('skin: procedura', skin.includes('Procedura in sei passi'));
+ok('enforce: regola 9', fs.readFileSync(path.join(root, 'skills', 'design-system', 'enforce.md'), 'utf8').includes('## Regola 9 — Una pelle, non una collezione'));
+ok('SKILL: aggancia skin.md', fs.readFileSync(path.join(root, 'skills', 'design-system', 'SKILL.md'), 'utf8').includes('leggi `skin.md`'));
+ok('pipeline: registro generazioni', fs.readFileSync(path.join(root, 'skills', 'mind', 'mind-design-pipeline', 'SKILL.md'), 'utf8').includes('registro, il risultato sembra nato'));
+
 console.log('TEST OK (' + n + ')');

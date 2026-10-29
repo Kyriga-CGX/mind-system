@@ -73,6 +73,15 @@ Blur, glass, gradienti, ombre e texture sono **condizionali**: per ognuno deve e
 - `prefers-reduced-transparency`, `prefers-reduced-motion`, `prefers-contrast` vanno gestiti **dove l'effetto esiste**. Verifica che lo stato spento esista davvero nella computed style (es. il token del vetro collassa su un colore solido), non solo nel commento del CSS.
 - Se il DESIGN.md non dichiara lo stato spento, decidi tu e scrivilo. Un effetto non documentato non è verificabile.
 
+## Regola 9 — Una pelle, non una collezione
+
+Se una superficie ha la sua ombra, il suo bordo e la sua animazione, non c'è una pelle: c'è un collage. La pelle è **una ricetta applicata a molte superfici**.
+
+- **N superfici, una regola.** Se lo stesso `background` o `box-shadow` compare su due o più componenti, quei componenti devono stare nella stessa regola (o ereditare dallo stesso selettore). Un override locale di superficie è un difetto, non una variante.
+- **Tre livelli di profondità**, nominati (`shallow` / `panel` / `overlay`). Un quarto livello di blur o di ombra richiede un motivo scritto nel DESIGN.md.
+- **Il movimento si nomina per evento**, non per effetto: `drawerIn`, `dropPulse`, `menuIn`. `fadeInUp`, `zoomIn`, `slideInLeft` sono nomi di movimento e sono un tell: stai scegliendo un effetto invece di rispondere a un evento.
+- **Le varianti sono token.** Se serve una superficie diversa, si aggiunge un token materiale (`--glass-2`, `--well`), non una regola che riaccende il colore a mano.
+- Metodo completo, con il caso misurato che l'ha generato: `skin.md`.
 ## Uso dell'enforcement
 
-Quando lavori su una UI: (1) reperisci la mappa dal DESIGN.md, (2) riscrivi ogni hex in `var(--color-*)`, (3) riscrivi ogni spaziatura px nei `--space-*`, (4) verifica il contrasto (4.5:1 testo, 3:1 UI) e scegli token alternativi se serve, (5) assicurati di rispettare i Do's and Don'ts e (6) controlla che non resti hex/spacing letterale residuo, (7) verifica che ogni valore nuovo appartenga a una scala dichiarata e (8) che ogni effetto abbia uno stato spento verificabile. **Tutto questo è automatico**: applichi le correzioni direttamente al codice, senza aspettare che qualcun altro lo segnali. Un lavoro sulla UI che consegna hex hardcoded o px letterali è incompleto.
+Quando lavori su una UI: (1) reperisci la mappa dal DESIGN.md, (2) riscrivi ogni hex in `var(--color-*)`, (3) riscrivi ogni spaziatura px nei `--space-*`, (4) verifica il contrasto (4.5:1 testo, 3:1 UI) e scegli token alternativi se serve, (5) assicurati di rispettare i Do's and Don'ts e (6) controlla che non resti hex/spacing letterale residuo, (7) verifica che ogni valore nuovo appartenga a una scala dichiarata e (8) che ogni effetto abbia uno stato spento verificabile, (9) che le superfici condividano una sola ricetta e i keyframe abbiano il nome dell'evento. **Tutto questo è automatico**: applichi le correzioni direttamente al codice, senza aspettare che qualcun altro lo segnali. Un lavoro sulla UI che consegna hex hardcoded o px letterali è incompleto.

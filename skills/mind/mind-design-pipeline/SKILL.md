@@ -80,6 +80,7 @@ Se il brief fissa già la direzione visiva → le parole del brief vincono: salt
 Se manca `DESIGN.md` → `design-system/create.md` (survey, scansione codebase, scrittura, validazione). Se esiste → aggiorna i token perché servano la direzione scelta, senza riscrivere la rationale storica senza motivo. Scrivi `04-design.md`.
 **Gate**: frontmatter con `colors`/`typography`/`rounded`/`spacing`, rationale specifica del soggetto, direzione estetica scritta, validazione ok (o "validazione rimandata" se lo script non esiste).
 
+`04-design.md` deve contenere anche le **generazioni**: tre righe per ogni giro di design (cosa non funzionava · cosa misura la nuova versione · cosa ha rotto), più la lista dei fix di superficie. Senza registro, il risultato sembra nato già così — che è esattamente come sembra un template. Il metodo e il caso misurato che l'ha generato: `design-system/skin.md`.
 ### Stage 5 — Mockup della schermata chiave (GATE UTENTE)
 Costruisci UN mockup statico ad alta fedeltà della schermata più importante, con contenuto REALE e token del DESIGN.md. Screenshot → LEGGILO → autocritica (togli un accessorio prima di consegnare). Scrivi `05-mockup.md`.
 Verifica i criteri di `## Barra` uno per uno prima di presentare, ognuno con la sua evidenza.
