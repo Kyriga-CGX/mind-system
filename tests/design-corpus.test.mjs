@@ -215,4 +215,17 @@ execFileSync(process.execPath, [cmp, '--a', snapDir, '--b', tmpB], { encoding: '
 const moved = fs.readFileSync(path.join(tmpB, 'confronto.md'), 'utf8');
 ok('confronto: rileva il movimento nel pannello', /→/.test(moved) && !moved.includes('Nessun movimento nel pannello'));
 
+// 17. automazione: snapshot con data, check di freschezza, README allineato
+const snapMeta = JSON.parse(fs.readFileSync(path.join(snapDir, 'snapshot.json'), 'utf8'));
+ok('snapshot.json datato', /^\d{4}-\d{2}-\d{2}$/.test(snapMeta.captured_at) && snapMeta.quarter === '2026-Q4');
+let checkCode = 0;
+try { execFileSync(process.execPath, [path.join(root, 'skills', 'design-system', 'scripts', 'teardown', 'snapshot.mjs'), '--check'], { encoding: 'utf8' }); } catch (e) { checkCode = e.status; }
+ok('snapshot --check: fresco', checkCode === 0);
+ok('corpus: sezione automatico', fs.readFileSync(path.join(root, 'skills', 'design-system', 'corpus.md'), 'utf8').includes('Automatico: il giro trimestrale'));
+ok('launcher pianificabile', fs.existsSync(path.join(root, 'skills', 'design-system', 'scripts', 'teardown', 'snapshot.cmd')));
+const readme = fs.readFileSync(path.join(root, 'README.md'), 'utf8');
+ok('README: sezione corpus', readme.includes('## Corpus di design e snapshot trimestrali'));
+ok('README: cita snapshot.mjs', readme.includes('snapshot.mjs --check'));
+ok('README: cita skin.md e skin-choice.md', readme.includes('skin.md') && readme.includes('skin-choice.md'));
+
 console.log('TEST OK (' + n + ')');

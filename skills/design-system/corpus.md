@@ -67,6 +67,13 @@ Un corpus senza data e un'impressione con l'aria di un dato. La cadenza che regg
 - **Confronto**: `compare.mjs --a <vecchio> --b <nuovo>` produce la tabella dei delta, il verdetto per riga e l'elenco di chi si e mosso nel pannello.
 - **Costo**: 5-8 minuti per snapshot con 30 artefatti (robots + fetch + misura).
 - **Le metriche non cambiano tra snapshot.** Se cambia un criterio C1-C8, la serie si interrompe e si riparte: altrimenti stai misurando le tue modifiche, non il campo.
+## Automatico: il giro trimestrale non si ricorda a mano
+
+- **Un comando fa tutto**: `snapshot.mjs` esegue harvest -> unione del pannello -> sweep -> report -> compare col trimestre precedente, e scrive `snapshot.json` (quartiere, data, artefatti, pannello).
+- **Controllo di freschezza**: `snapshot.mjs --check` esce 0 se l'ultimo snapshot ha meno di 90 giorni, 3 se e scaduto (stampa la proposta), 4 se non c'e nessuna baseline.
+- **Aggancio nell'orchestrazione**: quando il corpus viene usato come baseline (Stage 1 della design pipeline), si esegue il check; se scaduto si propone il refresh **una volta per sessione**, senza bloccare il lavoro.
+- **Pianificazione**: attivita Windows `mind-design-snapshot`, mensile su gennaio/aprile/luglio/ottobre (1° del mese, 10:30), lancia `snapshot.cmd`. Log in `%LOCALAPPDATA%\mind-snapshot.log`. Se la macchina e spenta il giro salta: il `--check` e la rete di sicurezza, non la pianificazione.
+- **Mai sovrascrivere**: uno snapshot esistente richiede `--force`. Il confronto e tra cartelle, quindi la storia non si perde.
 ## Regole dure
 
 - **Solo aggregati e regole.** Non entra nel repo CSS, markup, font o asset di terzi. La scheda cita colori e misure come misure, non come codice da riusare.

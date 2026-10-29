@@ -56,10 +56,31 @@ Il plugin `mind` inietta il bootstrap a ogni turno (con guardia anti-duplicazion
 - `docs/` — appunti e note decisionali; `docs/session-registry.md` (registro condiviso tra sessioni in `~/.config/opencode/mind/sessions/`), `docs/system-diagram.md` (routing e pipeline per esteso), `docs/eval/` (report di valutazione delle skill), `docs/research/` (ricerche datate con numeri e verdetto, es. tool Blender+Unity per un agente)
 - `sync.ps1` — sincronizza **repo → macchina locale** (il repo è la source of truth)
 - `tests/` — `barra.test.mjs` (barra globale+progetto, guardie a tag, rifiuto al 1°, loop al 2°, contatore, stato vuoto) e `routing-sample.test.mjs` (prompt normalizzato/troncato/redatto, numerazione dei turni, rotazione, merge del report, best-effort): `node tests/barra.test.mjs` e `node tests/routing-sample.test.mjs`
-- `skills/design-system/scripts/teardown/` - probe runtime + reducer: misura un artefatto reale (scala tipografica, radius, beat, easing dichiarati vs default, profondita, contrasto WCAG, stato di spento) e scrive la scheda di teardown. Metodo in `skills/design-system/corpus.md`; evidenze in `docs/design-corpus/`. `node skills/design-system/scripts/teardown/teardown.mjs --self-test`
-- `docs/design-corpus/` - artefatti catturati (schede + `corpus.jsonl`), solo aggregati numerici: nessun CSS, nessun asset di terzi. `node tests/design-corpus.test.mjs`
+- `skills/design-system/scripts/teardown/` - la catena di misura del design, cinque comandi e nessuna dipendenza:
+  - `teardown.mjs` + `measure.js` - probe runtime dentro la pagina: scala tipografica, radius, beat, easing dichiarati vs default, materia (strati, spessori, blur), contrasto WCAG, preferenze; produce la scheda `<id>.md` + riga di `corpus.jsonl`. `--self-test`
+  - `harvest.mjs` - dai sitemap delle gallery **ammesse da robots** ai candidati (URL reale, nome, data). Le fonti vietate restano elencate col motivo
+  - `sweep.mjs` + `static.mjs` - robots per dominio, CSS dichiarato, livelli di pelle 0-3 e criteri C1-C8
+  - `report.mjs` - aggregati, letture e soglie; `compare.mjs` - due snapshot a confronto con pannello, flusso e soglia di rumore (8 punti)
+  - `snapshot.mjs` + `snapshot.cmd` - il giro trimestrale in un comando (`--check` per la freschezza); attivita Windows `mind-design-snapshot` (gen/apr/lug/ott, 10:30), log in `%LOCALAPPDATA%\mind-snapshot.log`
+  - metodo e regole in `skills/design-system/corpus.md`; evidenze e snapshot in `docs/design-corpus/`
+- `docs/design-corpus/` - artefatti catturati: 2 schede runtime + `corpus.jsonl`, 40 candidati, `sweep.jsonl` (29 misure statiche), `snapshots/2026-Q4/` (primo trimestre congelato con confronto), `experiment/` (prova A/B 0/9 vs 9/9). Solo aggregati numerici: nessun CSS, nessun asset di terzi. `node tests/design-corpus.test.mjs`
 - `tools/routing-sample-report.mjs` — legge `mind/gaps/routing-sample.jsonl` e stampa i turni **senza** skill da etichettare: `node tools/routing-sample-report.mjs --limit=50`
 
+## Corpus di design e snapshot trimestrali
+
+La pipeline di design non "impara": **misura**. Il corpus dà la baseline, i gate danno le soglie, e ogni trimestre uno snapshot datato dice cosa si è mosso.
+
+```
+node skills/design-system/scripts/teardown/snapshot.mjs --check   # è ora? (0 fresco, 3 scaduto)
+node skills/design-system/scripts/teardown/snapshot.mjs           # harvest + pannello + sweep + report + compare
+node skills/design-system/scripts/teardown/compare.mjs --a docs/design-corpus/snapshots/2026-Q4 --b <nuovo>
+```
+
+- **Pannello vs flusso**: gli stessi siti rimisurati dicono se sono cambiati; i nuovi dicono cosa arriva. Non si sommano.
+- **Due punti = spostamento, tre = tendenza.** Sotto 8 punti percentuali di delta è rumore, e si scrive "stabile".
+- **Automatico**: attività Windows `mind-design-snapshot` (gen/apr/lug/ott, 10:30). Se la macchina è spenta il giro salta: `--check` è la rete di sicurezza, non la pianificazione.
+- **Cosa dice oggi**: 29 artefatti da 1 fonte (godly; le altre gallery vietano per robots o bloccano il fetch). 9 piatti, 14 vetro 2020, 3 con spessore, 3 materiale. Ricetta condivisa 7%, grana 17%, stato spento del vetro 0%, nessuno oltre 5/8 criteri.
+- **Cosa non può dire**: "va di moda". Servono tre snapshot concordi, cioè luglio 2027 al più presto.
 ## Quickstart
 
 ```powershell
@@ -117,7 +138,7 @@ Se ambiguo: route conservativa (creativo→costruire, anomalia→fixare, domanda
 | Skill | Cosa fa | Quando si usa |
 |---|---|---|
 | `frontend-design` | Direzione estetica: personalità, signature element, restraint | PRIMA di qualsiasi UI |
-| `design-system` | Crea/applica `DESIGN.md`, enforce token `var(--*)`, anti-slop 9 check, WCAG 4.5:1, controlli nativi (N1-N8: select, scrollbar, checkbox, file/date, focus) | token, stili, design system, controlli con la pelle del browser |
+| `design-system` | Crea/applica `DESIGN.md`, enforce token `var(--*)` (R1-R9), anti-slop 9 check, WCAG 4.5:1, controlli nativi (N1-N8), **pelle e materiali** (`skin.md`: una ricetta per N superfici, 3 livelli, keyframe per evento), **scelta dal brief** (`skin-choice.md`: livello 0-3 + due criteri firma), **corpus misurato** (`corpus.md`: probe, sweep, soglie, snapshot trimestrali) | token, stili, design system, controlli con la pelle del browser, skin/materiali, decidere che pelle serve |
 | `motion` | Ladder anti-3D (CSS→WAAPI→Motion→GSAP→SVG→Three.js), 3 strati, stagger <500ms, pattern F1-F7 (ricette, icone, esserini vivi), reference vendored anti-rot | animazioni e movimento |
 | `mind-design-explore` | 2-3 direzioni visive distinte + scelta utente | serve un concept prima di costruire |
 | `mind-copy` | Copy con tono/audience/obiettivo + pulizia `stop-slop` | landing, email, CTA, microcopy |
