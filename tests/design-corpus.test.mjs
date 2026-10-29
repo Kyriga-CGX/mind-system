@@ -5,6 +5,7 @@ import { fileURLToPath } from 'url';
 import os from 'os';
 import { execFileSync } from 'child_process';
 import { reduce } from '../skills/design-system/scripts/teardown/teardown.mjs';
+import { measureStatic, verdict } from '../skills/design-system/scripts/teardown/static.mjs';
 import { PROBE_SOURCE } from '../skills/design-system/scripts/teardown/measure.js';
 
 const here = path.dirname(fileURLToPath(import.meta.url));
@@ -97,5 +98,41 @@ execFileSync(process.execPath, [cli, 'sheet', rawFile, '--kind', 'test', '--slug
 const again = fs.readFileSync(sheetPath, 'utf8');
 ok('sezione 7 conservata alla rigenerazione', again.includes('REGOLA MIA') && !again.includes('TBD'));
 ok('corpus non duplica la voce', fs.readFileSync(path.join(tmp, 'corpus.jsonl'), 'utf8').trim().split('\n').length === 1);
+
+// 7. misura statica: il CSS dichiarato viene letto, non inventato
+const cssFixture = ':root{--paper:#171615;--ink:#f0eee9} body{font-family:Inter,system-ui;font-size:16px} h1{font-size:3rem;border-radius:24px;transition:all .32s cubic-bezier(.2,.7,.2,1)} @media (prefers-reduced-motion:reduce){*{transition:none}} .x{backdrop-filter:blur(30px);background:linear-gradient(red,blue)}';
+const sm = measureStatic('<style>' + cssFixture + '</style>', cssFixture, 'https://x.test/');
+ok('static: custom props', sm.customProps === 2);
+ok('static: reduced motion', sm.reducedMotion === true);
+ok('static: base dichiarata', sm.baseDeclared === '48px' || sm.baseDeclared === '16px');
+ok('static: beat dichiarato', sm.durations.includes('320ms'));
+ok('static: easing custom', sm.easings.some((e) => e.startsWith('cubic-bezier')));
+ok('static: blur e gradienti', sm.backdrop === 1 && sm.gradients === 1);
+ok('static: css-thin su pagina vuota', verdict(measureStatic('<html></html>', '', 'https://x.test/')) === 'css-thin');
+
+// 8. candidati e sweep esistono e sono coerenti
+const cands = fs.readFileSync(path.join(corpusDir, 'candidates.jsonl'), 'utf8').split('\n').filter(Boolean).map((l) => JSON.parse(l));
+ok('candidati >= 30', cands.length >= 30);
+ok('candidati: target unici', new Set(cands.map((c) => c.target)).size === cands.length);
+ok('candidati: tutti datati', cands.every((c) => /^\d{4}-\d{2}-\d{2}$/.test(String(c.date))));
+ok('candidati: tutti con fonte', cands.every((c) => typeof c.source === 'string' && c.source.length > 2));
+
+const sweeps = fs.readFileSync(path.join(corpusDir, 'sweep.jsonl'), 'utf8').split('\n').filter(Boolean).map((l) => JSON.parse(l));
+ok('sweep >= 25', sweeps.length >= 25);
+const sweepBlob = JSON.stringify(sweeps);
+ok('sweep: nessun CSS memorizzato', !/font-size:|@media|color:\\s*#|background:\\s*#/.test(sweepBlob));
+ok('sweep: ogni riga ha url e data', sweeps.every((s) => s.url && s.captured_at));
+
+const sweepMd = fs.readFileSync(path.join(corpusDir, 'sweep-static.md'), 'utf8');
+for (const h of ['## Cosa misura, e cosa no', '## Tabella', '## Aggregati', '## Letture', '## Soglie', '## Fonti scartate']) {
+  ok('sweep-static: ' + h, sweepMd.includes(h));
+}
+ok('sweep-static: dichiara lo stato spento mancante', sweepMd.includes('prefers-reduced-transparency'));
+
+// 9. policy delle fonti: 5 gallery, e le vietate hanno il motivo scritto
+const src = fs.readFileSync(path.join(root, 'skills', 'design-system', 'scripts', 'teardown', 'harvest.mjs'), 'utf8');
+ok('harvest: cinque fonti', (src.match(/id: '[a-z-]+'/g) || []).length === 5);
+ok('harvest: fonti ristrette motivate', (src.match(/mode: 'restricted'/g) || []).length >= 3);
+ok('harvest: nessuna fonte ristretta senza nota', !/mode: 'restricted'(?![\s\S]{0,400}?note:)/.test(src));
 
 console.log('TEST OK (' + n + ')');
