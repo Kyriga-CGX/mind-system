@@ -56,6 +56,17 @@ La scheda runtime e la misura di riferimento, ma costa una pagina alla volta. Pe
 3. `scripts/teardown/report.mjs --from <dir>` — rende la tabella, gli aggregati, le letture e le **soglie**. Ogni soglia dichiara se e piu stretta o piu larga del campo, e perche.
 
 Regola di lettura: **una soglia derivata da questa colonna non e una soglia di design**. La base tipografica dichiarata e la `font-size` piu scritta, non la piu usata; il beat e quello dichiarato, non quello in uso. Il sweep dice dove sta il campo, non cosa fare: per i valori reali serve il probe.
+## Cadenza: snapshot trimestrali
+
+Un corpus senza data e un'impressione con l'aria di un dato. La cadenza che regge:
+
+- **Ogni trimestre** una cartella datata `snapshots/YYYY-Q<k>/` con candidati, sweep, esclusi e report. **Non si sovrascrive mai** un snapshot precedente.
+- **Pannello** = gli stessi artefatti rimisurati: dice se i siti sono cambiati. **Flusso** = i nuovi entrati: dice cosa sta arrivando. Sono due domande diverse e non si sommano in un numero solo.
+- **Tre punti per una tendenza.** Due snapshot misurano uno **spostamento**; tre con direzione concorde misurano una tendenza. Con un solo punto si puo dire solo "esiste oggi".
+- **Soglia di rumore: 8 punti percentuali.** Sotto, si scrive "stabile" anche se il numero si muove: e rumore di campionamento con n~30.
+- **Confronto**: `compare.mjs --a <vecchio> --b <nuovo>` produce la tabella dei delta, il verdetto per riga e l'elenco di chi si e mosso nel pannello.
+- **Costo**: 5-8 minuti per snapshot con 30 artefatti (robots + fetch + misura).
+- **Le metriche non cambiano tra snapshot.** Se cambia un criterio C1-C8, la serie si interrompe e si riparte: altrimenti stai misurando le tue modifiche, non il campo.
 ## Regole dure
 
 - **Solo aggregati e regole.** Non entra nel repo CSS, markup, font o asset di terzi. La scheda cita colori e misure come misure, non come codice da riusare.

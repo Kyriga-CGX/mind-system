@@ -195,4 +195,24 @@ ok('skin-choice: mode oneste', ch.includes('due snapshot separati nel tempo'));
 ok('SKILL: aggancia skin-choice', fs.readFileSync(path.join(root, 'skills', 'design-system', 'SKILL.md'), 'utf8').includes('leggi `skin-choice.md`'));
 ok('pipeline: livello di materia nel brief', fs.readFileSync(path.join(root, 'skills', 'mind', 'mind-design-pipeline', 'SKILL.md'), 'utf8').includes('dichiara il livello di materia'));
 
+// 16. snapshot e confronto: due punti sono uno spostamento, non una tendenza
+const snapDir = path.join(corpusDir, 'snapshots', '2026-Q4');
+ok('snapshot 2026-Q4 esiste', fs.existsSync(path.join(snapDir, 'sweep.jsonl')));
+const cmp = path.join(root, 'skills', 'design-system', 'scripts', 'teardown', 'compare.mjs');
+const tmpB = path.join(os.tmpdir(), 'mind-cmp-b');
+fs.rmSync(tmpB, { recursive: true, force: true });
+fs.mkdirSync(tmpB, { recursive: true });
+const snapRows = fs.readFileSync(path.join(snapDir, 'sweep.jsonl'), 'utf8').split('\n').filter(Boolean).map((l) => JSON.parse(l));
+fs.writeFileSync(path.join(tmpB, 'sweep.jsonl'), snapRows.map((r) => JSON.stringify(r)).join('\n') + '\n');
+execFileSync(process.execPath, [cmp, '--a', snapDir, '--b', tmpB], { encoding: 'utf8' });
+const same = fs.readFileSync(path.join(tmpB, 'confronto.md'), 'utf8');
+ok('confronto A=A: tutto stabile', same.includes('stabile') && !same.includes('| su |') && !same.includes('| giu |'));
+ok('confronto A=A: nessun movimento', same.includes('Nessun movimento nel pannello'));
+ok('confronto: dichiara che 3 punti fanno una tendenza', same.includes('tre') && same.includes('spostamento'));
+snapRows[0].skin.insets = 0; snapRows[0].skin.recipeSelectors = 0; snapRows[0].skin.noise = 0; snapRows[0].skin.maxLayers = 1; snapRows[0].skin.backdropLevels = [];
+fs.writeFileSync(path.join(tmpB, 'sweep.jsonl'), snapRows.map((r) => JSON.stringify(r)).join('\n') + '\n');
+execFileSync(process.execPath, [cmp, '--a', snapDir, '--b', tmpB], { encoding: 'utf8' });
+const moved = fs.readFileSync(path.join(tmpB, 'confronto.md'), 'utf8');
+ok('confronto: rileva il movimento nel pannello', /→/.test(moved) && !moved.includes('Nessun movimento nel pannello'));
+
 console.log('TEST OK (' + n + ')');
