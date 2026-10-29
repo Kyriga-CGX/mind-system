@@ -74,6 +74,52 @@ Le scelte non-AI di 011 non sono nate insieme: sono **generazioni**, ognuna fals
 
 La regola trasferibile: **ogni generazione dichiara il criterio che falsifica la precedente**, e il criterio si scrive prima di rifare, non dopo. Tre righe per generazione (cosa non funzionava · cosa misura la nuova · cosa ha rotto) in un file di progetto. Senza questo registro, il design sembra nato già così — che è esattamente come sembra un template.
 
+## 6b. Le quattro generazioni della pelle (misurate, non ipotizzate)
+
+Su 29 artefatti reali (sweep su `godly`, 2026-10-29) la pelle si distribuisce così:
+
+| Livello | Cos'è | Artefatti |
+|---|---|---|
+| 0 | piatto: nessuno strato, nessun vetro, nessuna ombra interna | **9** |
+| 1 | vetro senza spessore o senza luce modellata (il "2020 glass") | **14** |
+| 2 | strati + ombre interne (spessore simulato) | **3** |
+| 3 | materiale: strati + spessore + texture o ricetta condivisa | **3** |
+
+Otto criteri, e quanti li rispettano:
+
+| # | Criterio | Rispettato |
+|---|---|---|
+| C1 | luce modellata (2+ gradienti nello stesso fondo) | 41% |
+| C2 | spessore simulato (4+ ombre interne) | 31% |
+| C3 | profondità a scala (1-4 livelli, non 7) | 38% |
+| C4 | **una ricetta condivisa** (5+ selettori con 2+ gradienti) | **7%** |
+| C5 | texture o grana | 17% |
+| C6 | **stato spento del vetro dichiarato** | **0%** |
+| C7 | mestiere: bordo conico mascherato | 7% |
+| C8 | ritegno (meno di 60 gradienti) | 90% |
+
+Tre letture che cambiano il modo di progettare:
+
+1. **Il "2030" non è più effetti: è ricetta + grana + degrado.** C4, C5 e C6 sono i criteri più rari (7%, 17%, 0%) e sono gli unici che un concorrente non copia guardando uno screenshot: la ricetta si vede nel codice, la grana si sente, lo stato spento si nota solo quando manca.
+2. **Nessuno ha entrambi i mestieri.** Chi ha la ricetta (Chatbase: 40 selettori) non ha la luce (1 strato, 1 ombra interna). Chi ha la luce (Cofounder: 100 ombre interne) non ha la ricetta (1 selettore). Il massimo misurato è **5/8**.
+3. **Il riferimento interno sta a 7/8.** `Project-011` ha luce, spessore, ricetta su 19 selettori, grana, bordo conico, stato spento e ritegno: gli manca **solo C3** (6 livelli di blur invece di 3). Cioè: il difetto che gli resta è la scala, non l'effetto.
+
+**Regola che ne esce**: il piatto non è un errore, è un default non dichiarato. Se il brief chiede materia, il livello 0 è fuori dalla conversazione; se il brief chiede sobrietà, si dichiara il livello 0 e si portano al massimo C3, C6 e C8. In nessun caso si resta piatti *per non aver scelto*.
+
+## 6c. Checklist 2030 (da usare come gate)
+
+Otto voci, misurabili con `scripts/teardown/static.mjs` (funzione `materials`):
+
+- [ ] C1 luce modellata: almeno 2 gradienti nello stesso `background`, uno dei quali posizionato da una variabile (`--gx/--gy`) e invisibile di default
+- [ ] C2 spessore: 4+ `inset` nel `box-shadow` della superficie condivisa
+- [ ] C3 scala di profondità: 3 livelli nominati (`shallow/panel/overlay`), mai più di 4
+- [ ] C4 ricetta: 5+ selettori nella stessa regola di superficie
+- [ ] C5 grana o texture a bassa opacità (2-4%), mai sopra il 6%
+- [ ] C6 stato spento dichiarato e verificabile (`prefers-reduced-transparency`)
+- [ ] C7 se il progetto ha bordi luminosi: conico mascherato, non un `border` colorato
+- [ ] C8 ritegno: i gradienti dichiarati restano sotto 60, e non tutti gli elementi sono in vetro
+
+Sei voci su otto = materiale. Quattro-cinque = in transizione. Meno di quattro = piatto o vetro 2020: dichiaralo nel `DESIGN.md`, non lasciarlo implicito.
 ## 7. Divieto
 
 La pelle di 011 è **un clone di Pane**: misure, materiali, perfino il nome dei token. È legittimo come esercizio di misura, ed è la cosa da **non** replicare in un progetto nuovo. La differenza tra "ho imparato" e "ho copiato" è una sola: se sai dire **quale criterio** della tua pelle risponde al tuo brief e quale hai preso perché funzionava, hai imparato; altrimenti hai copiato.

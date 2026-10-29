@@ -26,7 +26,7 @@ Misura il CSS **dichiarato**: fogli collegati e blocchi `<style>` letti dal sorg
 | 8 | 2026-05-30 | Taito.ai | ok | 112 | 240 | 14px | 10 | 6 | 200ms | 6 | sì | 4 | 10 | 24 |  |
 | 9 | 2026-05-30 | Kira | ok | 168 | 105 | 20px | 9 | 0 | 200ms | 0 | no | 0 | 0 | 41 | framer lenis react |
 | 10 | 2026-05-30 | Billow | ok | 386 | 160 | 14px | 20 | 6 | 150ms | 3 | no | 19 | 46 | 103 | framer react |
-| 11 | 2026-05-30 | Chatbase | ok | 351 | 790 | 14px | 39 | 6 | 4000ms | 19 | sì | 0 | 38 | 629 | next react |
+| 11 | 2026-05-30 | Chatbase | ok | 351 | 789 | 14px | 39 | 6 | 4000ms | 19 | sì | 0 | 38 | 628 | next react |
 | 12 | 2026-05-30 | Strawberry Browser | ok | 134 | 130 | 14px | 28 | 6 | 150ms | 20 | sì | 8 | 30 | 58 |  |
 | 13 | 2026-05-30 | Voiceflow | ok | 377 | 605 | 16px | 12 | 5 | 150ms | 54 | sì | 9 | 31 | 171 |  |
 | 14 | 2026-05-30 | Relume | ok | 600 | 231 | 14px | 22 | 6 | 200ms | 17 | sì | 38 | 43 | 323 | gsap framer three react |
@@ -65,6 +65,43 @@ Misura il CSS **dichiarato**: fogli collegati e blocchi `<style>` letti dal sorg
 | CSS per sito (mediana) | **218 KB** |
 
 Segnali tecnici: `react` 18 · `next` 12 · `framer` 6 · `gsap` 5 · `webflow` 5 · `lenis` 4 · `swiper` 2 · `three` 1
+
+## Pelle: come sono costruite le superfici
+
+Non basta contarli i colori: qui si guarda **quanti strati**, **con quale modello di luce** e **se la ricetta e condivisa**. Un sito con 200 gradienti sparsi non ha una pelle; ne ha venti.
+
+| Livello | Cos'e | Artefatti |
+|---|---|---|
+| 0 | piatto: nessuno strato, nessun vetro, nessuna ombra interna | **9** |
+| 1 | vetro senza spessore o senza luce modellata | **14** |
+| 2 | strati + ombre interne (spessore simulato) | **3** |
+| 3 | materiale: strati + spessore + texture o ricetta condivisa | **3** |
+
+| Criterio | Rispettato | Quota |
+|---|---|---|
+| C1 luce modellata (2+ gradienti nello stesso fondo) | **12/29** | 41% |
+| C2 spessore simulato (4+ ombre interne) | **9/29** | 31% |
+| C3 profondita a scala (1-4 livelli di vetro) | **11/29** | 38% |
+| C4 una ricetta condivisa (5+ selettori con 2+ gradienti) | **2/29** | 7% |
+| C5 texture o grana | **5/29** | 17% |
+| C6 stato spento del vetro dichiarato | **0/29** | 0% |
+| C7 mestiere: bordo conico mascherato | **2/29** | 7% |
+| C8 ritegno (meno di 60 gradienti dichiarati) | **26/29** | 90% |
+
+### Artefatti ordinati per criterio soddisfatto
+
+| Nome | criteri | liv. | strati | ombre int. | livelli vetro | grana | ricetta (selettori) | manca |
+|---|---|---|---|---|---|---|---|---|
+| Relume | 5/8 | 3 | 2 | 8 | 4 | sì | 1 | C4 C6 C7 |
+| Cofounder | 5/8 | 3 | 2 | 100 | 3 | sì | 1 | C4 C6 C7 |
+| Agentwork | 4/8 | 3 | 2 | 17 | 0 | no | 6 | C3 C5 C6 C7 |
+| Voiceflow | 4/8 | 2 | 2 | 56 | 2 | no | 1 | C4 C5 C6 C7 |
+| Griffin | 4/8 | 2 | 2 | 31 | 3 | no | 2 | C4 C5 C6 C7 |
+| Gitnimble | 4/8 | 1 | 1 | 8 | 4 | no | 0 | C1 C4 C5 C6 |
+| Chatbase | 4/8 | 1 | 2 | 1 | 0 | sì | 40 | C2 C3 C6 C7 |
+| Coderabbit | 3/8 | 2 | 4 | 15 | 0 | no | 2 | C3 C4 C5 C6 C8 |
+
+Materiale vero (6+ criteri su 8): **0** su 29. In transizione (4-5): **7** - piatto o vetro 2020 (0-3): **22**.
 
 ## Letture (quello che i numeri dicono davvero)
 

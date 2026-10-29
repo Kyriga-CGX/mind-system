@@ -161,4 +161,25 @@ ok('enforce: regola 9', fs.readFileSync(path.join(root, 'skills', 'design-system
 ok('SKILL: aggancia skin.md', fs.readFileSync(path.join(root, 'skills', 'design-system', 'SKILL.md'), 'utf8').includes('leggi `skin.md`'));
 ok('pipeline: registro generazioni', fs.readFileSync(path.join(root, 'skills', 'mind', 'mind-design-pipeline', 'SKILL.md'), 'utf8').includes('registro, il risultato sembra nato'));
 
+// 13. materiali: la pelle si misura, non si intuisce
+const matCss = ':root{--glint:rgba(255,255,255,.2);--sheen:rgba(255,255,255,.05);--glass:rgba(20,24,22,.5)} .a,.b,.c,.d,.e,.f{background:radial-gradient(circle at var(--gx,-400px) var(--gy,-400px),var(--glint),transparent 70%),linear-gradient(172deg,var(--sheen),transparent 34%),var(--glass);box-shadow:inset 0 1px 1px #fff3,inset 0 -1px 1px #0003,inset 3px 4px 12px -6px #ffffff3d,inset 0 0 0 1px #ffffff26,0 24px 48px -22px #000} .x{backdrop-filter:blur(22px) saturate(150%)} @media (prefers-reduced-transparency:reduce){.x{backdrop-filter:none}}';
+const mm = measureStatic('', matCss, 'https://x.test/').skin;
+ok('materiali: due strati nel fondo', mm.maxLayers === 2);
+ok('materiali: ombre interne contate', mm.insets >= 3);
+ok('materiali: ricetta su 6 selettori', mm.recipeSelectors === 6);
+ok('materiali: ricetta su 6 selettori = livello 3', mm.level === 3);
+const mat2 = measureStatic('', '.a,.b{background:radial-gradient(circle,red,transparent),linear-gradient(180deg,blue,transparent);box-shadow:inset 0 1px 1px #fff3,inset 0 -1px 1px #0003,inset 1px 0 1px #fff2,inset -1px 0 1px #0002}', 'https://x.test/').skin;
+ok('materiali: strati + spessore senza ricetta = livello 2', mat2.level === 2);
+ok('materiali: vetro su un livello', mm.backdropLevels.length === 1);
+ok('materiali: piatto riconosciuto', measureStatic('', 'body{color:red}', 'https://x.test/').skin.level === 0);
+const matFlat = measureStatic('', 'body{background:linear-gradient(red,blue);box-shadow:0 1px 2px #000}', 'https://x.test/').skin;
+ok('materiali: un solo strato non basta', matFlat.level <= 1);
+
+// 14. il report contiene la sezione pelle e i criteri
+ok('report: sezione pelle', sweepMd.includes('## Pelle: come sono costruite le superfici'));
+ok('report: otto criteri', (sweepMd.match(/C[1-8] /g) || []).length >= 8);
+ok('report: dichiara chi e piatto', sweepMd.includes('piatto o vetro 2020'));
+ok('skin: checklist 2030', skin.includes('Checklist 2030'));
+ok('skin: generazioni misurate', skin.includes('Le quattro generazioni della pelle'));
+
 console.log('TEST OK (' + n + ')');
