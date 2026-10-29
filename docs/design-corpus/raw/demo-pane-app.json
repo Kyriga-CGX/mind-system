@@ -1,0 +1,32 @@
+{
+  "url": "https://demo.codeandchill.store/pane/#/home",
+  "title": "Pane - demo prodotto (kanban + focus timer)",
+  "viewport": { "w": 1936, "h": 886, "dpr": 1 },
+  "dom": { "elements": 699, "depth": 14, "textLen": 1892 },
+  "tokens": { "count": 92, "vars": [] },
+  "type": {
+    "sizes": [["15px",452],["12px",48],["13px",38],["14px",33],["14.5px",30],["16px",25],["56.592px",19],["13.5px",12],["17px",10],["12.5px",7],["23px",6],["22px",6],["15.5px",5],["21px",2]],
+    "weights": [["400",473],["600",96],["560",49],["650",36],["700",28],["520",6],["900",6],["550",3]],
+    "families": [["-apple-system",672],["Times New Roman",24],["ui-monospace",3]]
+  },
+  "space": [["8px",93],["6px",79],["12px",73],["14px",60],["10px",55],["4px",43],["2px",34],["22px",32],["7px",22],["9px",20],["16px",15],["1px",15],["18px",12],["11px",10]],
+  "radius": [["50%",59],["999px",51],["12px",20],["16px",8],["30px",7],["7px",6],["4px",5],["30%",5],["32px",3],["18px",3]],
+  "motion": {
+    "transitions": 43, "animations": 0, "animKinds": [],
+    "durations": [["0.2s",59],["0.25s",7],["0.9s",1]],
+    "easings": [["ease",59],["cubic-bezier(0.22, 0.8, 0.24, 1)",7],["linear",1]],
+    "properties": [["color",27],["background",23],["box-shadow",9],["border-color",7],["stroke-dashoffset",1]]
+  },
+  "effects": { "blurs": [], "shadows": [["rgba(30, 32, 44, 0.95) 0px 0px 0px 2px",32],["inset gel 6 strati",16],["inset + blu 125,180,255",7]], "gradients": 42 },
+  "color": { "distinctText": 12, "canvas": "rgba(0, 0, 0, 0)", "belowAA": 0, "sampled": 155,
+    "lowest": [
+      { "fg": "rgb(255, 255, 255)", "bg": "rgb(31, 111, 230)", "ratio": 4.69, "size": "15px", "weight": "600" },
+      { "fg": "rgb(142, 142, 149)", "bg": "rgb(28, 28, 32)", "ratio": 5.21, "size": "12px", "weight": "650" },
+      { "fg": "rgb(22, 22, 22)", "bg": "rgb(255, 92, 61)", "ratio": 5.9, "size": "12px", "weight": "600" },
+      { "fg": "rgb(173, 173, 181)", "bg": "rgb(28, 28, 32)", "ratio": 7.61, "size": "15px", "weight": "560" }
+    ] },
+  "media": { "images": 27, "svg": 41, "canvas": 0, "video": 0 },
+  "scripts": ["https://demo.codeandchill.store/pane/assets/index-C7q0M8SS.js"],
+  "globals": [],
+  "prefs": { "reduceMotion": false, "systemScheme": "dark", "colorSchemeDeclared": "dark", "reduceTransparency": true }
+}
