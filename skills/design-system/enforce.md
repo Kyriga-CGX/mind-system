@@ -56,6 +56,23 @@ Vale per `<select>`, scrollbar, checkbox, radio, range, file input, date input, 
 - `color-scheme` va dichiarato su `:root`: decide lo sfondo dei controlli nativi in light/dark, e senza di esso il tema scuro resta bianco nei punti che non controlli.
 - Se il progetto adotta una libreria di controlli, i suoi token vanno rimappati sui token del DESIGN.md: una libreria con il suo look è una scelta da dichiarare nel brief, non un default.
 
+## Regola 7 — Nessun valore fuori scala
+
+Tipografia, radius, pesi e spaziature sono **scale chiuse**: un valore nuovo o entra nella scala del DESIGN.md, o non esiste.
+
+- Prima di scrivere un valore, cerca quello esistente più vicino nella scala. Se non c'è, la scelta è tra arrotondare e **estendere la scala nel DESIGN.md** con una riga di motivo. Mai un letterale nel CSS.
+- Un valore che compare su un solo elemento è deriva, non gerarchia. È misurabile: `scripts/teardown/teardown.mjs` conta le "misure occasionali" (≤3 elementi) di qualsiasi artefatto, incluso il tuo.
+- La scala tipografica serve a ridurre le decisioni: se le misure usate sono più di 5-6, la gerarchia non sta nella tipografia — sta nel peso, nel colore o nello spazio.
+- Font variabile: la gerarchia si fa con pesi intermedi **dichiarati** (es. 500/600/650), non aggiungendo un colore dove basta un peso.
+
+## Regola 8 — Ogni effetto dichiara il suo stato spento
+
+Blur, glass, gradienti, ombre e texture sono **condizionali**: per ognuno deve esistere uno stato spento, raggiungibile da una preferenza di sistema o da una classe, e il layout deve reggere senza.
+
+- Un effetto senza stato spento è una skin, non un sistema. Se togliere il blur o l'ombra rompe la leggibilità, il problema è il contrasto o la gerarchia: risolvi lì, non riaccendendo l'effetto.
+- `prefers-reduced-transparency`, `prefers-reduced-motion`, `prefers-contrast` vanno gestiti **dove l'effetto esiste**. Verifica che lo stato spento esista davvero nella computed style (es. il token del vetro collassa su un colore solido), non solo nel commento del CSS.
+- Se il DESIGN.md non dichiara lo stato spento, decidi tu e scrivilo. Un effetto non documentato non è verificabile.
+
 ## Uso dell'enforcement
 
-Quando lavori su una UI: (1) reperisci la mappa dal DESIGN.md, (2) riscrivi ogni hex in `var(--color-*)`, (3) riscrivi ogni spaziatura px nei `--space-*`, (4) verifica il contrasto (4.5:1 testo, 3:1 UI) e scegli token alternativi se serve, (5) assicurati di rispettare i Do's and Don'ts e (6) controlla che non resti hex/spacing letterale residuo. **Tutto questo è automatico**: applichi le correzioni direttamente al codice, senza aspettare che qualcun altro lo segnali. Un lavoro sulla UI che consegna hex hardcoded o px letterali è incompleto.
+Quando lavori su una UI: (1) reperisci la mappa dal DESIGN.md, (2) riscrivi ogni hex in `var(--color-*)`, (3) riscrivi ogni spaziatura px nei `--space-*`, (4) verifica il contrasto (4.5:1 testo, 3:1 UI) e scegli token alternativi se serve, (5) assicurati di rispettare i Do's and Don'ts e (6) controlla che non resti hex/spacing letterale residuo, (7) verifica che ogni valore nuovo appartenga a una scala dichiarata e (8) che ogni effetto abbia uno stato spento verificabile. **Tutto questo è automatico**: applichi le correzioni direttamente al codice, senza aspettare che qualcun altro lo segnali. Un lavoro sulla UI che consegna hex hardcoded o px letterali è incompleto.

@@ -56,6 +56,8 @@ Il plugin `mind` inietta il bootstrap a ogni turno (con guardia anti-duplicazion
 - `docs/` — appunti e note decisionali; `docs/session-registry.md` (registro condiviso tra sessioni in `~/.config/opencode/mind/sessions/`), `docs/system-diagram.md` (routing e pipeline per esteso), `docs/eval/` (report di valutazione delle skill), `docs/research/` (ricerche datate con numeri e verdetto, es. tool Blender+Unity per un agente)
 - `sync.ps1` — sincronizza **repo → macchina locale** (il repo è la source of truth)
 - `tests/` — `barra.test.mjs` (barra globale+progetto, guardie a tag, rifiuto al 1°, loop al 2°, contatore, stato vuoto) e `routing-sample.test.mjs` (prompt normalizzato/troncato/redatto, numerazione dei turni, rotazione, merge del report, best-effort): `node tests/barra.test.mjs` e `node tests/routing-sample.test.mjs`
+- `skills/design-system/scripts/teardown/` - probe runtime + reducer: misura un artefatto reale (scala tipografica, radius, beat, easing dichiarati vs default, profondita, contrasto WCAG, stato di spento) e scrive la scheda di teardown. Metodo in `skills/design-system/corpus.md`; evidenze in `docs/design-corpus/`. `node skills/design-system/scripts/teardown/teardown.mjs --self-test`
+- `docs/design-corpus/` - artefatti catturati (schede + `corpus.jsonl`), solo aggregati numerici: nessun CSS, nessun asset di terzi. `node tests/design-corpus.test.mjs`
 - `tools/routing-sample-report.mjs` — legge `mind/gaps/routing-sample.jsonl` e stampa i turni **senza** skill da etichettare: `node tools/routing-sample-report.mjs --limit=50`
 
 ## Quickstart

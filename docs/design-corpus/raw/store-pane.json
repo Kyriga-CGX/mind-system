@@ -1,0 +1,32 @@
+{
+  "url": "https://codeandchill.store/templates/pane#/home",
+  "title": "Pane - pagina di vendita (Code and Chill)",
+  "viewport": { "w": 1936, "h": 886, "dpr": 1 },
+  "dom": { "elements": 559, "depth": 13, "textLen": 6334 },
+  "tokens": { "count": 37, "vars": [] },
+  "type": {
+    "sizes": [["16.8px",193],["14px",91],["16px",68],["15px",53],["12px",50],["13px",50],["11.008px",10],["24px",8],["17px",7],["20px",5],["13.008px",5],["28px",4],["23.2px",3],["16.008px",1]],
+    "weights": [["400",392],["600",121],["700",22],["500",9],["800",6],["300",2]],
+    "families": [["Archivo Variable",433],["Times New Roman",68],["monospace",40],["ui-monospace",10],["Arial",1]]
+  },
+  "space": [["12px",97],["18px",86],["8px",55],["6px",31],["5.6px",24],["4px",21],["2px",18],["28px",16],["2.2px",16],["4.95px",16],["10px",15],["1px",8],["20px",5],["22.5px",5]],
+  "radius": [["50%",1],["999px",1]],
+  "motion": {
+    "transitions": 40, "animations": 0, "animKinds": [],
+    "durations": [["0.32s",74],["0.2s",4],["0.26s",3],["0.3s",2],["0.16s",2],["0.45s",1]],
+    "easings": [["cubic-bezier(0.2, 0.7, 0.2, 1)",74],["linear",6],["cubic-bezier(0.22, 1, 0.36, 1)",5],["cubic-bezier(0.55, 0.08, 0.4, 0.95)",1]],
+    "properties": [["transform",24],["color",22],["background",22],["box-shadow",7],["border-color",5],["grid-template-rows",4],["top",1],["opacity",1]]
+  },
+  "effects": { "blurs": [["blur(10px)",1]], "shadows": [], "gradients": 0 },
+  "color": { "distinctText": 7, "canvas": "rgb(23, 22, 21)", "belowAA": 0, "sampled": 240,
+    "lowest": [
+      { "fg": "rgb(142, 140, 137)", "bg": "rgb(32, 30, 29)", "ratio": 4.97, "size": "14px", "weight": "500" },
+      { "fg": "rgb(138, 136, 133)", "bg": "rgb(23, 22, 21)", "ratio": 5.14, "size": "14px", "weight": "400" },
+      { "fg": "rgb(23, 22, 21)", "bg": "rgb(255, 92, 61)", "ratio": 5.9, "size": "12px", "weight": "600" },
+      { "fg": "rgb(240, 238, 233)", "bg": "rgb(32, 30, 29)", "ratio": 14.32, "size": "12px", "weight": "700" }
+    ] },
+  "media": { "images": 0, "svg": 10, "canvas": 0, "video": 7 },
+  "scripts": ["https://codeandchill.store/assets/index-BMvU_o65.js"],
+  "globals": [],
+  "prefs": { "reduceMotion": false, "systemScheme": "dark", "colorSchemeDeclared": "dark", "reduceTransparency": true }
+}
