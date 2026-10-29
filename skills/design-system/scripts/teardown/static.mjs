@@ -73,6 +73,8 @@ export function measureStatic(html, cssText, url) {
   const customProps = new Map();
   for (const m of css.matchAll(/(--[a-z0-9-]+)\s*:/gi)) customProps.set(m[1].toLowerCase(), (customProps.get(m[1].toLowerCase()) || 0) + 1);
 
+  const mat = materials(css, html);
+
   const declaredSizes = [...sizes.keys()].map((k) => parseFloat(k)).sort((a, b) => a - b);
   const base = topN(sizes, 1)[0];
 
@@ -97,11 +99,73 @@ export function measureStatic(html, cssText, url) {
     backdrop: count(lower, /backdrop-filter/g),
     shadows: count(lower, /box-shadow/g),
     colors: hexes.size,
-    signals
+    signals,
+    skin: mat
   };
 }
 
 export function verdict(m) {
   if (m.cssBytes < 3000) return 'css-thin';
   return 'ok';
+}
+// ---- materiali: come e costruita la PELLE, non solo il colore ----
+// Il criterio non e "quanto e ricco": e "quanti strati, ordinati, e con quale modello di luce".
+export function materials(css, html) {
+  const src = String(css || '');
+  const blob = (html || '') + ' ' + src;
+  const count = (re) => (src.match(re) || []).length;
+
+  // stratificazione: quanti gradienti nello stesso background
+  let maxLayers = 0, multiLayerDecls = 0, recipeSelectors = 0, recipeExample = null;
+  for (const m of src.matchAll(/background(?:-image)?\s*:\s*([^;}]+)/gi)) {
+    const n = (m[1].match(/gradient\(/g) || []).length;
+    if (n > maxLayers) maxLayers = n;
+    if (n >= 2) multiLayerDecls++;
+  }
+  // ricetta condivisa: una regola con molti selettori e 2+ gradienti
+  for (const m of src.matchAll(/([^{}]+)\{([^{}]*)\}/g)) {
+    const sel = m[1].trim();
+    const body = m[2];
+    if (sel.startsWith('@') || !/background/.test(body)) continue;
+    if ((body.match(/gradient\(/g) || []).length < 2) continue;
+    const n = sel.split(',').filter((s) => s.trim().length).length;
+    if (n > recipeSelectors) { recipeSelectors = n; recipeExample = sel.replace(/\s+/g, ' ').slice(0, 120); }
+  }
+
+  const blurPx = [...src.matchAll(/backdrop-filter\s*:\s*blur\((\d+)px\)/gi)].map((m) => parseInt(m[1], 10));
+  const backdropLevels = [...new Set(blurPx)].sort((a, b) => a - b);
+  const insets = count(/inset\s+-?\d/g);
+  const rims = count(/inset\s+0\s+1px/gi);
+  const bigRadius = [...src.matchAll(/border-radius\s*:\s*(\d+)px/gi)].map((m) => parseInt(m[1], 10)).filter((v) => v >= 24).length;
+  const noise = /feTurbulence|fractalNoise|noise\.(png|svg|webp)|grain\.(png|svg)/i.test(blob) ? 1 : 0;
+
+  const m = { maxLayers, multiLayerDecls, recipeSelectors, backdropLevels, insets, rims, bigRadius, noise };
+  const level = levelOf(m);
+  const reasons = [];
+  if (maxLayers >= 2) reasons.push('background a strati (' + maxLayers + ' gradienti max)');
+  if (insets >= 4) reasons.push(insets + ' ombre interne (spessore simulato)');
+  if (backdropLevels.length >= 1) reasons.push('vetro su ' + backdropLevels.length + ' livelli');
+  if (backdropLevels.length > 4) reasons.push('DERIVA: ' + backdropLevels.length + ' livelli di blur');
+  if (noise) reasons.push('texture/grana');
+  if (recipeSelectors >= 5) reasons.push('ricetta condivisa su ' + recipeSelectors + ' selettori');
+  if (level === 0) reasons.push('piatto: nessuno strato, nessun vetro, nessuna ombra interna');
+
+  return {
+    level, reasons, maxLayers, multiLayerDecls, recipeSelectors, recipeExample,
+    backdropLevels, insets, rims, bigRadius, noise,
+    conic: count(/conic-gradient/gi), masked: count(/mask-composite|mask-image/gi),
+    blend: count(/mix-blend-mode|background-blend-mode/gi), saturate: count(/saturate\(/gi),
+    gradients: count(/gradient\(/gi), shadows: count(/box-shadow/gi)
+  };
+}
+
+// Livello della pelle, calcolato dai fatti: nessun bonus per un effetto solo.
+// 0 piatto · 1 vetro senza struttura · 2 strati + spessore · 3 materiale (strati + spessore + texture o ricetta)
+export function levelOf(m) {
+  const layers = (m.maxLayers || 0) >= 2 || (m.multiLayerDecls || 0) > 0;
+  const glass = (m.backdropLevels || []).length > 0;
+  const thickness = (m.insets || 0) >= 4;
+  if (!layers && !glass && !thickness) return 0;
+  if (!(thickness && layers)) return 1;
+  return ((m.noise || 0) > 0 || (m.recipeSelectors || 0) >= 5) ? 3 : 2;
 }

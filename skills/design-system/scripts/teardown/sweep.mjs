@@ -81,4 +81,3 @@ const { renderReport } = await import('./report.mjs');
 renderReport(rows, blocked, list.length, outDir);
 console.log(`misurati ${rows.length}/${list.length} · esclusi ${blocked.length}`);
 console.log(`misurati ${rows.length}/${list.length} · esclusi ${blocked.length}`);
-console.log(`beat: ${beats.slice(0, 3).map(([v, n]) => v + '(' + n + ')').join(' ')} · segnali: ${sigs.slice(0, 5).map(([k, n]) => k + ':' + n).join(' ')}`);
