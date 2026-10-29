@@ -47,6 +47,15 @@ Dalla directory di questa skill (`design-system/`):
 
 Output: una scheda `<id>.md` (sette sezioni, numeri prima delle opinioni) e una riga di `corpus.jsonl`.
 
+## Sweep largo (N artefatti in una passata)
+
+La scheda runtime e la misura di riferimento, ma costa una pagina alla volta. Per una baseline su decine di artefatti c'e una catena a tre passi, con un limite dichiarato: misura il **CSS dichiarato**, non il calcolato.
+
+1. `scripts/teardown/harvest.mjs` — legge i sitemap delle gallery **solo se robots lo consente**, estrae dalla scheda il link al sito vero e la data, scrive `candidates.jsonl`. Le fonti vietate restano nell'elenco dei sorgenti con il motivo scritto: il motivo e parte del risultato.
+2. `scripts/teardown/sweep.mjs` — verifica robots di ogni dominio, scarica la home, legge fogli e `<style>`, calcola gli aggregati, scrive `sweep.jsonl` e `sweep-blocked.jsonl`. Chi ha `Disallow: /` viene escluso e registrato.
+3. `scripts/teardown/report.mjs --from <dir>` — rende la tabella, gli aggregati, le letture e le **soglie**. Ogni soglia dichiara se e piu stretta o piu larga del campo, e perche.
+
+Regola di lettura: **una soglia derivata da questa colonna non e una soglia di design**. La base tipografica dichiarata e la `font-size` piu scritta, non la piu usata; il beat e quello dichiarato, non quello in uso. Il sweep dice dove sta il campo, non cosa fare: per i valori reali serve il probe.
 ## Regole dure
 
 - **Solo aggregati e regole.** Non entra nel repo CSS, markup, font o asset di terzi. La scheda cita colori e misure come misure, non come codice da riusare.
