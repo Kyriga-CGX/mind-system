@@ -135,4 +135,15 @@ ok('harvest: cinque fonti', (src.match(/id: '[a-z-]+'/g) || []).length === 5);
 ok('harvest: fonti ristrette motivate', (src.match(/mode: 'restricted'/g) || []).length >= 3);
 ok('harvest: nessuna fonte ristretta senza nota', !/mode: 'restricted'(?![\s\S]{0,400}?note:)/.test(src));
 
+// 10. regressione: il probe misura solo il body (i nodi di <head> sporcavano le famiglie)
+ok('probe: legge solo il body', PROBE_SOURCE.includes('document.body.querySelectorAll') && !/querySelectorAll\('\*'\)\]/.test(PROBE_SOURCE));
+
+// 11. la prova A/B esiste ed e documentata
+const expDir = path.join(corpusDir, 'experiment');
+for (const f2 of ['a-default.html', 'b-gated.html', 'README.md']) ok('esperimento: ' + f2, fs.existsSync(path.join(expDir, f2)));
+const exp = fs.readFileSync(path.join(expDir, 'README.md'), 'utf8');
+ok('esperimento: verdetto A', exp.includes('A: 0 su 9'));
+ok('esperimento: verdetto B', exp.includes('B: 9 su 9'));
+ok('esperimento: dichiara la circolarita', exp.toLowerCase().includes('circolare'));
+
 console.log('TEST OK (' + n + ')');

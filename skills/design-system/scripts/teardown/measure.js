@@ -5,7 +5,9 @@
 
 export function probe() {
   const MAX_ELS = 5000;
-  const els = Array.from(document.querySelectorAll('*')).slice(0, MAX_ELS);
+  // solo cio che e renderizzato: i figli di <head> (title, meta, style) sporcavano
+  // l'istogramma delle famiglie con la serif di default, ~6 elementi a ogni cattura.
+  const els = [document.body, ...Array.from(document.body.querySelectorAll('*'))].slice(0, MAX_ELS);
   const gcs = (el) => getComputedStyle(el);
   const push = (obj, k) => { if (k == null || k === '' || k === 'none') return; obj[k] = (obj[k] || 0) + 1; };
   const top = (obj, n) => Object.entries(obj).sort((a, b) => b[1] - a[1]).slice(0, n);

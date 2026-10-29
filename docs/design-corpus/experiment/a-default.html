@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Segnala — variante A (default)</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;700&family=Playfair+Display:wght@700&display=swap');
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; font-family: 'Inter', sans-serif; color: #ffffff;
+    background: linear-gradient(135deg, #6d28d9 0%, #2563eb 55%, #06b6d4 100%);
+    min-height: 100vh; padding: 64px 24px;
+  }
+  .glass {
+    max-width: 880px; margin: 0 auto; padding: 48px;
+    background: rgba(255,255,255,0.12);
+    backdrop-filter: blur(24px);
+    border: 1px solid rgba(255,255,255,0.25);
+    border-radius: 24px;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.4), 0 0 0 1px rgba(255,255,255,0.1);
+    transition: all 0.3s ease;
+  }
+  h1 {
+    font-family: 'Playfair Display', serif; font-size: 56px; line-height: 1.05;
+    margin: 0 0 12px; letter-spacing: -1px;
+    background: linear-gradient(90deg, #fff, #a5f3fc);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  }
+  .sub { font-size: 19px; color: rgba(255,255,255,0.8); font-weight: 300; margin-bottom: 32px; }
+  .pill {
+    display: inline-block; font-size: 11px; letter-spacing: 0.18em; text-transform: uppercase;
+    background: rgba(255,255,255,0.16); padding: 7px 14px; border-radius: 999px; margin-bottom: 22px;
+    color: #a5f3fc; border: 1px solid rgba(255,255,255,0.2);
+  }
+  .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; margin: 28px 0; }
+  .card {
+    background: rgba(255,255,255,0.1); border-radius: 18px; padding: 20px;
+    border: 1px solid rgba(255,255,255,0.18); transition: all 0.3s ease;
+  }
+  .card:hover { transform: translateY(-6px); background: rgba(255,255,255,0.18); }
+  .card b { font-size: 15px; letter-spacing: 0.01em; }
+  .card span { display: block; font-size: 13px; color: rgba(255,255,255,0.7); margin-top: 6px; line-height: 1.5; }
+  label { display: block; font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase; color: rgba(255,255,255,0.75); margin: 18px 0 6px; }
+  input, select {
+    width: 100%; padding: 14px 16px; font-size: 15px; color: #fff;
+    background: rgba(255,255,255,0.14); border: 1px solid rgba(255,255,255,0.28);
+    border-radius: 13px; transition: all 0.3s ease; font-family: 'Inter', sans-serif;
+  }
+  .btn {
+    margin-top: 26px; width: 100%; padding: 16px; border: 0; cursor: pointer;
+    font-size: 16px; font-weight: 700; color: #0b1020; border-radius: 13px;
+    background: linear-gradient(90deg, #22d3ee, #a78bfa);
+    box-shadow: 0 12px 30px rgba(34,211,238,0.35); transition: all 0.3s ease;
+  }
+  .btn:hover { transform: scale(1.02); box-shadow: 0 18px 40px rgba(167,139,250,0.5); }
+  .note { font-size: 12px; color: rgba(255,255,255,0.6); margin-top: 14px; }
+  .stack { display: flex; gap: 10px; margin-top: 24px; }
+  .tag { font-size: 11px; padding: 6px 12px; border-radius: 8px; background: #f472b6; color: #2b0a1e; }
+  .tag:nth-child(2) { background: #facc15; color: #2b2200; border-radius: 7px; }
+  .tag:nth-child(3) { background: #4ade80; color: #04240f; border-radius: 22px; }
+</style>
+</head>
+<body>
+  <div class="glass">
+    <span class="pill">Città intelligente</span>
+    <h1>Trasforma la tua città</h1>
+    <p class="sub">La piattaforma innovativa che rivoluziona il modo in cui segnali i problemi del tuo quartiere.</p>
+    <div class="grid">
+      <div class="card"><b>Rapido</b><span>Segnala in pochi secondi con un'interfaccia intuitiva e moderna.</span></div>
+      <div class="card"><b>Trasparente</b><span>Segui lo stato della tua segnalazione in tempo reale.</span></div>
+      <div class="card"><b>Collaborativo</b><span>Unisciti alla community e migliora il tuo territorio.</span></div>
+    </div>
+    <form>
+      <label for="via">Via</label>
+      <input id="via" placeholder="Inserisci il nome della via">
+      <label for="tipo">Tipo di problema</label>
+      <select id="tipo"><option>Lampada rotta</option><option>Buca</option><option>Rifiuti</option></select>
+      <button class="btn" type="button">Invia la segnalazione</button>
+      <p class="note">Ops! Qualcosa è andato storto? Scrivici, siamo qui per te.</p>
+    </form>
+    <div class="stack"><span class="tag">#community</span><span class="tag">#smartcity</span><span class="tag">#innovazione</span></div>
+  </div>
+</body>
+</html>

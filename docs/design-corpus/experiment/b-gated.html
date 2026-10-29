@@ -1,0 +1,139 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Segnala — variante B (con i gate)</title>
+<style>
+  :root {
+    color-scheme: dark;
+    --paper: #151311;
+    --surface: #1d1a17;
+    --ink: #efe9e0;
+    --ink-70: #efe9e0b3;
+    --ink-50: #efe9e087;
+    --ink-25: #efe9e040;
+    --hairline: 1px solid var(--ink-25);
+    --rule: 2px solid var(--ink);
+    --amber: #ffb347;
+    --amber-ink: #151311;
+    --t1: 13px;
+    --t2: 15px;
+    --t3: 17px;
+    --t4: clamp(30px, 3.2vw, 46px);
+    --r1: 2px;
+    --r2: 6px;
+    --r3: 12px;
+    --r-pill: 999px;
+    --s1: 6px;
+    --s2: 10px;
+    --s3: 16px;
+    --s4: 26px;
+    --s5: 42px;
+    --measure: 58ch;
+    --ease: cubic-bezier(.2, .7, .2, 1);
+    --beat: 180ms;
+    --beat-enter: 520ms;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; padding: var(--s5) var(--s3);
+    background: var(--paper); color: var(--ink);
+    font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+    font-size: var(--t2); line-height: 1.55;
+  }
+  .sheet { max-width: 46rem; margin: 0 auto; }
+  .kicker {
+    font-family: ui-monospace, "SF Mono", Menlo, monospace;
+    font-size: var(--t1); color: var(--ink-50);
+    letter-spacing: .08em; text-transform: uppercase;
+  }
+  h1 {
+    font-size: var(--t4); line-height: 1.05; letter-spacing: -.02em;
+    margin: var(--s2) 0 var(--s3); font-weight: 650; max-width: var(--measure);
+  }
+  .lede { font-size: var(--t3); color: var(--ink-70); max-width: var(--measure); margin: 0 0 var(--s4); }
+  .status {
+    display: flex; align-items: center; gap: var(--s2);
+    padding: var(--s2) var(--s3); margin-bottom: var(--s4);
+    border: var(--hairline); border-radius: var(--r2);
+    background: color-mix(in srgb, var(--surface) 72%, transparent);
+    backdrop-filter: blur(10px);
+    animation: enter var(--beat-enter) var(--ease) both;
+  }
+  .lamp { width: var(--s2); height: var(--s2); border-radius: var(--r-pill); background: var(--amber); flex: none; }
+  .status p { margin: 0; font-size: var(--t1); color: var(--ink-70); }
+  .status b { color: var(--ink); font-weight: 600; }
+  @keyframes enter { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+  ol.steps { list-style: none; padding: 0; margin: 0 0 var(--s4); border-top: var(--rule); }
+  ol.steps li { display: flex; gap: var(--s3); padding: var(--s2) 0; border-bottom: var(--hairline); }
+  ol.steps span {
+    font-family: ui-monospace, "SF Mono", Menlo, monospace;
+    font-size: var(--t1); color: var(--ink-50); min-width: 2ch;
+  }
+  form { display: grid; gap: var(--s3); max-width: 32rem; }
+  label { font-size: var(--t1); color: var(--ink-50); display: block; margin-bottom: var(--s1); }
+  input, select {
+    width: 100%; font: inherit; font-size: var(--t2); color: var(--ink);
+    background: var(--surface); border: var(--hairline); border-radius: var(--r2);
+    padding: var(--s2) var(--s3);
+    transition: border-color var(--beat) var(--ease), background var(--beat) var(--ease);
+  }
+  input:hover, select:hover { border-color: var(--ink-50); }
+  input:focus-visible, select:focus-visible, button:focus-visible {
+    outline: 2px solid var(--amber); outline-offset: 2px;
+  }
+  button {
+    font: inherit; font-weight: 600; cursor: pointer;
+    color: var(--amber-ink); background: var(--amber);
+    border: 0; border-radius: var(--r2); padding: var(--s3);
+    transition: background var(--beat) var(--ease);
+  }
+  button:hover { background: var(--amber); filter: brightness(1.06); }
+  .fine { font-size: var(--t1); color: var(--ink-50); margin: var(--s3) 0 0; }
+  .fine a { color: var(--ink-70); }
+  @media (prefers-reduced-motion: reduce) {
+    .status { animation: none; }
+    input, select, button { transition: none; }
+  }
+  @media (prefers-reduced-transparency: reduce) {
+    .status { background: var(--surface); backdrop-filter: none; }
+  }
+</style>
+</head>
+<body>
+<main class="sheet">
+  <p class="kicker">Segnala · Comune di Bologna</p>
+  <h1>Una lampada rotta, tre tocchi, e il guasto entra nell'elenco del comune.</h1>
+  <p class="lede">Funziona di notte, con una mano, senza campo: la foto resta in coda sul telefono e parte quando torna la rete.</p>
+
+  <div class="status">
+    <span class="lamp" aria-hidden="true"></span>
+    <p><b>Aperta</b> — 3 segnalazioni nello stesso punto, ultima 14 minuti fa</p>
+  </div>
+
+  <ol class="steps">
+    <li><span>01</span><div>Inquadri la lampada. La posizione la prende il telefono, non tu.</div></li>
+    <li><span>02</span><div>Scegli il guasto da una lista di sei voci, non da un campo libero.</div></li>
+    <li><span>03</span><div>Ricevi il numero di pratica. Da lì in poi l'elenco è pubblico.</div></li>
+  </ol>
+
+  <form>
+    <div>
+      <label for="via">Via o piazza</label>
+      <input id="via" placeholder="Via Mascarella" autocomplete="off">
+    </div>
+    <div>
+      <label for="tipo">Cosa non funziona</label>
+      <select id="tipo">
+        <option>Lampada spenta</option>
+        <option>Lampada accesa di giorno</option>
+        <option>Palo danneggiato</option>
+      </select>
+    </div>
+    <button type="button">Apri la pratica</button>
+    <p class="fine">Il numero di pratica arriva via SMS. Nessun account, nessuna app da installare. <a href="#">Come trattiamo la posizione</a></p>
+  </form>
+</main>
+</body>
+</html>
