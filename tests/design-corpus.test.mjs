@@ -182,4 +182,17 @@ ok('report: dichiara chi e piatto', sweepMd.includes('piatto o vetro 2020'));
 ok('skin: checklist 2030', skin.includes('Checklist 2030'));
 ok('skin: generazioni misurate', skin.includes('Le quattro generazioni della pelle'));
 
+// 15. scelta della pelle: dal brief, non dal gusto
+const chPath = path.join(root, 'skills', 'design-system', 'skin-choice.md');
+ok('skin-choice.md esiste', fs.existsSync(chPath));
+const ch = fs.readFileSync(chPath, 'utf8');
+ok('skin-choice: tre domande', ch.includes('Le tre domande'));
+ok('skin-choice: tabella di decisione', ch.includes('Tabella di decisione'));
+for (const s of ['Prodotto interno denso', 'App consumer emotiva', 'Landing / sito vetrina', 'Strumento tecnico', 'Commerce', 'Mobile one-hand']) ok('skin-choice: caso ' + s, ch.includes(s));
+ok('skin-choice: regola dei due criteri', ch.includes('due come firma'));
+ok('skin-choice: default dichiarato', ch.includes('Livello 2') && ch.includes('Default quando il brief non dice nulla'));
+ok('skin-choice: mode oneste', ch.includes('due snapshot separati nel tempo'));
+ok('SKILL: aggancia skin-choice', fs.readFileSync(path.join(root, 'skills', 'design-system', 'SKILL.md'), 'utf8').includes('leggi `skin-choice.md`'));
+ok('pipeline: livello di materia nel brief', fs.readFileSync(path.join(root, 'skills', 'mind', 'mind-design-pipeline', 'SKILL.md'), 'utf8').includes('dichiara il livello di materia'));
+
 console.log('TEST OK (' + n + ')');

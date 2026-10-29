@@ -60,6 +60,7 @@ Ogni stage scrive il proprio file e aggiorna `state.json`. Lo stage successivo l
 
 ### Stage 1 — Brief e soggetto
 Identifica soggetto, audience, compito primario della UI, contenuto reale, vincoli tecnici, brand esistente, livello di rischio accettato. Leggi `barra.md` (globale + progetto, se esiste) e riporta i suoi criteri in `01-brief.md`: entrano nel brief come vincoli. Se il brief non dice cosa è il prodotto, proponi tu un soggetto concreto e confermalo con l'utente. Domande UNA alla volta (tool `question`), con default quando le opzioni sono note.
+Nel brief, dopo i vincoli, **dichiara il livello di materia** (0 piatto dichiarato · 1 vetro · 2 strati+spessore · 3 materiale) e i **due criteri firma** scelti tra C1-C8 (`design-system/skin.md`), con la tabella di `design-system/skin-choice.md`. Il livello e una conseguenza del brief (dato o racconto · frequenza d'uso · cosa deve restare in testa), non un gusto: se il brief non dice nulla, livello 2 e un solo effetto firma.
 **Gate**: `01-brief.md` completo, nessun placeholder, soggetto confermato.
 
 ### Stage 2 — Audit dell'esistente (skip se greenfield)
