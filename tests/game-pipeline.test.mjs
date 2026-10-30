@@ -83,8 +83,7 @@ assert.ok(/edit:\s*allow/.test(feel) && /write:\s*allow/.test(feel), 'feel-engin
 // 4. Routing e registrazione
 const route = read(path.join(skillsRoot, 'using-mind', 'routing.md'));
 const using = read(path.join(skillsRoot, 'using-mind', 'SKILL.md'));
-const orch = read(path.join(root, 'skills', 'orchestrator', 'routing.md'));
-for (const [label, text] of [['using-mind/routing.md', route], ['using-mind/SKILL.md', using], ['orchestrator/routing.md', orch]]) {
+for (const [label, text] of [['using-mind/routing.md', route], ['using-mind/SKILL.md', using]]) {
   assert.ok(text.includes('mind-game-pipeline'), label + ' non instrada la pipeline');
   assert.ok(text.includes('mind-game-design'), label + ' non instrada la dottrina');
 }
@@ -92,19 +91,10 @@ assert.ok(route.includes('Game Track'), 'Game Track assente in routing.md');
 const fma = read(path.join(skillsRoot, 'using-mind', 'fma-agents.md'));
 for (const n of ['Grumman','Catherine Armstrong','Rebecca Catalina','Dominic','Kimblee']) assert.ok(fma.includes(n), 'agente FMA mancante: ' + n);
 
-// 5. Conteggi README coerenti con il filesystem
-const dirs = fs.readdirSync(skillsRoot, { withFileTypes: true }).filter((d) => d.isDirectory()).map((d) => d.name);
-const pipelineCount = dirs.filter((n) => n.endsWith('-pipeline')).length;
-const domainCount = dirs.length - pipelineCount - 1; // - using-mind
-const totalSkills = dirs.length;
+// 5. I conteggi del README sono verificati da tests/docs-coherence.test.mjs;
+// qui si controlla solo che la pipeline dei giochi sia elencata.
 const readme = read(path.join(root, 'README.md'));
-const m = readme.match(/(\d+) skill \((\d+) di dominio \+ (\d+) pipeline \+ orchestratore\)/);
-assert.ok(m, 'riga conteggi non trovata nel README');
-assert.strictEqual(Number(m[1]), totalSkills, 'totale skill README != filesystem (' + totalSkills + ')');
-assert.strictEqual(Number(m[2]), domainCount, 'skill di dominio README != filesystem (' + domainCount + ')');
-assert.strictEqual(Number(m[3]), pipelineCount, 'pipeline README != filesystem (' + pipelineCount + ')');
-assert.ok(readme.includes('mind-game-pipeline'), 'README senza riga pipeline');
-assert.ok(readme.includes('Videogiochi (game pipeline)'), 'README senza sezione videogiochi');
+assert.ok(readme.includes('mind-game-pipeline'), 'README senza la pipeline dei giochi');
 
 // 6. Diagnostica MCP e diagramma README
 const probe = path.join(root, 'tests', 'mcp_probe.py');

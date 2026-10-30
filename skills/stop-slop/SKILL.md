@@ -1,4 +1,5 @@
 ---
+license: MIT, vedi LICENSE
 name: stop-slop
 description: Remove AI writing patterns from prose. Use when drafting, editing, or reviewing text to eliminate predictable AI tells.
 metadata:
@@ -66,6 +67,10 @@ See [references/examples.md](references/examples.md) for before/after transforma
 ## Naming & Documents (mind extension, 2026-10-18)
 
 These rules extend beyond prose: **product/feature/service/device names**, **document structure**, and **micro-copy** follow the same anti-slop discipline. Canonical name blacklist, naming procedure, and tells: [references/naming.md](references/naming.md) - the single source of truth; other skills link to it, they do not duplicate it. mind-verification includes this check in its gate.
+
+## Scrivere, non solo togliere
+
+Togliere lo slop lascia il vuoto. Cosa metterci al posto (voce, struttura, frasi, parole vietate, numeri e unita', codice negli esempi, tipografia, micro-copy, revisione in quattro passaggi): [references/writing.md](references/writing.md). E' la controparte positiva di `phrases.md` e `structures.md`, scritta da noi.
 
 ## License
 

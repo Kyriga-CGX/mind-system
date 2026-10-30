@@ -34,7 +34,7 @@ Per ogni task dichiara la rotta in una riga (`INTENT=x → STAGE=... → GATE=ve
 
 **Asset immagine** (raster, `.ico`, favicon, `.icns`, ritaglio, conversione di formato): `mind-image` → `mind-verification`. Non è un intento a sé: si aggancia alla rotta che lo richiede.
 
-**Videogioco** (concetto → verbo → feel → vertical slice → build): `mind-game-pipeline` (10 stage, gate G0-G9, 4 agenti dedicati: `game-director`, `game-art-director`, `feel-engineer`, `playtest-critic`); intervento puntuale su concept, feel, loop, direzione o playtest → `mind-game-design`. Dettaglio in `routing.md`.
+**Videogioco** (concetto → verbo → feel → vertical slice → build): `mind-game-pipeline` (11 stage, gate G0-G10, 5 agenti dedicati: `game-director`, `game-art-director`, `game-ui-designer`, `feel-engineer`, `playtest-critic`); intervento puntuale su concept, feel, loop, direzione o playtest → `mind-game-design`. Dettaglio in `routing.md`.
 
 **Mesh e asset 3D di un gioco**: l'ordine è CC0 (`polyhaven/ph.mjs`) → script Blender (`gen_*.py`) → **image→3D locale con trellis.cpp**, installato su questa macchina in `D:\trellis-studio` (binari in `runtime\`, pesi in `models\`, backend Vulkan; il percorso canonico è `%APPDATA%\trellis-studio\config.json`). Il generativo è l'eccezione per ciò che è unico e non descrivibile a parole, non il default: regole, parametri, catena di QA e divieti in `mind-game-design/references/generative-3d.md`.
 
@@ -106,5 +106,7 @@ Registra i tentativi falliti nella barra (`## Rifiuti`), non a memoria: un rifiu
 - Skill che scatta ma rende male → `mind-eval` (report; le modifiche le decide l'orchestratore).
 - Caso non coperto da nessuna skill → `mind-forge` (proposta + gate utente; mai creare senza approvazione).
 - Manutenzione/integrazione del sistema (sync upstream, skill esterne, vendoring, docs di sistema) → `mind-system-sync`.
+
+Copertura per dominio (cosa sappiamo fare e dove improvvisiamo, buchi inclusi): `docs/coverage.md`.
 
 Vedi `routing.md` per tabella completa INTENT → STAGE → GATE, esempi per intent, regola pipeline-vs-singola, handoff principali e budget.

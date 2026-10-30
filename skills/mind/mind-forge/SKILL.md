@@ -137,7 +137,7 @@ Usa il tool `question` con opzioni (es. "Forgia la skill", "Cambia i confini", "
   - gate duri, anti-pattern;
   - sezione **COORDINAMENTO** con frecce → verso le altre skill/using-mind.
 - [ ] Percorso: skill in `~/.config/opencode/mind/skills/<nome>/SKILL.md`; agente in `~/.config/opencode/agents/<nome>.md`.
-- [ ] Registra la nuova rotta in: `using-mind/SKILL.md` (tabella + precedenza + comunicazione), `using-mind/routing.md`, `orchestrator/SKILL.md` + `orchestrator/routing.md`.
+- [ ] Registra la nuova rotta in: `using-mind/SKILL.md` (tabella + precedenza + comunicazione) e `using-mind/routing.md`. `orchestrator/` e' deprecato: non va aggiornato.
 - [ ] Se è un agente: aggiungilo in `using-mind/fma-agents.md` (ruolo, verbo, emoji, battuta).
 - [ ] Scrivi con Write tool / node utf8 (MAI Set-Content -Encoding UTF8: BOM).
 

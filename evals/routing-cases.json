@@ -1,0 +1,112 @@
+{
+  "version": 1,
+  "note": "Estratto da skills/mind/mind-eval/routing-eval-set.md. golden = prima skill attesa.",
+  "cases": [
+    {
+      "id": "caso-01",
+      "input": "voglio aggiungere il login con Google alla mia app",
+      "golden": "mind-brainstorming"
+    },
+    {
+      "id": "caso-02",
+      "input": "crea una dashboard completa con backend, endpoint e interfaccia",
+      "golden": "mind-pipeline"
+    },
+    {
+      "id": "caso-03",
+      "input": "rifai completamente il design del sito, voglio un'identità nuova",
+      "golden": "mind-design-pipeline"
+    },
+    {
+      "id": "caso-04",
+      "input": "dammi 3 proposte di stile per il mio portfolio",
+      "golden": "mind-design-explore"
+    },
+    {
+      "id": "caso-05",
+      "input": "cambia il colore del bottone da verde a blu",
+      "golden": "frontend-design"
+    },
+    {
+      "id": "caso-06",
+      "input": "aggiungi un'animazione al menu quando si apre",
+      "golden": "motion"
+    },
+    {
+      "id": "caso-07",
+      "input": "il pulsante salva non funziona, non salva i dati",
+      "golden": "mind-debugging"
+    },
+    {
+      "id": "caso-08",
+      "input": "il sito in produzione è giù da 10 minuti",
+      "golden": "mind-incident"
+    },
+    {
+      "id": "caso-09",
+      "input": "fai un audit di sicurezza completo dell'app prima del rilascio",
+      "golden": "mind-security-audit-pipeline"
+    },
+    {
+      "id": "caso-10",
+      "input": "migra il progetto da Vue 2 a Vue 3",
+      "golden": "mind-migration"
+    },
+    {
+      "id": "caso-11",
+      "input": "questo file è un disastro, ripulisci e riorganizza il codice",
+      "golden": "mind-refactor"
+    },
+    {
+      "id": "caso-12",
+      "input": "aggiungi un endpoint REST per creare ordini",
+      "golden": "mind-api"
+    },
+    {
+      "id": "caso-13",
+      "input": "generami un report in PDF con i dati del mese",
+      "golden": "mind-documents"
+    },
+    {
+      "id": "caso-14",
+      "input": "scrivi il testo della landing page per il mio SaaS",
+      "golden": "mind-copy"
+    },
+    {
+      "id": "caso-15",
+      "input": "questo testo sembra scritto da un'AI, rendilo più umano",
+      "golden": "stop-slop"
+    },
+    {
+      "id": "caso-16",
+      "input": "non conosco questo progetto, spiegami come è fatto",
+      "golden": "mind-explore"
+    },
+    {
+      "id": "caso-17",
+      "input": "cosa mi consigli tra Postgres e MongoDB per questo caso?",
+      "golden": "mind-consult"
+    },
+    {
+      "id": "caso-18",
+      "input": "come avevamo fatto la cosa della configurazione l'altra volta?",
+      "golden": "mind-memory",
+      "accept": [
+        "memory",
+        "nessuna",
+        "mind-memory"
+      ],
+      "note": "il caso riguarda il tool memory, non una skill: 'nessuna skill' e' una risposta valida"
+    },
+    {
+      "id": "caso-19",
+      "input": "come si configura Tailwind v4?",
+      "golden": "context7-mcp"
+    },
+    {
+      "id": "caso-20",
+      "input": "valuta se la skill mind-debugging funziona bene",
+      "golden": "mind-eval"
+    }
+  ]
+}

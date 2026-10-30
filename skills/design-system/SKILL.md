@@ -22,6 +22,8 @@ Determina se il progetto corrente ha già un `DESIGN.md` alla root.
 
 3e. **Quale pelle** — prima di applicare la materia, leggi `skin-choice.md`: tre domande (dato o racconto · quante volte al giorno · cosa resta in testa) e una tabella brief → livello → due criteri firma. Il livello è conseguenza del brief, non una preferenza; il default senza brief è livello 2 con un solo effetto firma.
 
+3f. **Audit prima di consegnare** - leggi `audit-ui.md` e percorrilo: 37 voci verificabili (accessibilita', tastiera, form, motion, immagini, testo, performance percepita, stato e URL). Un FAIL su una voce A o B blocca la consegna; un FAIL altrove si consegna solo dichiarandolo come debito. Il file e' nostro: nessun link esterno, nessuna dipendenza da una fonte che puo' sparire.
+
 4. **Ottieni prima la direzione estetica** — prima di scrivere qualsiasi codice UI, invoca la skill `frontend-design`. Fornisce la direzione estetica distintiva e con un punto di vista che i token del DESIGN.md devono servire. Il design è un prerequisito del codice, mai un ripensamento.
 5. **Consulta le fonti di riferimento** — se serve ispirazione o direzione, leggi `frontend-design/design-references.md` (gallerie awwwards/refs.gallery/godly, tipografia fontsinuse/typewolf, colore huemint/Material 3, design system Refactoring UI/nngroup).
 6. **Applica i pattern di maturità** — per superare il layout "democratico" e rendere la UI viva e con gerarchia, leggi `patterns.md` (gerarchia bento asimmetrica, materialità vetro, striscia stato cockpit) e applica SOLO ciò che il brief e i token del DESIGN.md consentono.
@@ -32,7 +34,7 @@ Determina se il progetto corrente ha già un `DESIGN.md` alla root.
 - Crea o scopri prima il DESIGN.md.
 - Poi esegui `frontend-design` per la direzione estetica.
 - Poi scrivi codice che si aggancia ai token del DESIGN.md.
-- Infine usa `enforce.md` e `anti-slop.md` per mantenere il lavoro sul sistema e privo di "slop".
+- Infine usa `enforce.md`, `anti-slop.md` e `audit-ui.md` per mantenere il lavoro sul sistema, privo di "slop" e verificabile voce per voce.
 
 ## Ambito
 
