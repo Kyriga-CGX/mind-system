@@ -77,6 +77,8 @@ Ordine fisso. **MAI** scendere di livello prima di aver sistemato quello superio
 
 ### FASE 4 — OTTIMIZZA PER LIVELLO
 
+Se il collo di bottiglia e' nel frontend web (LCP, INP, CLS, bundle, immagini, font, React/Next): leggi `reference/web-frontend.md` - metriche, ordine di intervento, trappole di rendering, verifica. Scritto da noi, nessun riferimento esterno.
+
 **Backend:**
 
 - [ ] Eliminare query N+1 (batch, eager loading, join)

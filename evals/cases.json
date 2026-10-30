@@ -1,0 +1,72 @@
+{
+  "version": 1,
+  "note": "Casi di valutazione. I casi con `checks` hanno un verdetto meccanico (exit code dei comandi); quelli senza richiedono un verdetto umano, che il runner non inventa. Aggiungere un caso automatico significa aggiungere un fixture: non si inventano controlli.",
+  "cases": [
+    {
+      "id": "bug-off-by-one",
+      "level": "standard",
+      "intent": "fixare",
+      "prompt": "Il test in evals/fixtures/sum-range fallisce: sumRange(1,3) non restituisce 6 e sumRange(-2,2) non restituisce 0. Trova la causa e correggi il codice, non i test.",
+      "fixture": "evals/fixtures/sum-range",
+      "checks": [
+        {
+          "label": "test del fixture verdi",
+          "cmd": "node --test",
+          "expectExit": 0
+        }
+      ]
+    },
+    {
+      "id": "rotta-domanda-singola",
+      "level": "diretto",
+      "intent": "esplorare",
+      "prompt": "In una riga: cosa fa `sync.ps1` quando un file locale e' stato modificato a mano?",
+      "checks": [],
+      "expectSkill": "(nessuna skill: domanda one-shot)",
+      "notes": "Verdetto umano: risposta corretta e senza caricare una pipeline."
+    },
+    {
+      "id": "rotta-bug-delimitato",
+      "level": "standard",
+      "intent": "fixare",
+      "prompt": "Il comando `memory list` a volte non mostra le memorie del progetto. Dimmi perche' e correggi.",
+      "checks": [],
+      "expectSkill": "mind-debugging",
+      "notes": "Verdetto umano: root cause nominata prima del fix."
+    },
+    {
+      "id": "rotta-feature-multidominio",
+      "level": "strutturato",
+      "intent": "costruire",
+      "prompt": "Aggiungi al sistema un comando che esporta le memorie di un progetto in un file e le reimporta altrove, con test.",
+      "checks": [],
+      "expectSkill": "mind-brainstorming -> mind-planning -> mind-implementation -> mind-verification",
+      "notes": "Verdetto umano: spec prima del codice, gate di verifica con evidenza."
+    },
+    {
+      "id": "requisiti-espliciti",
+      "level": "standard",
+      "intent": "fixare",
+      "prompt": "In questa cartella, slugify deve produrre: minuscole, senza accenti, senza punteggiatura, spazi (anche multipli o ai bordi) come singoli trattini, e una stringa di soli spazi deve dare stringa vuota. Il test esistente passa ma il comportamento non rispetta queste regole. Correggi il codice e verifica esplicitamente sia slugify('  Caffe Nero!  ') === 'caffe-nero' sia slugify('   ') === ''.",
+      "fixture": "evals/fixtures/slugify",
+      "checks": [
+        {
+          "label": "accenti e punteggiatura",
+          "cmd": "node -e \"import('./src/slugify.js').then(m=>process.exit(m.slugify('  Caff\\u00e8 Nero!  ')==='caffe-nero'?0:1))\"",
+          "expectExit": 0
+        },
+        {
+          "label": "soli spazi danno stringa vuota",
+          "cmd": "node -e \"import('./src/slugify.js').then(m=>process.exit(m.slugify('   ')===''?0:1))\"",
+          "expectExit": 0
+        },
+        {
+          "label": "test del fixture verdi",
+          "cmd": "node --test",
+          "expectExit": 0
+        }
+      ],
+      "notes": "Il test visibile passa: chi si ferma al test non incontra il requisito. Misura la verifica, non la capacita di correggere."
+    }
+  ]
+}
