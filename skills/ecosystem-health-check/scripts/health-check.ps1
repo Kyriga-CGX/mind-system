@@ -82,22 +82,81 @@ foreach ($g in $skillGit) {
 }
 $report.skillUpdates = $updates
 
-$c7 = @{ status = "ok"; detail = "" }
+# --- MCP: forma della config e stato dichiarato dal runtime -------------
+# La forma cambia fra versioni (type stdio|local|remote, enabled|disabled) e una
+# voce con la forma sbagliata viene SCARTATA IN SILENZIO: il server non esiste e
+# nessuno lo dice. Qui si controlla la forma, e se il CLI risponde si legge anche
+# lo stato reale (connected / needs authentication / failed).
+$mcp = @{ status = "ok"; detail = ""; servers = @(); runtime = $null }
 try {
     $cfg = Get-Content -LiteralPath $opencodeConfig -Raw | ConvertFrom-Jsonc | ConvertFrom-Json
-    $c7Entry = $cfg.mcp.context7
-    if ($null -eq $c7Entry) {
-        $c7.status = "misconfigured"; $c7.detail = "entry mcp.context7 assente"
-    } elseif ($c7Entry.enabled -ne $true) {
-        $c7.status = "misconfigured"; $c7.detail = "context7 non abilitato (enabled != true)"
-    } elseif ($c7Entry.url -ne "https://mcp.context7.com/mcp") {
-        $c7.status = "misconfigured"; $c7.detail = "url errato: $($c7Entry.url)"
-    } else {
-        $c7.status = "ok"; $c7.detail = "context7 configurato e abilitato"
+    $servers = @{}
+    if ($null -ne $cfg.mcp) {
+        foreach ($p in $cfg.mcp.PSObject.Properties) {
+            if ($p.Name -eq "servers") {
+                foreach ($q in $p.Value.PSObject.Properties) { $servers[$q.Name] = $q.Value }
+            } else { $servers[$p.Name] = $p.Value }
+        }
     }
+    if ($servers.Count -eq 0) {
+        $mcp.status = "misconfigured"; $mcp.detail = "nessun server MCP in config"
+    }
+    foreach ($name in ($servers.Keys | Sort-Object)) {
+        $s = $servers[$name]
+        $type = [string]$s.type
+        $entry = @{ name = $name; type = $type; status = "ok"; detail = "" }
+        if ($type -ne "local" -and $type -ne "remote") {
+            $entry.status = "misconfigured"
+            $entry.detail = "type '$type' non riconosciuto da V2 (local|remote): la voce viene scartata in silenzio"
+        } elseif ($type -eq "remote" -and -not $s.url) {
+            $entry.status = "misconfigured"; $entry.detail = "remote senza url"
+        } elseif ($type -eq "local" -and -not $s.command) {
+            $entry.status = "misconfigured"; $entry.detail = "local senza command"
+        }
+        $entry.disabled = ($s.disabled -eq $true) -or ($s.enabled -eq $false)
+        $mcp.servers += $entry
+        if ($entry.status -ne "ok") { $mcp.status = "misconfigured" }
+    }
+    foreach ($e in $mcp.servers | Where-Object { $_.status -ne "ok" }) {
+        $mcp.detail = ($mcp.detail + "; " + $e.name + ": " + $e.detail).TrimStart("; ").Trim()
+    }
+    if (-not $mcp.detail) { $mcp.detail = "$($mcp.servers.Count) server configurati, forma valida" }
+
+    # stato reale, se il CLI risponde (puo' richiedere qualche secondo)
+    try {
+        $out = & opencode mcp list 2>&1 | Out-String
+        if ($out -and $out -notmatch "command not found") {
+            $runtime = @()
+            # Si leggono le PAROLE di stato, non i simboli: la console Windows
+            # restituisce i glifi come mojibake (UTF-8 letto come Latin-1).
+            foreach ($line in ($out -split "`n")) {
+                if ($line -match "^\S+\s+(\S+)\s+(connected|needs authentication|failed|disabled|pending)\b") {
+                    $nm = $Matches[1]
+                    $state = $Matches[2]
+                    $rest = ($line -replace "^\S+\s+\S+\s+", "").Trim()
+                    $runtime += @{ name = $nm; state = $state; detail = ($rest -split ":")[0] }
+                }
+            }
+            if ($runtime.Count -gt 0) {
+                $mcp.runtime = $runtime
+                $bad = @($runtime | Where-Object { $_.state -eq "failed" })
+                if ($bad.Count -gt 0) {
+                    $mcp.status = "degraded"
+                    $mcp.detail = ($mcp.detail + "; runtime: " + (($bad | ForEach-Object { $_.name + " " + $_.detail }) -join ", ")).TrimStart("; ").Trim()
+                }
+            }
+        }
+    } catch { }
 } catch {
-    $c7.status = "check-failed"; $c7.detail = "errore lettura o parse opencode.jsonc: $($_.Exception.Message)"
+    $mcp.status = "check-failed"; $mcp.detail = "errore lettura o parse opencode.jsonc: $($_.Exception.Message)"
 }
+$report.mcp = $mcp
+# compatibilita': chi leggeva context7 continua a trovarlo
+$c7 = @{ status = "ok"; detail = "" }
+$c7s = @($mcp.servers | Where-Object { $_.name -eq "context7" })
+if ($c7s.Count -eq 0) { $c7.status = "misconfigured"; $c7.detail = "entry mcp.context7 assente" }
+elseif ($c7s[0].status -ne "ok") { $c7.status = "misconfigured"; $c7.detail = $c7s[0].detail }
+else { $c7.status = "ok"; $c7.detail = "context7 configurato (forma V2)" }
 $report.context7 = $c7
 
 $pc = @{ status = "ok"; detail = "contratti plugin verificati"; checks = @() }
