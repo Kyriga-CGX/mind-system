@@ -1,29 +1,36 @@
-#Requires -Version 5.1
+﻿#Requires -Version 5.1
 <#
 .SYNOPSIS
     Sincronizza questo repo (source of truth) con la configurazione locale di opencode.
 
 .DESCRIPTION
-    Copia:
-      - plugins/*.js                   -> ~/.config/opencode/plugins/          (auto-load di opencode)
-      - skills/mind/*                  -> ~/.config/opencode/mind/skills/
-      - skills/<altre skill>/*         -> ~/.agents/skills/                     (skill esterne auto-caricate)
-      - config/agents/*.md             -> ~/.config/opencode/agents/
-      - config/{opencode.jsonc,mind-memory.json,vibeguard.config.json,dcp.jsonc,AGENTS.md}
-                                       -> ~/.config/opencode/                   (con backup .bak-<timestamp> dei file locali pre-overwrite)
-      - config/barra.md                -> ~/.config/opencode/mind/barra.md      (criteri "fatto bene" + rifiuti)
+    Copia i file gestiti e tiene un manifest di cio' che ha distribuito
+    (~/.config/opencode/mind/installed.json), cosi' un aggiornamento puo'
+    rimuovere cio' che il repo non contiene piu' senza toccare i file locali.
 
-    I placeholder {env:VAR} nella config risolvono dall'ambiente del processo all'avvio
-    di opencode (NON ${VAR}, NON auto-load di .env): esportali prima di avviare opencode.
+    Categorie:
+      code       plugin, skill, agenti, README  -> sovrascritti (con backup)
+      config     opencode.jsonc, mind-memory.json, vibeguard.config.json,
+                 dcp.jsonc, AGENTS.md           -> sovrascritti SOLO se il file
+                 locale e' identico a quello distribuito l'ultima volta;
+                 altrimenti la nuova versione arriva come <file>.new
+      knowledge  mind/barra.md                  -> mai sovrascritta: e' conoscenza
+                 appresa. Se il template cambia, arriva come <file>.new
+
+    Non tocca mai: mind/gaps/, mind/sessions/, la memoria, ne' i plugin e le
+    skill che non ha distribuito lui.
 
 .PARAMETER ConfigRoot
-    Directory config globale di opencode. Default: $HOME\.config\opencode
+    Directory config globale di opencode. Default: $HOME/.config/opencode
 
 .PARAMETER AgentsSkillsRoot
-    Directory delle skill esterne (auto-caricate). Default: $HOME\.agents\skills
+    Directory delle skill esterne. Default: $HOME/.agents/skills
 
-.PARAMETER WhatIf
-    Mostra cosa verrebbe sincronizzato senza copiare nulla.
+.PARAMETER KeepBackups
+    Copie .bak da tenere per ogni file. Default: 3
+
+.PARAMETER NoPrune
+    Non rimuove i file ritirati a monte ne' i backup vecchi.
 
 .EXAMPLE
     .\sync.ps1
@@ -34,75 +41,333 @@
 [CmdletBinding(SupportsShouldProcess = $true)]
 param(
     [string]$ConfigRoot = (Join-Path $HOME '.config\opencode'),
-    [string]$AgentsSkillsRoot = (Join-Path $HOME '.agents\skills')
+    [string]$AgentsSkillsRoot = (Join-Path $HOME '.agents\skills'),
+    [int]$KeepBackups = 3,
+    [switch]$NoPrune,
+    [switch]$IncludeGitClones
 )
 
 $ErrorActionPreference = 'Stop'
 $RepoRoot = $PSScriptRoot
 $stamp = Get-Date -Format 'yyyyMMdd-HHmmss'
+$manifestPath = Join-Path $ConfigRoot 'mind\installed.json'
+# -WhatIf resta riconosciuto dalla firma, ma le decisioni le prende $whatIf:
+# lasciare il preference attivo fa si' che i cmdlet di sola lettura (Get-FileHash,
+# Get-Item) entrino in modalita' WhatIf e restituiscano oggetti inutilizzabili.
+$whatIf = [bool]$WhatIfPreference
+$WhatIfPreference = $false
 
-function Sync-Dir {
-    param([string]$Source, [string]$Destination)
-    if (-not (Test-Path -LiteralPath $Source)) {
-        Write-Warning "Sorgente mancante, skip: $Source"
-        return
-    }
-    if (-not (Test-Path -LiteralPath $Destination)) {
-        if ($PSCmdlet.ShouldProcess($Destination, 'Create directory')) {
-            New-Item -ItemType Directory -Path $Destination -Force | Out-Null
-        }
-    }
-    if ($PSCmdlet.ShouldProcess($Destination, 'Sync contents')) {
-        Copy-Item -Path (Join-Path $Source '*') -Destination $Destination -Recurse -Force
-        Write-Host "  + $Source\* -> $Destination"
+$counts = @{ copied = 0; same = 0; proposed = 0; kept = 0; pruned = 0; backupsRemoved = 0 }
+$problems = New-Object System.Collections.ArrayList
+
+# ---------------------------------------------------------------- utility ---
+function Get-Sha {
+    param([string]$Path)
+    if (-not (Test-Path -LiteralPath $Path)) { return $null }
+    # $-WhatIf non deve influenzare le letture (Get-FileHash lo rispetta)
+    $WhatIfPreference = $false
+    return (Get-FileHash -LiteralPath $Path -Algorithm SHA256).Hash.ToLower()
+}
+
+function Ensure-Dir {
+    param([string]$Path)
+    if ([string]::IsNullOrWhiteSpace($Path)) { return }
+    if (Test-Path -LiteralPath $Path) { return }
+    if ($whatIf) { return }
+    New-Item -ItemType Directory -Path $Path -Force | Out-Null
+}
+
+function Backup-File {
+    param([string]$Path)
+    if ($whatIf) { return }
+    if (-not (Test-Path -LiteralPath $Path)) { return }
+    Copy-Item -LiteralPath $Path -Destination ("$Path.$stamp.bak") -Force
+}
+
+function Prune-Backups {
+    param([string]$Path)
+    if ($whatIf) { return }
+    $dir = Split-Path -Parent $Path
+    $name = Split-Path -Leaf $Path
+    if (-not (Test-Path -LiteralPath $dir)) { return }
+    $baks = @(Get-ChildItem -LiteralPath $dir -File | Where-Object { $_.Name -like "$name.*.bak" } | Sort-Object Name -Descending)
+    if ($baks.Count -le $KeepBackups) { return }
+    $baks | Select-Object -Skip $KeepBackups | ForEach-Object {
+        Remove-Item -LiteralPath $_.FullName -Force
+        $counts.backupsRemoved++
     }
 }
 
-function Sync-File {
-    param([string]$Source, [string]$Destination)
+function Test-GitRoot {
+    param([string]$Path)
+    return (Test-Path -LiteralPath (Join-Path $Path '.git'))
+}
+
+function Remove-ManagedFile {
+    param([string]$Path)
+    if (-not (Test-Path -LiteralPath $Path)) { return }
+    if ($NoPrune -or $whatIf) { return }
+    Backup-File $Path
+    Remove-Item -LiteralPath $Path -Force
+    $counts.pruned++
+}
+
+# ------------------------------------------------------------------- piano ---
+$plan = New-Object System.Collections.ArrayList
+$ownedRoots = New-Object System.Collections.ArrayList
+# root saltate (clone git): i loro file restano nel manifest, altrimenti il
+# pruning li considererebbe "ritirati a monte" e li cancellerebbe.
+$skippedRoots = New-Object System.Collections.ArrayList
+
+function Add-Tree {
+    param([string]$Source, [string]$DestRoot, [string]$Kind, [switch]$Owned)
     if (-not (Test-Path -LiteralPath $Source)) {
         Write-Warning "Sorgente mancante, skip: $Source"
         return
     }
-    if ((Test-Path -LiteralPath $Destination) -and $PSCmdlet.ShouldProcess($Destination, 'Backup existing')) {
-        Copy-Item -LiteralPath $Destination -Destination "$Destination.$stamp.bak" -Force
-        Write-Host "  ~ backup: $Destination -> $Destination.$stamp.bak"
+    if ($Owned) { [void]$ownedRoots.Add($DestRoot) }
+    Get-ChildItem -LiteralPath $Source -Recurse -File -Force | ForEach-Object {
+        $rel = $_.FullName.Substring($Source.Length).TrimStart('\', '/')
+        [void]$plan.Add([pscustomobject]@{
+            Source = $_.FullName
+            Dest   = (Join-Path $DestRoot $rel)
+            Kind   = $Kind
+        })
     }
-    if ($PSCmdlet.ShouldProcess($Destination, 'Copy')) {
-        Copy-Item -LiteralPath $Source -Destination $Destination -Force
-        Write-Host "  + $Source -> $Destination"
+}
+
+function Add-Single {
+    param([string]$Source, [string]$Dest, [string]$Kind)
+    if (-not (Test-Path -LiteralPath $Source)) {
+        Write-Warning "Sorgente mancante, skip: $Source"
+        return
     }
+    [void]$plan.Add([pscustomobject]@{ Source = $Source; Dest = $Dest; Kind = $Kind })
 }
 
 Write-Host '=== Plugins (auto-load top-level) ==='
-Get-ChildItem -LiteralPath (Join-Path $RepoRoot 'plugins') -Filter '*.js' -File | ForEach-Object {
-    Sync-File $_.FullName (Join-Path $ConfigRoot ("plugins\" + $_.Name))
+Add-Tree (Join-Path $RepoRoot 'plugins') (Join-Path $ConfigRoot 'plugins') 'code'
+
+Write-Host '=== Skill mind ==='
+$mindDest = Join-Path $ConfigRoot 'mind\skills'
+if (-not $IncludeGitClones -and (Test-GitRoot $mindDest)) {
+    Write-Warning "skip mind/skills: $mindDest e' un repository git (usa -IncludeGitClones)"
+    [void]$skippedRoots.Add($mindDest)
+} else {
+    Add-Tree (Join-Path $RepoRoot 'skills\mind') $mindDest 'code' -Owned
 }
 
-Write-Host '=== Skill mind (fork orchestratore) ==='
-Sync-Dir (Join-Path $RepoRoot 'skills\mind') (Join-Path $ConfigRoot 'mind\skills')
-
-Write-Host '=== Skill esterne (~/.agents/skills) ==='
+Write-Host '=== Skill esterne ==='
 Get-ChildItem -LiteralPath (Join-Path $RepoRoot 'skills') -Directory | Where-Object { $_.Name -ne 'mind' } | ForEach-Object {
-    Sync-Dir $_.FullName (Join-Path $AgentsSkillsRoot $_.Name)
+    # niente -Owned: ~/.agents/skills/<nome> puo' essere un clone git dell'utente
+    $dest = Join-Path $AgentsSkillsRoot $_.Name
+    if (-not $IncludeGitClones -and (Test-GitRoot $dest)) {
+        Write-Warning "skip $($_.Name): $dest e' un repository git, non lo sovrascrivo (usa -IncludeGitClones se vuoi che vinca il repo)"
+        [void]$skippedRoots.Add($dest)
+        return
+    }
+    Add-Tree $_.FullName $dest 'code'
 }
 
 Write-Host '=== Agenti custom ==='
-Sync-Dir (Join-Path $RepoRoot 'config\agents') (Join-Path $ConfigRoot 'agents')
-
-Write-Host '=== Config files ==='
-$configFiles = @('opencode.jsonc', 'mind-memory.json', 'vibeguard.config.json', 'dcp.jsonc', 'AGENTS.md')
-foreach ($f in $configFiles) {
-    Sync-File (Join-Path $RepoRoot "config\$f") (Join-Path $ConfigRoot $f)
+$agentsDest = Join-Path $ConfigRoot 'agents'
+if (-not $IncludeGitClones -and (Test-GitRoot $agentsDest)) {
+    Write-Warning "skip agents: $agentsDest e' un repository git (usa -IncludeGitClones)"
+    [void]$skippedRoots.Add($agentsDest)
+} else {
+    Add-Tree (Join-Path $RepoRoot 'config\agents') $agentsDest 'code' -Owned
 }
 
-Write-Host '=== Docs (README del sistema) ==='
-Sync-File (Join-Path $RepoRoot 'README.md') (Join-Path $ConfigRoot 'mind/README.md')
+Write-Host '=== Config files (sovrascritti solo se non modificati) ==='
+foreach ($f in @('opencode.jsonc', 'mind-memory.json', 'vibeguard.config.json', 'dcp.jsonc', 'AGENTS.md')) {
+    Add-Single (Join-Path $RepoRoot "config\$f") (Join-Path $ConfigRoot $f) 'config'
+}
 
-Write-Host '=== Barra (criteri di fatto bene + rifiuti) ==='
-Sync-File (Join-Path $RepoRoot 'config\barra.md') (Join-Path $ConfigRoot 'mind\barra.md')
+Write-Host '=== Documentazione ==='
+Add-Single (Join-Path $RepoRoot 'README.md') (Join-Path $ConfigRoot 'mind\README.md') 'code'
+
+Write-Host '=== Router iniettato a ogni richiesta ==='
+Add-Single (Join-Path $RepoRoot 'config\bootstrap.md') (Join-Path $ConfigRoot 'mind\bootstrap.md') 'code'
+
+Write-Host '=== Barra (conoscenza locale: mai sovrascritta) ==='
+Add-Single (Join-Path $RepoRoot 'config\barra.md') (Join-Path $ConfigRoot 'mind\barra.md') 'knowledge'
+
+# ---------------------------------------------------------------- manifest ---
+$oldFiles = @{}
+if (Test-Path -LiteralPath $manifestPath) {
+    try {
+        $old = Get-Content -LiteralPath $manifestPath -Raw | ConvertFrom-Json
+        if ($old -and $old.files) {
+            foreach ($p in $old.files.PSObject.Properties) { $oldFiles[$p.Name] = [string]$p.Value }
+        }
+    } catch {
+        Write-Warning "Manifest illeggibile, lo ricostruisco: $manifestPath"
+    }
+}
+
+if ($whatIf) {
+    Write-Host ''
+    $byKind = $plan | Group-Object Kind | ForEach-Object { "$($_.Name)=$($_.Count)" }
+    Write-Host "WhatIf: $($plan.Count) file gestiti ($($byKind -join ', ')); manifest con $($oldFiles.Count) voci."
+    foreach ($item in $plan) {
+        $destHash = Get-Sha $item.Dest
+        if ($null -eq $destHash) { Write-Host ("  + {0}" -f $item.Dest) }
+        elseif ((Get-Sha $item.Source) -ne $destHash) { Write-Host ("  ~ {0} ({1})" -f $item.Dest, $item.Kind) }
+    }
+    Write-Host 'Sync NON eseguita.'
+    return
+}
+
+# ----------------------------------------------------------------- azioni ---
+$newFiles = @{}
+
+# i file sotto una root saltata restano gestiti com'erano: non si toccano
+foreach ($root in $skippedRoots) {
+    foreach ($old in $oldFiles.Keys) {
+        if ($old.StartsWith($root, [System.StringComparison]::OrdinalIgnoreCase)) {
+            $newFiles[$old] = $oldFiles[$old]
+        }
+    }
+}
+
+foreach ($item in $plan) {
+    $dir = Split-Path -Parent $item.Dest
+    Ensure-Dir $dir
+
+    $srcHash = Get-Sha $item.Source
+    $destHash = Get-Sha $item.Dest
+    $expected = $srcHash
+
+    if ($null -eq $destHash) {
+        Copy-Item -LiteralPath $item.Source -Destination $item.Dest -Force
+        $counts.copied++
+    }
+    elseif ($srcHash -eq $destHash) {
+        $expected = $destHash
+        $counts.same++
+    }
+    elseif ($item.Kind -eq 'knowledge') {
+        $expected = $destHash
+        $counts.kept++
+        if (-not (Test-Path -LiteralPath "$($item.Dest).new")) {
+            Copy-Item -LiteralPath $item.Source -Destination "$($item.Dest).new" -Force
+        }
+    }
+    elseif ($item.Kind -eq 'config') {
+        $shipped = $oldFiles[$item.Dest]
+        if (-not $oldFiles.Count) {
+            # Prima esecuzione: non si puo' distinguere una versione vecchia da una
+            # personalizzazione. Sovrascrivere qui cancella config locale (e' successo:
+            # un blocco provider e' sparito). Si propone e basta.
+            $expected = $destHash
+            $counts.proposed++
+            Copy-Item -LiteralPath $item.Source -Destination "$($item.Dest).new" -Force
+            Write-Warning "prima esecuzione: config locale conservata, nuova versione in $($item.Dest).new"
+        }
+        elseif ($shipped -and $shipped -eq $destHash) {
+            Backup-File $item.Dest
+            Copy-Item -LiteralPath $item.Source -Destination $item.Dest -Force
+            $counts.copied++
+        }
+        else {
+            $expected = $destHash
+            $counts.proposed++
+            Copy-Item -LiteralPath $item.Source -Destination "$($item.Dest).new" -Force
+            Write-Warning "config modificata localmente, nuova versione in $($item.Dest).new"
+        }
+    }
+    else {
+        Backup-File $item.Dest
+        Copy-Item -LiteralPath $item.Source -Destination $item.Dest -Force
+        $counts.copied++
+    }
+
+    $newFiles[$item.Dest] = $expected
+}
+
+# ----------------------------------------------------------------- pruning ---
+if (-not $NoPrune) {
+    # 1) file distribuiti in passato che il repo non contiene piu'
+    foreach ($old in @($oldFiles.Keys)) {
+        if (-not $newFiles.ContainsKey($old)) { Remove-ManagedFile $old }
+    }
+
+    # 2) alberi interamente nostri: qualunque file non previsto dal piano
+    foreach ($root in $ownedRoots) {
+        if (-not (Test-Path -LiteralPath $root)) { continue }
+        Get-ChildItem -LiteralPath $root -Recurse -File -Force | ForEach-Object {
+            if ($newFiles.ContainsKey($_.FullName)) { return }
+            if ($_.Name -like '*.bak*' -or $_.Name -like '*.new') { return }
+            # mai toccare i metadati di versione: un clone git resta un clone
+            if ($_.FullName -match '[\\/]\.(git|hg|svn)([\\/]|$)') { return }
+            Remove-ManagedFile $_.FullName
+        }
+    }
+
+    # 3) directory rimaste vuote negli alberi nostri
+    foreach ($root in $ownedRoots) {
+        if (-not (Test-Path -LiteralPath $root)) { continue }
+        Get-ChildItem -LiteralPath $root -Recurse -Directory -Force |
+            Sort-Object { $_.FullName.Length } -Descending |
+            ForEach-Object {
+                if (@(Get-ChildItem -LiteralPath $_.FullName -Force).Count -eq 0) {
+                    Remove-Item -LiteralPath $_.FullName -Force
+                }
+            }
+    }
+}
+
+# backup vecchi: si potano anche per i file rimasti invariati
+if (-not $NoPrune) {
+    foreach ($item in $plan) { Prune-Backups $item.Dest }
+}
+
+# ------------------------------------------------------------ verificazione ---
+foreach ($item in $plan) {
+    $actual = Get-Sha $item.Dest
+    if ($null -eq $actual) {
+        [void]$problems.Add("mancante: $($item.Dest)")
+        continue
+    }
+    $expected = $newFiles[$item.Dest]
+    if ($expected -and $actual -ne $expected) {
+        [void]$problems.Add("hash diverso: $($item.Dest)")
+    }
+}
+
+# ---------------------------------------------------------------- manifest ---
+Ensure-Dir (Split-Path -Parent $manifestPath)
+# il commit serve all'avviso di aggiornamento: senza, il plugin non sa cosa
+# e' stato installato e non puo' dire se il repo e' piu' avanti.
+$commit = $null
+# Niente Select-Object -First su un comando nativo: chiude la pipe e lascia
+# LASTEXITCODE = -1, cioe' un falso errore per chi legge l'exit code.
+try { $commit = (& git -C $RepoRoot rev-parse HEAD 2>$null) } catch { $commit = $null }
+if ($commit) { $commit = (@($commit)[0]).Trim() }
+
+$manifest = [pscustomobject]@{
+    version = 1
+    at      = (Get-Date).ToString('o')
+    stamp   = $stamp
+    repo    = $RepoRoot
+    commit  = $commit
+    files   = [pscustomobject]$newFiles
+}
+# senza BOM: JSON.parse in Node lo rifiuta, e il plugin non vedrebbe il manifest
+$utf8NoBom = New-Object System.Text.UTF8Encoding($false)
+[System.IO.File]::WriteAllText($manifestPath, ($manifest | ConvertTo-Json -Depth 6), $utf8NoBom)
 
 Write-Host ''
-Write-Host 'Sync completato. La config non e hot-reload: riavvia opencode.'
-Write-Host 'Nota: i placeholder {env:VAR} nella config risolvono dall''ambiente del processo'
-Write-Host '      (es. setx CONTEXT7_API_KEY <valore>, poi riapri il terminale).'
+Write-Host ("Copiati: {0} | invariati: {1} | proposti .new: {2} | conservati: {3} | rimossi: {4} | backup potati: {5}" -f `
+    $counts.copied, $counts.same, $counts.proposed, $counts.kept, $counts.pruned, $counts.backupsRemoved)
+
+if ($problems.Count -gt 0) {
+    Write-Host ''
+    Write-Host 'PROBLEMI:' -ForegroundColor Red
+    $problems | ForEach-Object { Write-Host "  - $_" -ForegroundColor Red }
+    Write-Host "Rollback: i file sovrascritti hanno una copia .$stamp.bak accanto."
+    exit 1
+}
+
+Write-Host 'Sync completato. OpenCode ricarica config e plugin locali da solo; se un plugin non viene ripreso, usa: opencode service restart'
+Write-Host "Manifest: $manifestPath"
