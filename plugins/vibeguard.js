@@ -43,7 +43,9 @@ const configCandidates = () => {
 const loadConfig = () => {
   for (const p of configCandidates()) {
     try {
-      if (fs.existsSync(p)) return { path: p, config: JSON.parse(fs.readFileSync(p, 'utf8')) };
+      // Un BOM iniziale (editor Windows) rende JSON.parse invalido: senza questo
+    // la config risultava "assente" e la redazione restava spenta in silenzio.
+    if (fs.existsSync(p)) return { path: p, config: JSON.parse(String(fs.readFileSync(p, 'utf8')).replace(/^\uFEFF/, '')) };
     } catch (err) {
       console.error(`[vibeguard] error reading ${p}:`, err.message);
     }
@@ -180,24 +182,67 @@ const debug = Boolean(config?.debug);
 const patterns = enabled ? buildPatterns(config) : [];
 const maxMappings = config?.session?.max_mappings || 100000;
 
-// Ultima sessione vista (fallback se un hook non porta sessionID).
-let _lastSessionID = null;
+// --- Stato dichiarato -------------------------------------------------------
+// La redazione puo' essere parziale: se la config manca, se una keyword non
+// risolve (variabile d'ambiente assente) o se nessun pattern e' attivo, va detto.
+// Un "attivo" che non redige le chiavi e' peggio di un "spento" dichiarato.
+const unresolvedKeywords = () => {
+  const out = [];
+  const keywords = (config && config.patterns && config.patterns.keywords) || [];
+  for (const kw of keywords) {
+    const value = envSubst(kw.value ?? '');
+    if (!value || value.length < 4) {
+      // il nome della variabile e' utile per rimediare; il valore non si mostra
+      const name = /\$\{([A-Z0-9_]+)\}/.exec(String(kw.value || ''));
+      out.push(name ? name[1] : String(kw.category || 'SECRET').toUpperCase());
+    }
+  }
+  return Array.from(new Set(out));
+};
+
+const configState = (() => {
+  if (!configPath || !config) return { level: 'off', reasons: ['config assente: nessuna redazione attiva'] };
+  if (!enabled) return { level: 'off', reasons: ['enabled=false nella config'] };
+  const reasons = [];
+  const missing = unresolvedKeywords();
+  if (missing.length) reasons.push('keyword non risolte: ' + missing.join(', ') + ' (variabili d ambiente assenti)');
+  if (!patterns.length) reasons.push('nessun pattern attivo');
+  return reasons.length ? { level: 'degraded', reasons } : { level: 'active', reasons: [] };
+})();
+
+const statusNote = () => `<VIBEGUARD_STATO>
+Redazione vibeguard: ${configState.level}${configState.reasons.length ? ' - ' + configState.reasons.join('; ') : ''}.
+Limiti dichiarati: stringhe oltre ${Math.round(MAX_STRING / 1024)}KB e strutture oltre ${MAX_DEPTH} livelli non vengono ispezionate; i file letti dagli strumenti passano solo da tool.execute.before, non da questo hook.
+</VIBEGUARD_STATO>`;
+
+// Bucket deterministico per gli eventi senza sessionID: mai "l'ultima vista".
+const UNKNOWN_SESSION = 'unknown';
+const sessionKeyOf = (event) => (event && event.sessionID) || UNKNOWN_SESSION;
 
 export default {
   id: 'vibeguard',
   async setup(ctx) {
     console.log(
-      `[vibeguard] init V2 (${enabled ? 'attivo' : 'no-op'}) config=${configPath || 'assente'} pattern=${patterns.length}`
+      `[vibeguard] init V2 (${enabled ? 'attivo' : 'no-op'}) stato=${configState.level}` +
+        (configState.reasons.length ? ` (${configState.reasons.join('; ')})` : '') +
+        ` config=${configPath || 'assente'} pattern=${patterns.length}`
     );
-
-    if (!enabled) return; // config assente o enabled=false -> no-op (safety)
 
     // 1) Redazione sul payload in uscita: system + transcript, appena prima della
     //    chiamata al modello. Non tocca la cronologia su disco.
     await ctx.session.hook('context', (event) => {
       try {
-        if (event?.sessionID) _lastSessionID = event.sessionID;
-        const s = getSession(event?.sessionID || _lastSessionID, config, true);
+        if (!event) return;
+        if (configState.level !== 'active' && Array.isArray(event.system)) {
+          const joined = event.system
+            .map((p) => (typeof p === 'string' ? p : (p && p.text) || ''))
+            .join('\n');
+          if (!joined.includes('<VIBEGUARD_STATO>')) {
+            event.system.unshift({ type: 'text', text: statusNote() });
+          }
+        }
+        if (!enabled) return; // spento: lo stato e' dichiarato sopra, nessuna redazione
+        const s = getSession(sessionKeyOf(event), config, true);
         if (!s) return;
         if (Array.isArray(event.system)) walk(event.system, (t) => redactString(t, s, patterns, maxMappings));
         if (Array.isArray(event.messages)) walk(event.messages, (t) => redactString(t, s, patterns, maxMappings));
@@ -207,11 +252,15 @@ export default {
       }
     });
 
+    if (!enabled) return;
+
     // 2) Ripristino prima dell'esecuzione dei tool: bash/write/edit devono girare
     //    con i valori reali, non con i placeholder.
     await ctx.tool.hook('execute.before', (event) => {
       try {
-        const s = getSession(event?.sessionID || _lastSessionID, config, false);
+        // Nessun fallback sull'ultima sessione vista: un placeholder si ripristina
+        // solo nella sessione che lo ha generato (o nel bucket "unknown").
+        const s = getSession(sessionKeyOf(event), config, false);
         if (!s || !event?.input) return;
         walk(event.input, (t) => restoreString(t, s));
       } catch (err) {

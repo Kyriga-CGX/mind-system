@@ -1,80 +1,67 @@
 {
-    "$schema":  "https://opencode.ai/config.json",
-    "plugin":  [
-                   "@tarquinen/opencode-dcp@3.2.0"
-               ],
-    "skills":  {
-                   "paths":  [
-                                 "C:/Users/Kyrig/.agents/skills",
-                                 "C:/Users/Kyrig/.config/opencode/mind/skills"
-                             ]
-               },
-    "mcp":  {
-                "unity":  {
-                              "type":  "stdio",
-                              "command":  "C:\\Users\\Kyrig\\AppData\\Roaming\\Python\\Python312\\Scripts\\uvx.exe",
-                              "args":  ["--from", "mcpforunityserver", "mcp-for-unity", "--transport", "stdio"],
-                              "enabled":  true,
-                              "env":  {
-                                          "DISABLE_TELEMETRY":  "1"
-                                      }
-                          },
-                "context7":  {
-                                 "type":  "remote",
-                                 "url":  "https://mcp.context7.com/mcp",
-                                 "enabled":  true,
-                                 "headers":  {
-                                                 "CONTEXT7_API_KEY":  "{env:CONTEXT7_API_KEY}"
-                                             }
-                             },
-                "notion":  {
-                               "type":  "stdio",
-                               "command":  "npx",
-                               "args":  [
-                                            "-y",
-                                            "@notionhq/notion-mcp-server"
-                                        ],
-                               "enabled":  false,
-                               "env":  {
-                                           "NOTION_API_KEY":  "${NOTION_API_KEY}",
-                                           "NOTION_ROOT_PAGE_ID":  "${NOTION_ROOT_PAGE_ID}"
-                                       }
-                           },
-                "google-sheets":  {
-                                      "type":  "stdio",
-                                      "command":  "npx",
-                                      "args":  [
-                                                   "-y",
-                                                   "mcp-google-sheets"
-                                               ],
-                                      "enabled":  false,
-                                      "env":  {
-                                                  "GOOGLE_API_KEY":  "${GOOGLE_API_KEY}",
-                                                  "GOOGLE_SHEETS_ID":  "${GOOGLE_SHEETS_ID}"
-                                              }
-                                  },
-                "airtable":  {
-                                 "type":  "stdio",
-                                 "command":  "npx",
-                                 "args":  [
-                                              "-y",
-                                              "@felores/airtable-mcp-server"
-                                          ],
-                                 "enabled":  false,
-                                 "env":  {
-                                             "AIRTABLE_API_KEY":  "${AIRTABLE_API_KEY}",
-                                             "AIRTABLE_BASE_ID":  "${AIRTABLE_BASE_ID}"
-                                         }
-                             },
-                "rea":  {
-                                 "type":  "stdio",
-                                 "command":  "npx",
-                                 "args":  [
-                                              "-y",
-                                              "rea-agents@latest",
-                                              "mcp"
-                                          ],
-                                 "enabled":  true
-                             }
+    "$schema": "https://opencode.ai/config.json",
+    "plugin": [
+        "@tarquinen/opencode-dcp@3.2.0"
+    ],
+    "skills": {
+        "paths": [
+            "C:/Users/Kyrig/.agents/skills",
+            "C:/Users/Kyrig/.config/opencode/mind/skills"
+        ]
+    },
+    "mcp": {
+        "context7": {
+            "type": "remote",
+            "url": "https://mcp.context7.com/mcp",
+            "oauth": false,
+            "headers": {
+                "CONTEXT7_API_KEY": "{env:CONTEXT7_API_KEY}"
             }
+        },
+        "notion": {
+            "type": "remote",
+            "url": "https://mcp.notion.com/mcp"
+        },
+        "rea": {
+            "type": "local",
+            "command": [
+                "npx",
+                "-y",
+                "rea-agents@latest",
+                "mcp"
+            ]
+        }
+    },
+    "policies": [
+        {
+            "action": "tool.use",
+            "resource": "read:*.env",
+            "effect": "deny"
+        },
+        {
+            "action": "tool.use",
+            "resource": "edit:*.env",
+            "effect": "deny"
+        },
+        {
+            "action": "tool.use",
+            "resource": "shell:git push --force*",
+            "effect": "deny"
+        },
+        {
+            "action": "tool.use",
+            "resource": "shell:git push --force-with-lease*",
+            "effect": "allow"
+        },
+        {
+            "action": "tool.use",
+            "resource": "shell:git clean -fdx*",
+            "effect": "deny"
+        },
+        {
+            "action": "tool.use",
+            "resource": "shell:git reset --hard*",
+            "effect": "deny"
+        }
+    ]
 }
