@@ -1,9 +1,12 @@
 ﻿import path from 'path';
 import fs from 'fs';
 import os from 'os';
+import crypto from 'crypto';
+import { execFileSync } from 'child_process';
+import { readJsonFile, writeJsonAtomic, withFileLockSync, appendLineAtomic } from './mind-store.js';
 
 // ---------------------------------------------------------------------------
-// mind â€” plugin OpenCode V2 (definizione { id, setup }).
+// mind - plugin OpenCode V2 (definizione { id, setup }).
 // Runtime: (1) bootstrap di using-mind nel context di ogni richiesta modello,
 // (2) segnale di fuori-rotta quando la sessione accumula turni senza skill,
 // (3) registratore d'uso skill/subagent in mind/gaps/skills-used.json,
@@ -66,26 +69,10 @@ const sampleMaxBytes = () => {
   return Number.isFinite(n) && n > 0 ? n : SAMPLE_DEFAULT_MAX_BYTES;
 };
 
-const rotateSample = (p) => {
-  try {
-    if (!fs.existsSync(p) || fs.statSync(p).size < sampleMaxBytes()) return;
-    fs.copyFileSync(p, p + '.1');
-    fs.writeFileSync(p, '', 'utf8');
-  } catch {
-    // best-effort
-  }
-};
-
 const appendSample = (record) => {
   if (!sampleEnabled()) return;
-  try {
-    const p = sampleFilePath();
-    fs.mkdirSync(path.dirname(p), { recursive: true });
-    rotateSample(p);
-    fs.appendFileSync(p, JSON.stringify(record) + '\n', 'utf8');
-  } catch {
-    // best-effort
-  }
+  // append + rotazione sotto lo stesso lock del file (appendLineAtomic)
+  appendLineAtomic(sampleFilePath(), JSON.stringify(record) + '\n', { maxBytes: sampleMaxBytes() });
 };
 
 const _turnOf = {};
@@ -108,29 +95,60 @@ const MAX_SESSIONS = 200;
 const emptyGaps = () => ({ sessions: [], threshold: THRESHOLD_NO_SKILL });
 
 const readGaps = () => {
-  try {
-    const p = gapsFilePath();
-    if (!fs.existsSync(p)) return emptyGaps();
-    const parsed = JSON.parse(fs.readFileSync(p, 'utf8'));
-    if (!parsed || !Array.isArray(parsed.sessions)) return emptyGaps();
-    if (typeof parsed.threshold !== 'number') parsed.threshold = THRESHOLD_NO_SKILL;
-    return parsed;
-  } catch {
-    return emptyGaps();
-  }
+  const read = readJsonFile(gapsFilePath(), null);
+  const data = read.ok ? read.data : null;
+  if (!data || !Array.isArray(data.sessions)) return emptyGaps();
+  if (typeof data.threshold !== 'number') data.threshold = THRESHOLD_NO_SKILL;
+  return data;
 };
 
-const writeGaps = (data) => {
-  try {
-    const p = gapsFilePath();
-    fs.mkdirSync(path.dirname(p), { recursive: true });
-    fs.writeFileSync(p, JSON.stringify(data, null, 2), 'utf8');
-  } catch {
-    // registratore best-effort: non deve mai bloccare l'app
-  }
+// Ogni scrittura e' read-modify-write DENTRO un lock di file: due processi
+// OpenCode non si cancellano piu' i turni a vicenda (prima del lock: 10/80).
+const updateGaps = (mutator) => {
+  const file = gapsFilePath();
+  const locked = withFileLockSync(file + '.lock', () => {
+    const data = readGaps();
+    const result = mutator(data);
+    prune(data);
+    const written = writeJsonAtomic(file, data);
+    return { ok: written.ok, reason: written.reason, result };
+  });
+  if (!locked || !locked.ok) return { ok: false, reason: (locked && locked.reason) || 'lock' };
+  return locked;
 };
 
-const isMindSkill = (name) => typeof name === 'string' && (name.startsWith('mind') || name === 'using-mind');
+const agentsSkillsDir = () => path.join(os.homedir(), '.agents', 'skills');
+
+// Insieme delle skill DEL SISTEMA: quelle installate da sync.ps1, cioe' sotto
+// mind/skills/ e ~/.agents/skills/. Il prefisso "mind" non basta: design-system,
+// motion, stop-slop, frontend-design, context7-mcp e orchestrator fanno parte
+// del sistema, e senza questo elenco risultavano "nessuna skill usata".
+// L'elenco si legge dal disco: nessuna lista duplicata da tenere allineata.
+let _systemSkills = null;
+
+const systemSkills = () => {
+  if (_systemSkills) return _systemSkills;
+  const ids = new Set(['using-mind']);
+  const scan = (dir) => {
+    try {
+      for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
+        if (entry.isDirectory()) ids.add(entry.name);
+        else if (entry.isFile() && entry.name.endsWith('.md')) ids.add(entry.name.replace(/\.md$/, ''));
+      }
+    } catch {
+      // directory assente: nessuna skill da quel percorso
+    }
+  };
+  scan(mindSkillsDir());
+  scan(agentsSkillsDir());
+  _systemSkills = ids;
+  return ids;
+};
+
+const isMindSkill = (name) => {
+  if (typeof name !== 'string' || !name) return false;
+  return name.startsWith('mind') || systemSkills().has(name);
+};
 
 const getEntry = (data, sessionID) => {
   let entry = data.sessions.find((s) => s.sessionID === sessionID);
@@ -174,8 +192,7 @@ const prune = (data) => {
 // Nuovo turno utente: chiude il precedente e apre il nuovo.
 const recordTurnStart = (sessionID) => {
   if (!sessionID) return 0;
-  try {
-    const data = readGaps();
+  const res = updateGaps((data) => {
     const entry = getEntry(data, sessionID);
     // Chiude il turno precedente: lo si conta "senza skill" solo se esisteva ed
     // era davvero senza. Niente incremento ottimistico del turno che si apre.
@@ -188,67 +205,51 @@ const recordTurnStart = (sessionID) => {
     entry.turns += 1;
     entry.usedThisTurn = false;
     entry.updatedAt = new Date().toISOString();
-    prune(data);
-    writeGaps(data);
     return entry.turns;
-  } catch {
-    // ignora
-    return 0;
-  }
+  });
+  return res.ok ? res.result : 0;
 };
 
 // Una skill mind e' stata caricata nel turno corrente.
 const recordSkill = (sessionID, skillName) => {
   if (!sessionID || !isMindSkill(skillName)) return;
-  try {
-    const data = readGaps();
+  updateGaps((data) => {
     const entry = getEntry(data, sessionID);
     entry.skills[skillName] = (entry.skills[skillName] || 0) + 1;
     markUsed(entry);
     entry.updatedAt = new Date().toISOString();
-    prune(data);
-    writeGaps(data);
-  } catch {
-    // ignora
-  }
+  });
 };
 
 // Un subagent e' stato dispatchato nel turno corrente (tool task).
 const recordSubagent = (sessionID, subagentType) => {
   if (!sessionID) return;
-  try {
-    const data = readGaps();
+  updateGaps((data) => {
     const entry = getEntry(data, sessionID);
     const key = subagentType || 'unknown';
     entry.subagents[key] = (entry.subagents[key] || 0) + 1;
     markUsed(entry);
     entry.updatedAt = new Date().toISOString();
-    prune(data);
-    writeGaps(data);
-  } catch {
-    // ignora
-  }
+  });
 };
 
 // Contatore rifiuti per sessione: serve a misurare il drift tra rifiuti reali e
 // righe scritte nella barra (meccanismo "esiste" vs "funziona").
 const recordRejection = (sessionID, directory) => {
   if (!sessionID) return;
-  try {
-    const data = readGaps();
+  updateGaps((data) => {
     const entry = getEntry(data, sessionID);
     entry.directory = directory || entry.directory || '';
     entry.rejections = (typeof entry.rejections === 'number' ? entry.rejections : 0) + 1;
     entry.updatedAt = new Date().toISOString();
-    prune(data);
-    writeGaps(data);
-  } catch {
-    // best-effort
-  }
+  });
 };
 
 const extractAndStripFrontmatter = (content) => {
-  const match = content.match(/^---\n([\s\S]*?)\n---\n([\s\S]*)$/);
+  // I file del repo sono CRLF (Windows) e possono avere un BOM: il parser
+  // deve reggere entrambi, altrimenti il frontmatter finisce nel prompt.
+  const text = String(content || '').replace(/^\uFEFF/, '');
+  const match = text.match(/^---\r?\n([\s\S]*?)\r?\n---\r?\n([\s\S]*)$/);
   if (!match) return { frontmatter: {}, content };
   const frontmatter = {};
   for (const line of match[1].split('\n')) {
@@ -261,28 +262,132 @@ const extractAndStripFrontmatter = (content) => {
 };
 
 let _bootstrapCache;
+let _bootstrapInfo = null;
 let _lastSessionID = null;
 
+// Il testo iniettato a ogni richiesta e' un ROUTER compatto (config/bootstrap.md,
+// ~2.5KB): dichiara la rotta e le regole che valgono sempre. La dottrina completa
+// (13KB) vive nella skill `using-mind` e si carica con il tool `skill` quando
+// serve. Se il router manca si ricade sulla skill intera (installazioni vecchie).
 const getBootstrapContent = () => {
   if (_bootstrapCache !== undefined) return _bootstrapCache;
 
+  const read = (p) => {
+    try {
+      return fs.readFileSync(p, 'utf8');
+    } catch {
+      return null;
+    }
+  };
+
+  const routerPath = path.join(configDir(), 'mind', 'bootstrap.md');
+  const router = read(routerPath);
+  if (router) {
+    const { content } = extractAndStripFrontmatter(router);
+    _bootstrapInfo = { source: routerPath, bytes: Buffer.byteLength(router, 'utf8'), kind: 'router' };
+    _bootstrapCache = `<EXTREMELY_IMPORTANT>
+Hai "mind" attivo. Sotto c'e' il router: dichiara la rotta e carica la skill con il tool \`skill\`. La dottrina completa e' nella skill \`using-mind\`: caricala quando la rotta lo richiede, quando sei in dubbio, o quando stai per consegnare.
+
+${content}
+</EXTREMELY_IMPORTANT>`;
+    return _bootstrapCache;
+  }
+
   const skillPath = path.join(mindSkillsDir(), 'using-mind', 'SKILL.md');
-  if (!fs.existsSync(skillPath)) {
+  const skill = read(skillPath);
+  if (!skill) {
     _bootstrapCache = null;
     return null;
   }
-
-  const fullContent = fs.readFileSync(skillPath, 'utf8');
-  const { content } = extractAndStripFrontmatter(fullContent);
-
+  const { content } = extractAndStripFrontmatter(skill);
+  _bootstrapInfo = { source: skillPath, bytes: Buffer.byteLength(skill, 'utf8'), kind: 'skill' };
   _bootstrapCache = `<EXTREMELY_IMPORTANT>
 Hai "mind" attivo.
 
-**La skill using-mind Ã¨ giÃ  caricata qui sotto â€” NON richiamarla di nuovo con il tool skill.**
+**La skill using-mind e' gia' caricata qui sotto: NON richiamarla di nuovo con il tool skill.**
 
 ${content}
 </EXTREMELY_IMPORTANT>`;
   return _bootstrapCache;
+};
+
+// --- Avviso di aggiornamento -----------------------------------------------
+// Al primo messaggio di una sessione: il repo e' piu' avanti di quello installato?
+// Il confronto e' sui CONTENUTI (hash dei plugin), non sul commit: il working tree
+// puo' essere avanti a HEAD, ed e' quello che sync.ps1 distribuisce.
+// Nessuna rete: per origin si legge il ref locale gia' presente.
+const installedManifest = () => {
+  const read = readJsonFile(path.join(configDir(), 'mind', 'installed.json'), null);
+  return read.ok ? read.data : null;
+};
+
+const fileHash = (p) => {
+  try {
+    return crypto.createHash('sha256').update(fs.readFileSync(p)).digest('hex');
+  } catch {
+    return null;
+  }
+};
+
+const originHead = (repo) => {
+  for (const ref of ['origin/main', 'origin/master']) {
+    try {
+      const out = execFileSync('git', ['-C', repo, 'rev-parse', ref], {
+        encoding: 'utf8', timeout: 2000, stdio: ['ignore', 'pipe', 'ignore']
+      }).trim();
+      if (out) return { ref, sha: out };
+    } catch {
+      // ref assente: si prova la successiva
+    }
+  }
+  return null;
+};
+
+const headOf = (repo) => {
+  try {
+    return execFileSync('git', ['-C', repo, 'rev-parse', 'HEAD'], {
+      encoding: 'utf8', timeout: 2000, stdio: ['ignore', 'pipe', 'ignore']
+    }).trim();
+  } catch {
+    return null;
+  }
+};
+
+const _updateNoted = new Set();
+
+const buildUpdateNotice = (sessionID) => {
+  if (!sessionID || _updateNoted.has(sessionID)) return null;
+  const manifest = installedManifest();
+  if (!manifest || !manifest.repo) return null;
+
+  const repo = manifest.repo;
+  const installedPlugins = path.join(configDir(), 'plugins');
+  const repoPlugins = path.join(repo, 'plugins');
+  const differ = [];
+  for (const name of ['mind.js', 'mind-memory.js', 'mind-store.js', 'vibeguard.js']) {
+    const a = fileHash(path.join(repoPlugins, name));
+    const b = fileHash(path.join(installedPlugins, name));
+    if (a && b && a !== b) differ.push(name);
+  }
+
+  const head = headOf(repo);
+  const origin = originHead(repo);
+  const behindOrigin = Boolean(head && origin && origin.sha !== head);
+
+  if (!differ.length && !behindOrigin) {
+    _updateNoted.add(sessionID);
+    return null;
+  }
+
+  _updateNoted.add(sessionID);
+  const lines = [];
+  if (differ.length) lines.push(`il repo ha modifiche non installate: ${differ.join(', ')}`);
+  if (behindOrigin) lines.push(`${origin.ref} e' a ${origin.sha.slice(0, 7)} e HEAD a ${(head || '').slice(0, 7)}: ci sono commit da prendere`);
+  return `<MIND_UPDATE>
+Segnale automatico mind: ${lines.join('; ')}.
+Se l'utente vuole allinearsi: chiedi conferma, poi esegui \`sync.ps1\` (installa dal repo) e, se ci sono commit da origin, \`git pull\` prima di sincronizzare.
+Non allineare da solo: sync sovrascrive file (con backup) e la scelta e' dell'utente.
+</MIND_UPDATE>`;
 };
 
 // Avviso runtime: trasforma il registratore (finora passivo/di diagnosi) in una
@@ -306,6 +411,41 @@ Se il turno e' piu' di una domanda singola, verifica la rotta: dichiara \`INTENT
   }
 };
 
+// --- Directory di progetto ---
+// Contratto verificato su OpenCode V2: il setup non ha `directory` (era V1),
+// l'evento `context` non porta la directory, ma `ctx.location.directory` e'
+// quella giusta e `ctx.session.get()` restituisce la location della sessione.
+// Il cwd del processo non e' mai una fonte valida: se non c'e' directory, si
+// inietta solo la barra globale invece di puntare alla home dell'utente.
+const dirOfLocation = (location) => {
+  const dir = location && (location.directory || location.canonical);
+  return typeof dir === 'string' && dir ? dir : null;
+};
+
+let _ctx = null;
+let _baseProjectDir = null;
+const _sessionDirs = new Map();
+const _prefetching = new Set();
+
+const prefetchProjectDir = (sessionID) => {
+  if (!sessionID || !_ctx || !_ctx.session || typeof _ctx.session.get !== 'function') return;
+  if (_prefetching.has(sessionID)) return;
+  _prefetching.add(sessionID);
+  Promise.resolve()
+    .then(() => _ctx.session.get({ sessionID }))
+    .then((session) => {
+      const dir = dirOfLocation(session && session.location);
+      if (dir) _sessionDirs.set(sessionID, dir);
+    })
+    .catch(() => {
+      // sessione non disponibile: si resta sulla directory del setup
+    })
+    .finally(() => _prefetching.delete(sessionID));
+};
+
+const projectDirFor = (sessionID) =>
+  (sessionID && _sessionDirs.get(sessionID)) || _baseProjectDir;
+
 // Id sessione dall'evento, con fallback sull'ultimo visto dal prompt hook.
 const sessionIdOf = (event) => event?.sessionID || event?.session?.id || _lastSessionID;
 
@@ -317,32 +457,62 @@ const partText = (part) => {
 };
 
 // --- Anti-loop: rifiuto ripetuto dello stesso risultato ---
-// L'hook `prompt` di V2 vede il testo dell'utente: contiamo i rifiuti consecutivi
-// e al 2Â° iniettiamo MIND_LOOP, che richiama la regola anti-loop di using-mind.
+// Il rilevamento e' un'euristica, non una verita': deve restare ad ALTA
+// precisione. Un falso positivo qui significa dire al modello "l'utente ha
+// rifiutato il tuo lavoro" mentre stava descrivendo un bug o citando un testo.
+//
+// Guardie applicate prima dei pattern:
+//  - citazioni tra virgolette/apici: sono testo altrui, non un verdetto;
+//  - descrizione di un bug ("il login non funziona, da errore 401") non e' un rifiuto;
+//  - istruzioni ("scrivi un test che verifichi che non funziona") non sono rifiuti;
+//  - requisiti ("voglio qualcosa che non sia banale") non sono rifiuti;
+//  - al primo turno non c'e' nulla da rifiutare, salvo riferimento esplicito
+//    al lavoro gia' prodotto ("rifai", "il tuo fix", "quello che hai fatto").
+const QUOTED_SPANS = /"[^"]*"|«[^»]*»|“[^”]*”|`[^`]*`/g;
+
+const ARTIFACT_REF = /\b(ancora|rifai|rifallo|riprova|riparti|hai sbagliato|hai fatto|quello che hai|la tua (risposta|versione|soluzione|proposta|idea)|il tuo (fix|lavoro|codice|risultato|output)|non hai cambiato|lo stesso (problema|errore|risultato|effetto)|come prima)\b/i;
+
+const BUG_REPORT = /\b(il|la|lo|i|le|gli|questo|questa|quel|quella|un|una)\s+[\wÀ-ɏ'\-]+(\s+[\wÀ-ɏ'\-]+){0,3}\s+(non funziona|non va|non si apre|non si carica|non carica|non parte|non risponde|va in errore|da errore|da un errore|si blocca|crash)\b/i;
+
+const INSTRUCTION_START = /^\s*(scrivi|aggiungi|crea|fai|metti|prepara|genera|implementa|controlla|verifica|testa|trova|elenca|spiega|correggi|sistema|perch[ée]|perche)\b/i;
+
+// Solo costruzioni di requisito, non parole isolate: "niente" e "senza"
+// compaiono anche nei rifiuti veri ("non dicono niente").
+const REQUIREMENT = /\b(non (deve|devono|dovrebbe|dovrebbero|vorrei|voglio|vogliamo)|evita|evitare|senza che|non sia|non siano)\b/i;
+
 const REJECTION_PATTERNS = [
-  /non va( bene)?/i,
-  /non funziona/i,
-  /non (lo |la )?vedo/i,
-  /non mi piace/i,
-  /ancora (lontan|sbagliat|uguale|lo stesso|non|peggio)/i,
-  /(lo )?stesso (problema|errore|risultato|effetto)/i,
-  /(hai sbagliato|Ã¨ sbagliato|non Ã¨ (giusto|corretto|quello))/i,
-  /(rifai|rifallo|riprova di nuovo)/i,
-  /fuori rotta/i,
-  /non Ã¨ cambiato (niente|nulla)/i,
-  /(ti blocchi|sei bloccato|si blocca)/i,
-  // Rifiuto di merito (qualita'), non di dettaglio: "non sono innovative",
-  // "banale", "gia' visto", "non dice niente".
-  /non (sono|e'|Ã¨) .{0,30}(innovativ|original|nuov|divers|pazz|sorprend|wow)/i,
+  /\bnon va( bene)?\b/i,
+  /\bnon funziona\b/i,
+  /\bnon (lo|la|li|le) vedo\b/i,
+  /\bnon mi piace\b/i,
+  /\bancora (lontan|sbagliat|uguale|lo stesso|peggio)/i,
+  /\b(lo )?stesso (problema|errore|risultato|effetto)\b/i,
+  /\b(hai sbagliato|è sbagliato|e' sbagliato|non è (giusto|corretto|quello))\b/i,
+  /\b(rifai|rifallo|riprova di nuovo)\b/i,
+  /\bfuori rotta\b/i,
+  /\bnon (è|e') cambiato (niente|nulla)\b/i,
+  /\b(ti blocchi|sei bloccato)\b/i,
+  // Rifiuto di merito (qualita'), non di dettaglio.
+  /\bnon (sono|è|e') .{0,30}(innovativ|original|nuov|divers|pazz|sorprend|wow)/i,
   /\b(banal[ei]|generic[oa]|piatt[oi]|scontat[oi]|noios[oi])\b/i,
-  /giÃ  vist[oi]|gia vist[oi]/i,
-  /\b(non (mi )?(dice|fa|dicono|fanno) (niente|nulla))\b/i,
+  /\b(già|gia) vist[oi]\b/i,
+  /\bnon (mi )?(dice|fa|dicono|fanno) (niente|nulla)\b/i,
   /\b(manca|mancano) (l'|il |la )?(idea|anima|carattere|personalit)/i,
-  /non .{0,40}da dire (niente|nulla|wow)/i,
-  /niente di (nuovo|speciale|particolare)/i
+  /\bnon .{0,40}da dire (niente|nulla|wow)/i,
+  /\bniente di (nuovo|speciale|particolare)\b/i
 ];
 
-const isRejection = (text) => REJECTION_PATTERNS.some((re) => re.test(text));
+const isRejection = (text, turn) => {
+  const stripped = String(text || '').replace(QUOTED_SPANS, ' ');
+  const artifact = ARTIFACT_REF.test(stripped);
+  if (!artifact) {
+    if (BUG_REPORT.test(stripped)) return false;
+    if (INSTRUCTION_START.test(stripped)) return false;
+    if (REQUIREMENT.test(stripped)) return false;
+    if ((turn || 0) < 2) return false;
+  }
+  return REJECTION_PATTERNS.some((re) => re.test(stripped));
+};
 
 const _rejectStreak = {};
 const _loopSignal = {};
@@ -411,7 +581,7 @@ Se l'utente rifiuta l'APPROCCIO (non un dettaglio), aggiungi UNA riga sotto "## 
 };
 
 const buildRifiutoSignal = (projectDir) => {
-  const target = path.join(projectDir || process.cwd(), '.mind', 'barra.md');
+  const target = projectDir ? path.join(projectDir, '.mind', 'barra.md') : 'il file .mind/barra.md del progetto';
   return `<MIND_RIFIUTO>
 Segnale automatico mind: l'utente ha rifiutato il risultato.
 Se il rifiuto riguarda l'APPROCCIO (non un dettaglio da ritoccare), aggiungi UNA riga in ${target} sotto "## Rifiuti":
@@ -444,14 +614,16 @@ const takeLoopSignal = (sessionID) => {
 export default {
   id: 'mind',
   async setup(ctx) {
-    const setupProjectDir = ctx?.directory || process.cwd();
+    _ctx = ctx;
+    _baseProjectDir = dirOfLocation(ctx && ctx.location);
     // 1) Bootstrap using-mind + segnale fuori-rotta nel context di ogni richiesta.
     await ctx.session.hook('context', (event) => {
-      const projectDir = event?.directory || setupProjectDir;
+      const projectDir = projectDirFor(event?.sessionID);
       try {
         if (!Array.isArray(event.system)) return;
         const sessionID = sessionIdOf(event);
         if (sessionID) _lastSessionID = sessionID;
+        prefetchProjectDir(sessionID);
 
         const joined = event.system.map(partText).join('\n');
 
@@ -479,6 +651,11 @@ export default {
           const loop = takeLoopSignal(sessionID);
           if (loop) event.system.unshift({ type: 'text', text: loop });
         }
+
+        if (!joined.includes('<MIND_UPDATE>')) {
+          const update = buildUpdateNotice(sessionID);
+          if (update) event.system.unshift({ type: 'text', text: update });
+        }
       } catch {
         // best-effort
       }
@@ -491,16 +668,18 @@ export default {
         const sessionID = sessionIdOf(event);
         if (!sessionID) return;
         _lastSessionID = sessionID;
+        prefetchProjectDir(sessionID);
         const turn = recordTurnStart(sessionID);
 
         const text = event?.prompt?.text || '';
-        if (turn) recordSampleTurn(sessionID, turn, text, event?.directory || setupProjectDir);
+        if (turn) recordSampleTurn(sessionID, turn, text, projectDirFor(sessionID) || '');
         if (text) {
-          if (isRejection(text)) {
+          if (isRejection(text, turn)) {
             const n = (_rejectStreak[sessionID] || 0) + 1;
             _rejectStreak[sessionID] = n;
-            _rifiutoSignal[sessionID] = buildRifiutoSignal(event?.directory || setupProjectDir);
-            if (n === 1) recordRejection(sessionID, event?.directory || setupProjectDir);
+            const projectDir = projectDirFor(sessionID);
+            _rifiutoSignal[sessionID] = buildRifiutoSignal(projectDir);
+            if (n === 1) recordRejection(sessionID, projectDir || '');
             if (n >= 2) {
               _loopSignal[sessionID] = buildLoopSignal(n);
             }
