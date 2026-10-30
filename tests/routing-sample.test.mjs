@@ -23,8 +23,9 @@ process.env.OPENCODE_CONFIG_DIR = cfgDir;
 
 const plugin = (await import('file://' + path.join(here, '..', 'plugins', 'mind.js'))).default;
 const hooks = {};
+// Contratto reale OpenCode V2: la directory viene da ctx.location, non da ctx.directory.
 const ctx = {
-  directory: proj,
+  location: { directory: proj },
   session: { hook: async (n, f) => { hooks['s:' + n] = f; } },
   tool: { hook: async (n, f) => { hooks['t:' + n] = f; } },
 };
@@ -39,7 +40,7 @@ const turns = () => readRecords().filter((r) => r.t === 'turn');
 const uses = () => readRecords().filter((r) => r.t === 'use');
 
 // 1) un turno -> una riga, prompt normalizzato, numero di turno e directory
-hooks['s:prompt']({ sessionID: 'ses_r1', directory: proj, prompt: { text: '  voglio   aggiungere\n il login con Google  ' } });
+hooks['s:prompt']({ sessionID: 'ses_r1', prompt: { text: '  voglio   aggiungere\n il login con Google  ' } });
 let ts = turns();
 assert.strictEqual(ts.length, 1, 'una sola riga turno');
 assert.strictEqual(ts[0].sid, 'ses_r1', 'session id');
