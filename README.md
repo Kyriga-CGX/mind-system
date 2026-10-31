@@ -380,6 +380,8 @@ Un manifest (`mind/installed.json`) registra cosa è stato distribuito e a quale
 
 Cosa **non** è gestito dal repo e vive in `~/.config/opencode/opencode.json`: il provider con i modelli locali e le integrazioni personali (server MCP come `rea`, `notion`, `unityMCP`). Il file condiviso tiene solo `context7`: ogni server in più porta le sue istruzioni e i suoi schemi a ogni richiesta, e non serve a chi clona.
 
+`rea` e `unityMCP` sono usciti da li' il 2026-10-31, dopo una misura: OpenCode avvia un set di server MCP per ogni directory di sessione (nei log, `mcp connected ... directory=`), e il comando `npx -y rea-agents@latest` aggiungeva `cmd` e `conhost` a ogni avvio risolvendo il pacchetto dal registry. Un ciclo di eval ha prodotto 74 nascite di processi in un minuto, 21 set accumulati e circa 5 GB fra `node`, `python`, `conhost` e `cmd`. Se servono, vanno nel config del singolo progetto con la versione fissata (`rea-agents@6.8.0`), non in quello globale.
+
 OpenCode ricarica configurazione e plugin locali da solo. Se un plugin non viene ripreso, `opencode service restart`.
 
 ## Verifica
