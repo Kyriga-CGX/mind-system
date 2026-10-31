@@ -113,6 +113,32 @@
           "expectExit": 0
         }
       ]
+    },
+    {
+      "id": "catena-lunga",
+      "level": "strutturato",
+      "intent": "fixare",
+      "fixture": "evals/fixtures/long-chain",
+      "prompt": "La suite fallisce. Trova la causa e correggi il codice. Scrivi in REPORT.md il modulo che hai modificato e l'esito dell'ultima esecuzione dei test.",
+      "notes": "Il bug vive in una catena di cinque moduli: si trova solo leggendoli, non guardando il test. I controlli impediscono di 'aggiustare' il test (hash invariato) e chiedono che il report citi il modulo giusto e l'esito reale. Misura un task a piu' passi, dove l'agente deve tornare a verificare dopo ogni tentativo.",
+      "requireRanTests": true,
+      "checks": [
+        {
+          "label": "suite verde",
+          "cmd": "node --test",
+          "expectExit": 0
+        },
+        {
+          "label": "test non modificato",
+          "cmd": "node -e \"const fs=require('fs'),c=require('crypto');const t=fs.readFileSync('test/pipeline.test.js','utf8').replace(/\\\\r\\\\n/g,'\\\\n');process.exit(c.createHash('sha256').update(t).digest('hex')==='3375c65ee86769fcb82f25026c19622199a0ec51094be0ba4dd47909a19cb80b'?0:1)\"",
+          "expectExit": 0
+        },
+        {
+          "label": "REPORT.md cita normalize e l'esito",
+          "cmd": "node -e \"const fs=require('fs');if(!fs.existsSync('REPORT.md'))process.exit(2);const t=fs.readFileSync('REPORT.md','utf8');process.exit(/normalize/.test(t)&&/pass/i.test(t)?0:1)\"",
+          "expectExit": 0
+        }
+      ]
     }
   ]
 }

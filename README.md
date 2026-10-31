@@ -458,6 +458,22 @@ Da non concludere: "il gate e inutile". Da concludere: **su task brevi e autocon
 Il caso resta come **guardia**: se un giorno un agente risponde SI fidandosi di un documento, lo prende. Non discrimina, e va detto.
 
 
+### Il gate in un task a piu passi
+
+`catena-lunga`: un bug che vive in una catena di cinque moduli, il test dichiarato intoccabile (hash verificato), un report che deve citare il modulo corretto e l'esito reale.
+
+| Configurazione | Risultato |
+|---|---|
+| baseline | 2/2 |
+| mind | 3/3 |
+
+Una run della baseline e stata esclusa: due tool call, nessun output, nessun test eseguito. Un arresto, non un tentativo.
+
+Il valore del caso non e il confronto ma il vincolo: il controllo sull'hash dei test intercetta l'agente che fa passare la suite modificando il test invece del codice. Verificato in costruzione (fix vero -> 3 PASS, fix finto -> 1 FAIL), e l'unico controllo del banco che impedisce un successo falso per via strutturale.
+
+**Sintesi: tre forme di task, due modelli, nessuna differenza misurata.** Il gate di verifica resta un'abitudine utile e una guardia; non e una garanzia con effetto dimostrato.
+
+
 ## Limiti dichiarati
 
 - Il catalogo delle skill costa ~6.500 token a ogni richiesta (misurato: 26.127 caratteri): è il pedaggio della precisione di routing. Il taglio del 23% costa 5 punti di routing (91,7% -> 86,7%, misurato a 3 ripetizioni): non e gratis, ed e per questo che non l'abbiamo preso.
