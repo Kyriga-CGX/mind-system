@@ -130,7 +130,9 @@ flowchart TB
     TOK --> MO{"motion serve?"}
     MO -->|si| MOT["motion: il livello piu basso che basta, mai 3D di default"]
     MO -->|no| QA
-    MOT --> QA["audit: 37 voci verificabili + occhi freschi"]
+    MOT --> AUD["design-system: audit-ui, 37 voci verificabili"]
+    AUD -->|FAIL| TOK
+    AUD -->|PASS| QA["lust: occhi freschi, read-only (token, anti-slop, a11y, responsive)"]
     QA -->|FAIL| TOK
     QA -->|PASS| G["mind-verification + DESIGN.md aggiornato"]
 ```
