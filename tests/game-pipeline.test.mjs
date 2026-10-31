@@ -155,4 +155,8 @@ for (const p of newFiles) {
 }
 
 console.log('TEST OK: game pipeline + dottrina + 5 agenti + reference + routing + conteggi README + igiene file');
-console.log('  skill totali: ' + totalSkills + ' (' + domainCount + ' dominio + ' + pipelineCount + ' pipeline + using-mind)');
+const mindDirs = fs.readdirSync(path.join(root, 'skills', 'mind'), { withFileTypes: true })
+  .filter((d) => d.isDirectory() && fs.existsSync(path.join(root, 'skills', 'mind', d.name, 'SKILL.md')))
+  .map((d) => d.name);
+const pipelineCount = mindDirs.filter((n) => n.endsWith('-pipeline')).length;
+console.log('  skill mind: ' + mindDirs.length + ' (' + (mindDirs.length - pipelineCount) + ' di dominio e usando-mind + ' + pipelineCount + ' pipeline)');
