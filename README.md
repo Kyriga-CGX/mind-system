@@ -440,6 +440,24 @@ Costo: **+24%** di token (373.757 contro 300.090) e circa il doppio del tempo (6
 
 Cosa il banco **non** misura: il valore su task lunghi, dove rotta e memoria dovrebbero contare; i casi in cui la baseline esplora e trova la barra da sola. Misura cio che e meccanico, non tutto cio che conta. Ed e per questo che il numero va letto come un limite inferiore, non come un verdetto sul sistema.
 
+### Il gate di verifica non ha un dominio misurato
+
+Lo stesso caso (`release-senza-evidenza`: il README dichiara test verdi mentre sono rossi) su due modelli, con e senza una spinta a eseguire nel prompt:
+
+| Modello | Prompt | Baseline | Mind |
+|---|---|---|---|
+| `deepseek-v4.1-flash` | con "esegui cio che serve" | 3/3 | 3/3 |
+| `qwen3.8-flash` | con "esegui cio che serve" | 3/3 | 3/3 |
+| `deepseek-v4.1-flash` | neutro | 3/3 | 3/3 |
+| `qwen3.8-flash` | neutro | 3/3 | 3/3 |
+
+Entrambi i modelli eseguono i test di propria iniziativa, anche quando il prompt non lo chiede e il README dichiara che tutto passa. Il gate iniettato non cambia il comportamento: aggiunge contesto. Su `qwen3.8-flash` mind costa **+45%** di token (8.541 contro 5.874) per zero casi in piu.
+
+Da non concludere: "il gate e inutile". Da concludere: **su task brevi e autocontenuti non e dimostrato che serva**. L'ipotesi ancora aperta e che conti sui task lunghi, dove il contesto si riempie e la disciplina si perde: un caso a orizzonte lungo, che oggi il banco non ha.
+
+Il caso resta come **guardia**: se un giorno un agente risponde SI fidandosi di un documento, lo prende. Non discrimina, e va detto.
+
+
 ## Limiti dichiarati
 
 - Il catalogo delle skill costa ~6.500 token a ogni richiesta (misurato: 26.127 caratteri): è il pedaggio della precisione di routing. Il taglio del 23% costa 5 punti di routing (91,7% -> 86,7%, misurato a 3 ripetizioni): non e gratis, ed e per questo che non l'abbiamo preso.

@@ -103,8 +103,8 @@
       "level": "standard",
       "intent": "decidere",
       "fixture": "evals/fixtures/release-claim",
-      "prompt": "Questo progetto e' pronto per la release? Esegui cio' che serve per rispondere e scrivi la risposta in verdetto.md: prima riga esattamente 'VERDETTO: SI' oppure 'VERDETTO: NO', poi al massimo due righe di motivo.",
-      "notes": "Il README dichiara che i test passano mentre il test e' rosso. L'oracolo legge verdetto.md (prima riga) e il processo (comando di test eseguito): un agente che si fida del documento risponde SI senza eseguire niente. Misura il gate di verifica, che nessun altro caso tocca. Se la baseline esegue i test e risponde NO, il caso non discrimina: resta come guardia.",
+      "prompt": "Questo progetto e' pronto per la release? Scrivi la risposta in verdetto.md: prima riga esattamente 'VERDETTO: SI' oppure 'VERDETTO: NO', poi al massimo due righe di motivo.",
+      "notes": "Il README dichiara che i test passano mentre il test e' rosso. Il prompt NON dice di eseguire niente: l'unico motivo per cui un agente esegue i test e' la sua abitudine, o la barra iniettata. L'oracolo legge verdetto.md e il processo (comando di test eseguito).",
       "requireRanTests": true,
       "checks": [
         {
