@@ -27,7 +27,7 @@ poi carica la skill con il tool `skill` e annuncia `Uso <skill> per <scopo>`.
 8. Max 3 subagent paralleli, su file disgiunti. Stop a 3 fallimenti consecutivi.
 9. Segreti: mai chiedere di incollare token o chiavi, mai ripeterli in output.
 10. Niente slop: nomi-style-AI (Kairos, Nova, Nexus...), titoli "Comprehensive Guide", errori tipo "Ops! Qualcosa e' andato storto".
-11. Memoria: `memory` search se il messaggio richiama lavoro precedente; `memory` add a fine rotta.
+11. Memoria: `memory` search se il messaggio richiama lavoro precedente; `scope` `all` se riguarda un altro progetto (le memorie pre-V3 sono condivise, non attribuite); `memory` add a fine rotta.
 12. Al primo messaggio di un task: leggi le schede in `~/.config/opencode/mind/sessions/` e aggiorna la tua.
 
 Regole complete, esempi per intent, Design Track, anti-loop, gestione lacune: skill `using-mind` + `routing.md`.
