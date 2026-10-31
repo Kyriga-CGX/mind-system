@@ -304,6 +304,14 @@ flowchart TD
     S -.->|cloud opzionale| C[baseUrl + apiKey, timeout 5s]
 ```
 
+### Le memorie pre-V3
+
+86 memorie erano `project` senza progetto, da prima che il progetto fosse identificato. Non sono state
+attribuite per intuizione: 76 non contengono alcun riferimento a un percorso, e quelle che ne contengono
+uno nominano altri progetti (Nemvy, KAIROS, AIOS). Sono diventate `user` (condivise): non entrano nel
+progetto corrente fingendo di appartenergli, e restano raggiungibili con `scope all` quando la domanda
+riguarda un altro progetto. Nessuna cancellata, nessuna riattribuita a caso.
+
 ## Persistenza
 
 Tutto lo stato runtime passa da `plugins/mind-store.js`: lock di file, scrittura atomica (tmp + rename), quarantena dei JSON illeggibili, backup giornaliero limitato.
