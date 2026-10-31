@@ -232,11 +232,15 @@ Il costo non è nascosto: due numeri contano, e sono misurati, non stimati.
 | Cosa | Quando si paga | Misura |
 |---|---|---|
 | Router iniettato | a ogni richiesta | 2.467 byte (~620 token) |
-| Catalogo delle skill (nome + descrizione) | a ogni richiesta | 68 voci, ~25.000 caratteri (~6.200 token) |
+| Catalogo delle skill (nome + descrizione) | a ogni richiesta | 68 voci, 26.127 caratteri (~6.500 token), misurati dal test |
 | Skill caricata | solo quando la rotta la usa | 3.000-5.000 token per skill |
 | Reference interne | solo se la skill le cita | 0 a riposo |
 
-Il catalogo è il costo fisso più grande ed è **il segnale del routing**: ridurre le descrizioni è stato provato e misurato, e ha peggiorato il routing (19/20 → 16/20). Il modo corretto di ridurlo è per progetto, con `skills.paths` che include solo le skill utili a quel lavoro.
+Il catalogo è il costo fisso più grande ed è **il segnale del routing**. I numeri: le 12 descrizioni più lunghe valgono 8.446 caratteri, il 32% del catalogo; portandole a 200 caratteri si risparmiano ~1.511 token a richiesta (-23%).
+
+Quel taglio è stato provato **una volta**, su 20 casi senza ripetizioni: routing 16/20 contro 19/20. Con una sola run per caso, tre casi di differenza non distinguono il metodo dal rumore, quindi la frase onesta è: **non è dimostrato che si possa tagliare senza perdere routing**, non che sia impossibile. L'esperimento corretto costa 20 casi x 3 ripetizioni per versione, ed è la ragione per cui `--reps` esiste.
+
+Nel frattempo il tetto è imposto: `tests/context-budget.test.mjs` confronta il catalogo con 26.130 caratteri, e restano **3 caratteri** di margine. Una skill nuova non entra senza che qualcuno alzi la soglia a mano, e alzarla è una decisione scritta.
 
 ## Le 19 pipeline
 
@@ -427,7 +431,7 @@ Cosa il banco **non** misura: il valore su task lunghi, dove rotta e memoria dov
 
 ## Limiti dichiarati
 
-- Il catalogo delle skill costa ~6.200 token a ogni richiesta: è il pedaggio della precisione di routing.
+- Il catalogo delle skill costa ~6.500 token a ogni richiesta (misurato: 26.127 caratteri): è il pedaggio della precisione di routing. Il taglio del 23% è possibile tecnicamente, non dimostrato sicuro.
 - Le reference interne sono regole: si applicano solo se qualcuno le legge.
 - `mind-reverse` e le pipeline offensive richiedono un'autorizzazione esplicita prima di qualunque attività.
 - L'orchestrazione dipende dai contratti dei plugin di OpenCode: verificati su **2.2.4**, e una migrazione di major può romperli (è già successo da V1 a V2).
