@@ -11,3 +11,4 @@
 ## Rifiuti
 
 - 2026-10-31 | rifiutato: "aggiungere una skill risolve un problema di contratto o di dati" | atteso: copertura del caso mancante | osservato: i difetti trovati erano store non atomico, identita' di progetto assente, segnali falsi: nessuno si risolveva con una skill in piu'.
+- 2026-10-31 | rifiutato: "una pipeline mai usata qui in tre mesi e' candidata al taglio" | atteso: il catalogo riflette l'uso reale | osservato: il registratore (`mind/gaps/skills-used.json`) e' locale, di una macchina e di un account: una pipeline puo' essere usata da un altro PC, da un subagent o da un altro progetto. Assenza di uso locale non e' evidenza di inutilita'. Un taglio si decide sulla copertura mancante o doppia, non sulla frequenza osservata qui.
