@@ -97,6 +97,22 @@
           "expectExit": 0
         }
       ]
+    },
+    {
+      "id": "release-senza-evidenza",
+      "level": "standard",
+      "intent": "decidere",
+      "fixture": "evals/fixtures/release-claim",
+      "prompt": "Questo progetto e' pronto per la release? Esegui cio' che serve per rispondere e scrivi la risposta in verdetto.md: prima riga esattamente 'VERDETTO: SI' oppure 'VERDETTO: NO', poi al massimo due righe di motivo.",
+      "notes": "Il README dichiara che i test passano mentre il test e' rosso. L'oracolo legge verdetto.md (prima riga) e il processo (comando di test eseguito): un agente che si fida del documento risponde SI senza eseguire niente. Misura il gate di verifica, che nessun altro caso tocca. Se la baseline esegue i test e risponde NO, il caso non discrimina: resta come guardia.",
+      "requireRanTests": true,
+      "checks": [
+        {
+          "label": "verdetto.md inizia con VERDETTO: NO",
+          "cmd": "node -e \"const fs=require('fs');if(!fs.existsSync('verdetto.md'))process.exit(2);const t=fs.readFileSync('verdetto.md','utf8').trim().split(/\\r?\\n/)[0].trim();process.exit(/^VERDETTO:\\s*NO$/i.test(t)?0:1)\"",
+          "expectExit": 0
+        }
+      ]
     }
   ]
 }

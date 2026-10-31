@@ -217,7 +217,8 @@ if (cmd === 'pilot') {
   if (!opts.model) fail('serve --model <provider/modello>');
   const c = findCase(opts.case);
   if (!c.fixture) fail('il caso ' + c.id + ' non ha un fixture: pilota non eseguibile');
-  if (!c.checks || !c.checks.length) fail('il caso ' + c.id + ' non ha controlli automatici: il pilota non puo giudicarlo');
+  const haVerdetto = (c.checks && c.checks.length) || c.finalMustMatch || c.finalMustNotMatch || c.requireRanTests;
+  if (!haVerdetto) fail('il caso ' + c.id + ' non ha controlli automatici: il pilota non puo giudicarlo');
   const configs = String(opts.configs || 'baseline,mind').split(',').map((s) => s.trim()).filter(Boolean);
   const reps = Number(opts.reps || 2);
   const dry = Boolean(opts['dry-run']);
@@ -262,6 +263,7 @@ if (cmd === 'pilot') {
       let shells = 0;
       let ranTests = false;
       const commands = [];
+      const testi = [];
       for (const line of String(res.stdout || '').split('\n')) {
         if (!line.trim()) continue;
         let ev;
@@ -269,6 +271,7 @@ if (cmd === 'pilot') {
         if (ev.sessionID) sessionID = ev.sessionID;
         const tk = ev.part && ev.part.tokens;
         if (ev.type === 'step_finish' && tk) tokens += (tk.input || 0) + (tk.output || 0);
+        if (ev.type === 'text' && ev.part && ev.part.text) testi.push(String(ev.part.text));
         // processo: quante chiamate, e se ha eseguito i test
         if (ev.type === 'tool_use' && ev.part) {
           tools += 1;
@@ -282,11 +285,29 @@ if (cmd === 'pilot') {
         }
       }
 
-      const verdict = spawnSync(process.execPath, [selfPath, 'checks', '--case', c.id, '--dir', dest], {
-        encoding: 'utf8',
-        env: { ...process.env, EVAL_RUNS: runsPath() }
-      });
-      const passed = verdict.status === 0;
+      const verdict = (c.checks && c.checks.length)
+        ? spawnSync(process.execPath, [selfPath, 'checks', '--case', c.id, '--dir', dest], {
+            encoding: 'utf8',
+            env: { ...process.env, EVAL_RUNS: runsPath() }
+          })
+        : { status: 0 };
+      const finalText = testi.join('\n').trim();
+      // il verdetto sulla risposta: un agente che dichiara verde mentre il
+      // test e' rosso non passa, e il filesystem da solo non lo vedrebbe.
+      const regole = [];
+      if (c.finalMustMatch) {
+        const ok = new RegExp(c.finalMustMatch, 'i').test(finalText);
+        regole.push({ regola: 'finalMustMatch', ok, pattern: c.finalMustMatch });
+      }
+      if (c.finalMustNotMatch) {
+        const ok = !new RegExp(c.finalMustNotMatch, 'i').test(finalText);
+        regole.push({ regola: 'finalMustNotMatch', ok, pattern: c.finalMustNotMatch });
+      }
+      if (c.requireRanTests) {
+        regole.push({ regola: 'requireRanTests', ok: ranTests, pattern: 'comando di test eseguito' });
+      }
+      const finalOk = regole.every((r) => r.ok);
+      const passed = verdict.status === 0 && finalOk;
 
       const run = {
         at: new Date().toISOString(),
@@ -306,14 +327,18 @@ if (cmd === 'pilot') {
         shells,
         ranTests,
         commands: commands.slice(0, 6),
+        finalText: finalText.slice(0, 4000),
+        finalRules: regole,
         notes: 'pilot'
       };
       const appended = appendLineAtomic(runsPath(), JSON.stringify(run) + '\n', { maxBytes: 5 * 1024 * 1024 });
       if (!appended.ok) fail('registrazione non salvata: ' + (appended.reason || 'errore'));
 
+      const rotte = regole.filter((r) => !r.ok).map((r) => r.regola);
       console.log(
         '  ' + (passed ? 'PASS' : 'FAIL') + ' ' + config + ' #' + rep +
-        ' | ' + seconds + 's | ' + (tokens || '?') + ' token | exit CLI ' + res.status
+        ' | ' + seconds + 's | ' + (tokens || '?') + ' token | exit CLI ' + res.status +
+        (rotte.length ? ' | regole fallite: ' + rotte.join(',') : '')
       );
     }
   }
