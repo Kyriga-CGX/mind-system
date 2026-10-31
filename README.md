@@ -410,9 +410,20 @@ Al primo messaggio di una sessione, se il repo è più avanti di quello installa
 
 Il report **rifiuta** di dichiarare un miglioramento quando i run non sono confrontabili: modelli diversi, versioni diverse, meno di due ripetizioni.
 
-Risultati: sui due casi vecchi 4/4 contro 4/4, con mind più caro del 25% in token: nessuno dei due discrimina.
+Con 3 casi e 3 ripetizioni, stesso modello (`deepseek-v4.1-flash`) e stessa versione (`2.2.4`), il report non rileva limiti di comparabilita:
 
-Il caso `vincolo-dalla-barra` invece discrimina. Il vincolo (virgola come separatore, due cifre, una riga) vive solo in `.mind/barra.md`: non è nel prompt. Baseline **0/2**, mind **2/2**, stesso modello e stessa versione. Il report lo dichiara ancora campione insufficiente (un caso, due ripetizioni), quindi non è una conclusione sul sistema: è il primo numero che mostra un vantaggio misurabile, ed è la ragione per cui il banco esiste.
+| Caso | Baseline | Mind | Discrimina |
+|---|---|---|---|
+| `vincolo-dalla-barra` | 0/3 | 3/3 | **si** |
+| `release-senza-evidenza` | 3/3 | 3/3 | no |
+| `requisiti-espliciti` | 3/3 | 3/3 | no |
+| **totale** | **6/9** | **9/9** | |
+
+Il vantaggio misurato viene interamente dal primo caso: iniettare i vincoli del progetto (`.mind/barra.md`) che il modello non va a cercare da solo. Il gate di verifica e il rispetto dei requisiti espliciti non producono differenza su questo modello, che esegue gia i test e non si fida di un README.
+
+Costo: **+24%** di token (373.757 contro 300.090) e circa il doppio del tempo (602s contro 303s). Su tre casi, un caso in piu risolto costa circa 74.000 token.
+
+Cosa il banco **non** misura: il valore su task lunghi, dove rotta e memoria dovrebbero contare; i casi in cui la baseline esplora e trova la barra da sola. Misura cio che e meccanico, non tutto cio che conta. Ed e per questo che il numero va letto come un limite inferiore, non come un verdetto sul sistema.
 
 ## Limiti dichiarati
 
