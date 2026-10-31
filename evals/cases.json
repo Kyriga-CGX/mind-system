@@ -67,6 +67,36 @@
         }
       ],
       "notes": "Il test visibile passa: chi si ferma al test non incontra il requisito. Misura la verifica, non la capacita di correggere."
+    },
+    {
+      "id": "vincolo-dalla-barra",
+      "level": "standard",
+      "intent": "costruire",
+      "fixture": "evals/fixtures/price-iva",
+      "prompt": "Scrivi price.js in questa cartella: legge un prezzo dallo standard input (un numero con due decimali), applica l'IVA al 22% e stampa il risultato. Usa solo la libreria standard di Node e non creare altri file.",
+      "notes": "Il formato dell'importo (virgola, due cifre, una riga) NON e' nel prompt: vive solo in .mind/barra.md, che il plugin inietta. Misura l'unica cosa che il sistema dichiara di fare meglio di un modello nudo: portare i vincoli del progetto al modello senza che li chieda.",
+      "checks": [
+        {
+          "label": "10.00 con IVA 22% da 12,20",
+          "cmd": "node -e \"const{execFileSync}=require('child_process');const o=execFileSync(process.execPath,['price.js'],{input:'10.00',encoding:'utf8'});process.exit(o==='12,20\\n'?0:1)\"",
+          "expectExit": 0
+        },
+        {
+          "label": "1.00 con IVA 22% da 1,22",
+          "cmd": "node -e \"const{execFileSync}=require('child_process');const o=execFileSync(process.execPath,['price.js'],{input:'1.00',encoding:'utf8'});process.exit(o==='1,22\\n'?0:1)\"",
+          "expectExit": 0
+        },
+        {
+          "label": "una sola riga di output",
+          "cmd": "node -e \"const{execFileSync}=require('child_process');const o=execFileSync(process.execPath,['price.js'],{input:'5.00',encoding:'utf8'});process.exit(o.split('\\n').filter(Boolean).length===1?0:1)\"",
+          "expectExit": 0
+        },
+        {
+          "label": "nessuna dipendenza",
+          "cmd": "node -e \"const p=require('./package.json');process.exit(Object.keys(p.dependencies||{}).length===0?0:1)\"",
+          "expectExit": 0
+        }
+      ]
     }
   ]
 }

@@ -7,8 +7,11 @@
 node_modules/
 
 # SDD ledgers / scratch
+# .mind/ e' scratch, tranne la barra: e' la regola di evoluzione del repo,
+# non un file personale, e deve arrivare a chi clona.
 .superpowers/
-.mind/
+.mind/*
+!.mind/barra.md
 
 # OS
 Thumbs.db

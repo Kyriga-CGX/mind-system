@@ -96,7 +96,12 @@ if (cmd === 'checks') {
 
   let ok = true;
   for (const check of c.checks) {
-    const res = spawnSync(check.cmd, { cwd: dir, shell: true, encoding: 'utf8' });
+    // Un processo figlio di `node --test` eredita NODE_TEST_CONTEXT e il runner
+    // annidato esce 0 raccontando al padre, non misurando il comando. Il banco
+    // deve vedere l'exit code che vedrebbe un utente.
+    const cleanEnv = { ...process.env };
+    delete cleanEnv.NODE_TEST_CONTEXT;
+    const res = spawnSync(check.cmd, { cwd: dir, shell: true, encoding: 'utf8', env: cleanEnv });
     const expected = check.expectExit === undefined ? 0 : check.expectExit;
     const passed = res.status === expected;
     if (!passed) ok = false;

@@ -6,7 +6,7 @@ Non è una raccolta di prompt. È un livello operativo con tre proprietà che si
 
 - **non dichiara il falso**: se una scrittura fallisce, la risposta lo dice; se una protezione è degradata, lo scrive nel contesto;
 - **non perde dati**: scritture atomiche, lock fra processi, quarantena dei file illeggibili;
-- **si può misurare**: 18 suite di test, un banco di routing e un confronto con OpenCode senza mind.
+- **si può misurare**: 20 suite di test, un banco di routing e un confronto con OpenCode senza mind.
 
 ## Architettura
 
@@ -343,6 +343,16 @@ Le destinazioni si dividono in tre categorie, e la distinzione è la parte impor
 | `config` | `opencode.jsonc`, `mind-memory.json`, `vibeguard.config.json`, `dcp.jsonc`, `AGENTS.md` | sovrascritti **solo se** il file locale è identico a quello distribuito l'ultima volta; altrimenti la nuova versione arriva come `.new` |
 | `knowledge` | `mind/barra.md` | **mai** sovrascritta: è conoscenza appresa |
 
+Un aggiornamento si annulla:
+
+```powershell
+.\sync.ps1                  # aggiorna
+.\sync.ps1 -ListBackups     # quali aggiornamenti sono annullabili
+.\sync.ps1 -Restore         # annulla l'ultimo (oppure -Restore -Stamp 20261031-131502)
+```
+
+I file ripristinati tornano locali: il sync successivo propone `.new` invece di sovrascriverli. Il ripristino copre la finestra dei backup (3 per file).
+
 Un manifest (`mind/installed.json`) registra cosa è stato distribuito e a quale commit: così un aggiornamento rimuove ciò che il repo non contiene più, senza toccare i file che non ha messo lui. Le directory con `.git` vengono saltate e segnalate.
 
 Cosa **non** è gestito dal repo e vive in `~/.config/opencode/opencode.json`: il provider con i modelli locali e le integrazioni personali (server MCP come `rea`, `notion`, `unityMCP`). Il file condiviso tiene solo `context7`: ogni server in più porta le sue istruzioni e i suoi schemi a ogni richiesta, e non serve a chi clona.
@@ -351,7 +361,7 @@ OpenCode ricarica configurazione e plugin locali da solo. Se un plugin non viene
 
 ## Verifica
 
-18 suite Node e 22 verifiche PowerShell. Ognuna protegge un comportamento preciso, non una speranza.
+20 suite Node e 26 verifiche PowerShell. Ognuna protegge un comportamento preciso, non una speranza.
 
 | Suite | Cosa impedisce |
 |---|---|
@@ -369,7 +379,8 @@ OpenCode ricarica configurazione e plugin locali da solo. Se un plugin non viene
 | `design-audit` | la checklist UI svuotata o scollegata dalla skill |
 | `coverage` | la mappa che cita skill inesistenti |
 | `docs-coherence` | conteggi sbagliati nel testo che il modello legge; doppi entry point |
-| `eval-runner` | un verdetto dichiarato senza controlli; confronti fra modelli diversi |
+| `eval-runner` | un verdetto dichiarato senza controlli; confronti fra modelli diversi; un `node --test` annidato che esce 0 senza misurare |
+| `context-budget` | il costo fisso (bootstrap + catalogo) che cresce senza che nessuno lo abbia deciso |
 | `version-notice` | un avviso di aggiornamento che si ripete o che mente |
 | `sync.test.ps1` | installazione su macchina pulita, file ritirati, config locale sovrascritta |
 
@@ -391,7 +402,9 @@ Al primo messaggio di una sessione, se il repo è più avanti di quello installa
 
 Il report **rifiuta** di dichiarare un miglioramento quando i run non sono confrontabili: modelli diversi, versioni diverse, meno di due ripetizioni.
 
-Risultato del pilota: 4/4 contro 4/4 sui due casi misurati, con mind più caro del 25% in token. Nessuno dei due casi discrimina: aggiungere casi senza quella proprietà misura solo il costo. È scritto qui perché è il limite più importante del sistema, non un dettaglio.
+Risultati: sui due casi vecchi 4/4 contro 4/4, con mind più caro del 25% in token: nessuno dei due discrimina.
+
+Il caso `vincolo-dalla-barra` invece discrimina. Il vincolo (virgola come separatore, due cifre, una riga) vive solo in `.mind/barra.md`: non è nel prompt. Baseline **0/2**, mind **2/2**, stesso modello e stessa versione. Il report lo dichiara ancora campione insufficiente (un caso, due ripetizioni), quindi non è una conclusione sul sistema: è il primo numero che mostra un vantaggio misurabile, ed è la ragione per cui il banco esiste.
 
 ## Limiti dichiarati
 
@@ -413,7 +426,7 @@ skills/          9 skill esterne, ricompilate o copiate con provenienza
 docs/            coverage.md, eval, research, session-registry
 evals/           casi di valutazione, fixture, ledger dei run
 tools/           eval-run.mjs, mind-memory-migrate.mjs
-tests/           18 suite Node + verifiche PowerShell
+tests/           20 suite Node + verifiche PowerShell
 sync.ps1         installa e aggiorna la macchina dal repo
 ```
 

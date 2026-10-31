@@ -44,18 +44,85 @@ param(
     [string]$AgentsSkillsRoot = (Join-Path $HOME '.agents\skills'),
     [int]$KeepBackups = 3,
     [switch]$NoPrune,
-    [switch]$IncludeGitClones
+    [switch]$IncludeGitClones,
+    [switch]$Restore,
+    [string]$Stamp,
+    [switch]$ListBackups
 )
 
 $ErrorActionPreference = 'Stop'
 $RepoRoot = $PSScriptRoot
-$stamp = Get-Date -Format 'yyyyMMdd-HHmmss'
+$runStamp = Get-Date -Format 'yyyyMMdd-HHmmss'
 $manifestPath = Join-Path $ConfigRoot 'mind\installed.json'
 # -WhatIf resta riconosciuto dalla firma, ma le decisioni le prende $whatIf:
 # lasciare il preference attivo fa si' che i cmdlet di sola lettura (Get-FileHash,
 # Get-Item) entrino in modalita' WhatIf e restituiscano oggetti inutilizzabili.
 $whatIf = [bool]$WhatIfPreference
 $WhatIfPreference = $false
+# --------------------------------------------------------------- ripristino ---
+# Un aggiornamento deve poter essere annullato. Ogni file sovrascritto lascia
+# accanto una copia <file>.<stamp>.bak: il ripristino le rimette al loro posto.
+if ($Restore -or $ListBackups) {
+    $bakRoots = @($ConfigRoot, $AgentsSkillsRoot) | Where-Object { Test-Path -LiteralPath $_ }
+    $baks = @()
+    foreach ($r in $bakRoots) {
+        $baks += @(Get-ChildItem -LiteralPath $r -Recurse -File -Force -ErrorAction SilentlyContinue |
+            Where-Object { $_.Name -match '\.\d{8}-\d{6}\.bak$' })
+    }
+    $byStamp = @{}
+    foreach ($b in $baks) {
+        $s = ($b.Name -replace '^.*\.(\d{8}-\d{6})\.bak$', '$1')
+        if (-not $byStamp.ContainsKey($s)) { $byStamp[$s] = New-Object System.Collections.ArrayList }
+        [void]$byStamp[$s].Add($b)
+    }
+
+    if ($ListBackups) {
+        if ($byStamp.Count -eq 0) { Write-Host 'Nessun backup ripristinabile.'; return }
+        Write-Host 'Stamp ripristinabili (piu recente in alto):'
+        foreach ($s in ($byStamp.Keys | Sort-Object -Descending)) {
+            Write-Host ("  {0}  {1} file" -f $s, $byStamp[$s].Count)
+        }
+        return
+    }
+
+    $targetStamp = $Stamp
+    if (-not $targetStamp -and $byStamp.Count -gt 0) { $targetStamp = ($byStamp.Keys | Sort-Object -Descending | Select-Object -First 1) }
+    if (-not $targetStamp -or -not $byStamp.ContainsKey($targetStamp)) {
+        Write-Host "Nessun backup con stamp '$targetStamp'. Usa -ListBackups per vedere quali esistono." -ForegroundColor Red
+        exit 1
+    }
+
+    $restored = 0
+    $touched = New-Object System.Collections.ArrayList
+    foreach ($b in $byStamp[$targetStamp]) {
+        $orig = $b.FullName -replace ('.' + [regex]::Escape($targetStamp) + '.bak$'), ''
+        if ($whatIf) { Write-Host ("  ~ {0}" -f $orig); continue }
+        Copy-Item -LiteralPath $b.FullName -Destination $orig -Force
+        [void]$touched.Add($orig)
+        $restored += 1
+    }
+
+    # i file ripristinati tornano locali: il prossimo sync propone, non sovrascrive
+    if (-not $whatIf -and $touched.Count -gt 0 -and (Test-Path -LiteralPath $manifestPath)) {
+        try {
+            $m = Get-Content -LiteralPath $manifestPath -Raw | ConvertFrom-Json
+            $files = @{}
+            foreach ($p in $m.files.PSObject.Properties) { $files[$p.Name] = [string]$p.Value }
+            foreach ($f in $touched) { $files.Remove($f) }
+            $m | Add-Member -NotePropertyName files -NotePropertyValue ([pscustomobject]$files) -Force
+            $m | Add-Member -NotePropertyName restored -NotePropertyValue $targetStamp -Force
+            $utf8 = New-Object System.Text.UTF8Encoding($false)
+            [System.IO.File]::WriteAllText($manifestPath, ($m | ConvertTo-Json -Depth 6), $utf8)
+        } catch {
+            Write-Warning "Manifest non aggiornato: $($_.Exception.Message)"
+        }
+    }
+
+    Write-Host ''
+    Write-Host ("Ripristinati {0} file dallo stamp {1}." -f $restored, $targetStamp)
+    Write-Host 'Il prossimo sync tratta i file ripristinati come locali: propone .new invece di sovrascrivere.'
+    return
+}
 
 $counts = @{ copied = 0; same = 0; proposed = 0; kept = 0; pruned = 0; backupsRemoved = 0 }
 $problems = New-Object System.Collections.ArrayList
@@ -81,7 +148,7 @@ function Backup-File {
     param([string]$Path)
     if ($whatIf) { return }
     if (-not (Test-Path -LiteralPath $Path)) { return }
-    Copy-Item -LiteralPath $Path -Destination ("$Path.$stamp.bak") -Force
+    Copy-Item -LiteralPath $Path -Destination ("$Path.$runStamp.bak") -Force
 }
 
 function Prune-Backups {
@@ -348,7 +415,7 @@ if ($commit) { $commit = (@($commit)[0]).Trim() }
 $manifest = [pscustomobject]@{
     version = 1
     at      = (Get-Date).ToString('o')
-    stamp   = $stamp
+    stamp   = $runStamp
     repo    = $RepoRoot
     commit  = $commit
     files   = [pscustomobject]$newFiles
@@ -365,7 +432,7 @@ if ($problems.Count -gt 0) {
     Write-Host ''
     Write-Host 'PROBLEMI:' -ForegroundColor Red
     $problems | ForEach-Object { Write-Host "  - $_" -ForegroundColor Red }
-    Write-Host "Rollback: i file sovrascritti hanno una copia .$stamp.bak accanto."
+    Write-Host "Rollback: i file sovrascritti hanno una copia .$runStamp.bak accanto."
     exit 1
 }
 

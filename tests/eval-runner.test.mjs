@@ -13,7 +13,8 @@ const repo = path.join(here, '..');
 const runner = path.join(repo, 'tools', 'eval-run.mjs');
 const fixture = path.join(repo, 'evals', 'fixtures', 'sum-range');
 
-const root = path.join(os.tmpdir(), 'mind-eval-runner-test');
+// cartella unica: node --test esegue i file in parallelo, una path fissa collide
+const root = path.join(os.tmpdir(), 'mind-eval-runner-test-' + process.pid + '-' + Date.now());
 fs.rmSync(root, { recursive: true, force: true });
 fs.mkdirSync(root, { recursive: true });
 const runs = path.join(root, 'runs.jsonl');

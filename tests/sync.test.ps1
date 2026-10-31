@@ -99,6 +99,17 @@ try {
     Check ((Get-Content $cfgFile -Raw) -match 'modifica locale') 'config locale modificata conservata'
     Check (Test-Path "$cfgFile.new") 'nuova versione proposta in .new'
 
+    # --- 5b) restore: un aggiornamento si annulla ---
+    $rTarget = Join-Path $cfg 'plugins\mind-store.js'
+    Set-Content -Path $rTarget -Value '// contenuto locale prima del restore'
+    & $sync -ConfigRoot $cfg -AgentsSkillsRoot $agents | Out-Null
+    Check ((Get-Content $rTarget -Raw) -notmatch 'contenuto locale prima') 'sync sovrascrive il file, lasciando un backup'
+    $listed = (& $sync -ConfigRoot $cfg -AgentsSkillsRoot $agents -ListBackups 6>&1 | Out-String)
+    Check ($listed -match '\d{8}-\d{6}') 'ListBackups elenca almeno uno stamp ripristinabile'
+    & $sync -ConfigRoot $cfg -AgentsSkillsRoot $agents -Restore | Out-Null
+    Check ((Get-Content $rTarget -Raw) -match 'contenuto locale prima') 'restore riporta il file allo stato precedente'
+    & $sync -ConfigRoot $cfg -AgentsSkillsRoot $agents | Out-Null
+    Check ((Get-Content $rTarget -Raw) -notmatch 'contenuto locale prima') 'dopo il restore un sync normale sovrascrive di nuovo'
     # --- 6) pruning dei backup ---
     $target = Join-Path $cfg 'plugins\mind.js'
     1..10 | ForEach-Object { Copy-Item $target "$target.2026010$_-000000.bak" -Force }
