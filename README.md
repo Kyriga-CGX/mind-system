@@ -181,7 +181,7 @@ Le destinazioni si dividono in tre categorie, e la distinzione è la parte impor
 
 Un manifest (`mind/installed.json`) registra cosa è stato distribuito e a quale commit: così un aggiornamento rimuove ciò che il repo non contiene più, senza toccare i file che non ha messo lui. Le directory con `.git` vengono saltate e segnalate.
 
-Cosa **non** è gestito dal repo e vive in `~/.config/opencode/opencode.json`: il provider con i modelli locali, le preferenze della macchina.
+Cosa **non** è gestito dal repo e vive in `~/.config/opencode/opencode.json`: il provider con i modelli locali e le integrazioni personali (server MCP come `rea`, `notion`, `unityMCP`). Il file condiviso tiene solo `context7`: ogni server in più porta le sue istruzioni e i suoi schemi a ogni richiesta, e non serve a chi clona.
 
 OpenCode ricarica configurazione e plugin locali da solo. Se un plugin non viene ripreso, `opencode service restart`.
 
