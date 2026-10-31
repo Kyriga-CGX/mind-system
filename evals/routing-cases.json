@@ -25,7 +25,11 @@
     {
       "id": "caso-05",
       "input": "cambia il colore del bottone da verde a blu",
-      "golden": "frontend-design"
+      "golden": "frontend-design",
+      "accept": [
+        "frontend-design",
+        "nessuna"
+      ]
     },
     {
       "id": "caso-06",
@@ -90,11 +94,9 @@
     {
       "id": "caso-18",
       "input": "come avevamo fatto la cosa della configurazione l'altra volta?",
-      "golden": "mind-memory",
+      "golden": "mind-recall",
       "accept": [
-        "memory",
-        "nessuna",
-        "mind-memory"
+        "mind-recall"
       ],
       "note": "il caso riguarda il tool memory, non una skill: 'nessuna skill' e' una risposta valida"
     },

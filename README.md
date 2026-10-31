@@ -238,7 +238,18 @@ Il costo non è nascosto: due numeri contano, e sono misurati, non stimati.
 
 Il catalogo è il costo fisso più grande ed è **il segnale del routing**. I numeri: le 12 descrizioni più lunghe valgono 8.446 caratteri, il 32% del catalogo; portandole a 200 caratteri si risparmiano ~1.511 token a richiesta (-23%).
 
-Quel taglio è stato provato **una volta**, su 20 casi senza ripetizioni: routing 16/20 contro 19/20. Con una sola run per caso, tre casi di differenza non distinguono il metodo dal rumore, quindi la frase onesta è: **non è dimostrato che si possa tagliare senza perdere routing**, non che sia impossibile. L'esperimento corretto costa 20 casi x 3 ripetizioni per versione, ed è la ragione per cui `--reps` esiste.
+Misurato con **3 ripetizioni per caso**, stesso modello (`deepseek-v4.1-flash`) e stessa versione (`2.2.4`):
+
+| Catalogo | Accuratezza | Casi stabili | Instabili |
+|---|---|---|---|
+| completo (26.127 caratteri) | **91,7%** | 18/20 | 1 (`caso-05`) |
+| tagliato (20.282, -1.461 token) | **86,7%** | 18/20 | 4 (`03`, `05`, `10`, `12`) |
+
+Tre casi che passavano sempre hanno smesso: `mind-design-pipeline`, `mind-migration`, `mind-api`: le loro descrizioni contenevano le frasi di attivazione che li distinguono dai vicini. Il taglio e stato **annullato**: 1.460 token a richiesta costavano 5 punti di routing.
+
+La frase "non si puo ridurre senza rompere il routing" ora ha i numeri dietro, non un opinione: una run senza ripetizioni aveva suggerito 19/20 -> 16/20, e non bastava a dirlo.
+
+Durante la misura sono emersi **due difetti del banco**, non del sistema: `caso-18` chiedeva `mind-memory`, che non e una skill (la skill e `mind-recall`), e `caso-05` accettava solo `frontend-design` mentre `nessuna` e una risposta corretta per una modifica minima. Corretti: il 91,7% era il routing **meno due etichette difettose**.
 
 Nel frattempo il tetto è imposto: `tests/context-budget.test.mjs` confronta il catalogo con 26.130 caratteri, e restano **3 caratteri** di margine. Una skill nuova non entra senza che qualcuno alzi la soglia a mano, e alzarla è una decisione scritta.
 
@@ -431,7 +442,7 @@ Cosa il banco **non** misura: il valore su task lunghi, dove rotta e memoria dov
 
 ## Limiti dichiarati
 
-- Il catalogo delle skill costa ~6.500 token a ogni richiesta (misurato: 26.127 caratteri): è il pedaggio della precisione di routing. Il taglio del 23% è possibile tecnicamente, non dimostrato sicuro.
+- Il catalogo delle skill costa ~6.500 token a ogni richiesta (misurato: 26.127 caratteri): è il pedaggio della precisione di routing. Il taglio del 23% costa 5 punti di routing (91,7% -> 86,7%, misurato a 3 ripetizioni): non e gratis, ed e per questo che non l'abbiamo preso.
 - Le reference interne sono regole: si applicano solo se qualcuno le legge.
 - `mind-reverse` e le pipeline offensive richiedono un'autorizzazione esplicita prima di qualunque attività.
 - L'orchestrazione dipende dai contratti dei plugin di OpenCode: verificati su **2.2.4**, e una migrazione di major può romperli (è già successo da V1 a V2).

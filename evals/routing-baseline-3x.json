@@ -1,0 +1,207 @@
+{
+  "model": "opencode-go/deepseek-v4.1-flash",
+  "at": "2026-10-31T13:55:30.960Z",
+  "accuracy": 0.9166666666666666,
+  "results": [
+    {
+      "id": "caso-01",
+      "input": "voglio aggiungere il login con Google alla mia app",
+      "golden": "mind-brainstorming",
+      "got": "mind-brainstorming | mind-brainstorming | mind-brainstorming",
+      "okCount": 3,
+      "reps": 3,
+      "ok": true,
+      "seconds": 0
+    },
+    {
+      "id": "caso-02",
+      "input": "crea una dashboard completa con backend, endpoint e interfaccia",
+      "golden": "mind-pipeline",
+      "got": "mind-pipeline | mind-pipeline | mind-pipeline",
+      "okCount": 3,
+      "reps": 3,
+      "ok": true,
+      "seconds": 0
+    },
+    {
+      "id": "caso-03",
+      "input": "rifai completamente il design del sito, voglio un'identità nuova",
+      "golden": "mind-design-pipeline",
+      "got": "mind-design-pipeline | mind-design-pipeline | mind-design-pipeline",
+      "okCount": 3,
+      "reps": 3,
+      "ok": true,
+      "seconds": 0
+    },
+    {
+      "id": "caso-04",
+      "input": "dammi 3 proposte di stile per il mio portfolio",
+      "golden": "mind-design-explore",
+      "got": "mind-design-explore | mind-design-explore | mind-design-explore",
+      "okCount": 3,
+      "reps": 3,
+      "ok": true,
+      "seconds": 0
+    },
+    {
+      "id": "caso-05",
+      "input": "cambia il colore del bottone da verde a blu",
+      "golden": "frontend-design",
+      "got": "nessuna | frontend-design | nessuna",
+      "okCount": 1,
+      "reps": 3,
+      "ok": false,
+      "seconds": 0
+    },
+    {
+      "id": "caso-06",
+      "input": "aggiungi un'animazione al menu quando si apre",
+      "golden": "motion",
+      "got": "motion | motion | motion",
+      "okCount": 3,
+      "reps": 3,
+      "ok": true,
+      "seconds": 0
+    },
+    {
+      "id": "caso-07",
+      "input": "il pulsante salva non funziona, non salva i dati",
+      "golden": "mind-debugging",
+      "got": "mind-debugging | mind-debugging | mind-debugging",
+      "okCount": 3,
+      "reps": 3,
+      "ok": true,
+      "seconds": 0
+    },
+    {
+      "id": "caso-08",
+      "input": "il sito in produzione è giù da 10 minuti",
+      "golden": "mind-incident",
+      "got": "mind-incident | mind-incident | mind-incident",
+      "okCount": 3,
+      "reps": 3,
+      "ok": true,
+      "seconds": 0
+    },
+    {
+      "id": "caso-09",
+      "input": "fai un audit di sicurezza completo dell'app prima del rilascio",
+      "golden": "mind-security-audit-pipeline",
+      "got": "mind-security-audit-pipeline | mind-security-audit-pipeline | mind-security-audit-pipeline",
+      "okCount": 3,
+      "reps": 3,
+      "ok": true,
+      "seconds": 0
+    },
+    {
+      "id": "caso-10",
+      "input": "migra il progetto da Vue 2 a Vue 3",
+      "golden": "mind-migration",
+      "got": "mind-migration | mind-migration | mind-migration",
+      "okCount": 3,
+      "reps": 3,
+      "ok": true,
+      "seconds": 0
+    },
+    {
+      "id": "caso-11",
+      "input": "questo file è un disastro, ripulisci e riorganizza il codice",
+      "golden": "mind-refactor",
+      "got": "mind-refactor | mind-refactor | mind-refactor",
+      "okCount": 3,
+      "reps": 3,
+      "ok": true,
+      "seconds": 0
+    },
+    {
+      "id": "caso-12",
+      "input": "aggiungi un endpoint REST per creare ordini",
+      "golden": "mind-api",
+      "got": "mind-api | mind-api | mind-api",
+      "okCount": 3,
+      "reps": 3,
+      "ok": true,
+      "seconds": 0
+    },
+    {
+      "id": "caso-13",
+      "input": "generami un report in PDF con i dati del mese",
+      "golden": "mind-documents",
+      "got": "mind-documents | mind-documents | mind-documents",
+      "okCount": 3,
+      "reps": 3,
+      "ok": true,
+      "seconds": 0
+    },
+    {
+      "id": "caso-14",
+      "input": "scrivi il testo della landing page per il mio SaaS",
+      "golden": "mind-copy",
+      "got": "mind-copy | mind-copy | mind-copy",
+      "okCount": 3,
+      "reps": 3,
+      "ok": true,
+      "seconds": 0
+    },
+    {
+      "id": "caso-15",
+      "input": "questo testo sembra scritto da un'AI, rendilo più umano",
+      "golden": "stop-slop",
+      "got": "stop-slop | stop-slop | stop-slop",
+      "okCount": 3,
+      "reps": 3,
+      "ok": true,
+      "seconds": 0
+    },
+    {
+      "id": "caso-16",
+      "input": "non conosco questo progetto, spiegami come è fatto",
+      "golden": "mind-explore",
+      "got": "mind-explore | mind-explore | mind-explore",
+      "okCount": 3,
+      "reps": 3,
+      "ok": true,
+      "seconds": 0
+    },
+    {
+      "id": "caso-17",
+      "input": "cosa mi consigli tra Postgres e MongoDB per questo caso?",
+      "golden": "mind-consult",
+      "got": "mind-consult | mind-consult | mind-consult",
+      "okCount": 3,
+      "reps": 3,
+      "ok": true,
+      "seconds": 0
+    },
+    {
+      "id": "caso-18",
+      "input": "come avevamo fatto la cosa della configurazione l'altra volta?",
+      "golden": "mind-memory",
+      "got": "mind-recall | mind-recall | mind-recall",
+      "okCount": 0,
+      "reps": 3,
+      "ok": false,
+      "seconds": 0
+    },
+    {
+      "id": "caso-19",
+      "input": "come si configura Tailwind v4?",
+      "golden": "context7-mcp",
+      "got": "context7-mcp | context7-mcp | context7-mcp",
+      "okCount": 3,
+      "reps": 3,
+      "ok": true,
+      "seconds": 0
+    },
+    {
+      "id": "caso-20",
+      "input": "valuta se la skill mind-debugging funziona bene",
+      "golden": "mind-eval",
+      "got": "mind-eval | mind-eval | mind-eval",
+      "okCount": 3,
+      "reps": 3,
+      "ok": true,
+      "seconds": 0
+    }
+  ]
+}
