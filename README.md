@@ -72,6 +72,156 @@ flowchart LR
 | `manutenere` | il sistema mind stesso | `mind-system-sync` |
 
 Regole che valgono su ogni rotta: istruzioni dell'utente prima di tutto, sicurezza prima del codice, niente codice senza design approvato, niente fix senza root cause, `mind-verification` come unico gate (nessun "fatto" senza comandi eseguiti e output citato).
+﻿
+## I flussi, per intento
+
+Ogni rotta ha una forma. Questi diagrammi dicono cosa succede, dove sono i gate che bloccano, e cosa succede quando un gate non passa.
+
+### Sviluppo (`costruire`)
+
+```mermaid
+sequenceDiagram
+    participant O as Orchestratore
+    participant B as brainstorming
+    participant P as planning
+    participant S1 as subagent unita 1
+    participant S2 as subagent unita 2
+    participant R as review
+    participant V as verification
+    O->>B: intent + requisiti
+    B-->>O: spec approvata (docs/specs)
+    O->>P: spec
+    P-->>O: piano (header + task, senza placeholder)
+    O->>O: review piano vs spec + mappa dei file
+    O->>O: FE nuovo? mockup prima del codice
+    Note over O: scope cresciuto o 3 turni senza skill = STOP e ridichiara la rotta
+    O->>S1: unita 1 (input, output, criteri di done)
+    O->>S2: unita 2 (file disgiunti)
+    S1-->>O: DONE
+    S2-->>O: DONE
+    O->>R: diff, fix-loop (fino a 3 round sullo stesso subagent, poi escalation)
+    R-->>O: ok
+    O->>V: test + lint + evidenza fresca
+    V-->>O: verde, poi memoria
+```
+
+### Bug, incidenti, sicurezza (`fixare`)
+
+```mermaid
+flowchart TD
+    BUG["bug o comportamento inatteso"] --> DBG["mind-debugging: root cause + test che fallisce"]
+    DBG --> FIX["mind-implementation TDD: il test guida il fix"]
+    FIX --> REG["regression check: il vecchio resta verde"]
+    REG --> G["mind-verification"]
+    SEC{"dati sensibili o auth?"} -->|si| TH["mind-security: threat model PRIMA del codice"]
+    TH --> FIX
+    PROD{"produzione giu?"} -->|si| INC["mind-incident: triage, mitigazione, root cause, postmortem"]
+    INC --> G
+    AUDIT{"assessment offensivo?"} -->|si| BR["mind-breach: gate auth, probe, report"]
+    BR -->|"report per gravita"| FIX
+```
+
+### Design (`design-ui`)
+
+```mermaid
+flowchart TB
+    R["richiesta UI"] --> DIR["frontend-design: personalita, signature element, restraint"]
+    DIR --> TOK["design-system: DESIGN.md + token + anti-slop"]
+    TOK --> MO{"motion serve?"}
+    MO -->|si| MOT["motion: il livello piu basso che basta, mai 3D di default"]
+    MO -->|no| QA
+    MOT --> QA["audit: 37 voci verificabili + occhi freschi"]
+    QA -->|FAIL| TOK
+    QA -->|PASS| G["mind-verification + DESIGN.md aggiornato"]
+```
+
+Un ritocco puntuale (un colore, un bordo) salta il primo passo: e' rotta UI singola, non design strutturato.
+
+### Bug hunting autorizzato (`mind-breach-pipeline`)
+
+```mermaid
+flowchart TD
+    REQ["programma bounty o assessment autorizzato"] --> GATE["mind-auth-gate: checklist bloccante"]
+    GATE -->|"un solo NO"| STOP["STOP, nessun probe"]
+    GATE -->|verde| SC["Stage 1 SCOPE: profili + ordine, payout map, finestra e rate-limit, baseline noti"]
+    SC --> LOOP["un profilo alla volta: ciclo 2-5 completo"]
+    LOOP --> R2["Stage 2 RECON: JS bundle, header e TLS, CVE, diff release, duplicati"]
+    R2 --> CT["discovery da contratto: OpenAPI o Postman, matrice endpoint per ruolo"]
+    CT --> SA["Stage 3 SAST, nuclei solo se autorizzato"]
+    SA --> PR["Stage 4 PROBE serializzati: checklist + wordlist"]
+    PR --> GOV["stealth governor: throttle, backoff su 429, kill-switch a 3 blocchi"]
+    GOV --> CHK{"in scope?"}
+    CHK -->|no| ABORT["abort: fuori scope"]
+    CHK -->|si| CLS["classi OWASP da checklist"]
+    CLS --> SAFE{"dati terzi, scrittura, imprevisto?"}
+    SAFE -->|si| HALT["STOP immediato, decide l umano"]
+    SAFE -->|no| CA["Stage 5 CATENE su vettori confermati"]
+    CA --> NEXT{"altri profili?"}
+    NEXT -->|si| LOOP
+    NEXT -->|no| RC["Stage 6 REPORT: finding, ID test WSTG, evidence pack redatto"]
+    RC --> FX["mind-implementation: il PoC diventa regression test"]
+    FX --> RT["Stage 7 RETEST: replay del comando unico"]
+    RT -->|"rosso, meno di 3 round"| FX
+    RT -->|"rosso al terzo"| HUMAN["scala all umano"]
+    RT -->|verde| DONE["chiuso"]
+```
+
+### Reverse engineering (`mind-reverse`)
+
+```mermaid
+flowchart TD
+    REQ["come funziona X? binario, APK, Electron, firmware, WASM"] --> AUTH["mind-auth-gate: autorizzazione bloccante"]
+    AUTH -->|manca| STOP["STOP: nessuna analisi"]
+    AUTH -->|verde| S0["Stage 0 SCOPE: domanda, sotto-domande, fuori scope"]
+    S0 --> S1["Stage 1 IDENTITA: hash, formato reale, copia di lavoro"]
+    S1 --> S2["Stage 2 CLASSIFICAZIONE: nativo, gestito, JS-Electron, firmware, WASM, EVM"]
+    S2 --> S3["Stage 3 INVENTARIO: entry point, risorse, configurazione"]
+    S3 --> S4["Stage 4 TRACCIAMENTO per feature"]
+    S4 --> LED["ledger: conclusione, evidenza, cosa e osservazione e cosa inferenza"]
+    LED --> S5{"la statica basta?"}
+    S5 -->|"no, ed e autorizzato"| RT["osservazione runtime, dichiarata come tale"]
+    S5 -->|si| S6
+    RT --> S6["Stage 6 SPEC: comportamento separato dalle scelte di design"]
+    S6 --> S7["Stage 7 VERIFICA: le conclusioni reggono?"]
+    S7 --> S8["Stage 8 REPORT + memoria: limiti e incognite residue"]
+    S8 --> G["mind-verification"]
+    S6 -.->|"serve ricostruire"| IMPL["mind-implementation: codice RISCRITTO, mai copiato dal decompilato"]
+```
+
+### Videogioco (`mind-game-pipeline`, gate G0-G10)
+
+```mermaid
+flowchart TD
+    S0["0 Brief e divieti"] --> G0{"G0 verbo + 3 divieti + adapter"}
+    G0 -->|no| S0
+    G0 -->|si| S1["1 Tre verbi, con test di morte"]
+    S1 --> G1{"G1 scelta dell utente"}
+    G1 -->|nessuna passa| S1
+    G1 -->|carta scelta| S2["2 Prova di feel 60s, in grigio, zero asset"]
+    S2 --> G2{"G2 replay desire almeno 3 su 5"}
+    G2 -->|"no, max 3 prove"| S2
+    G2 -->|"terza prova no"| KILL["KILL: postmortem + memoria"]
+    G2 -->|si| S3["3 Loop e numeri"]
+    S3 --> G3{"G3 numeri con range e motivo"}
+    G3 -->|no| S3
+    G3 -->|si| S4["4 Direzione visiva e audio"]
+    S4 --> G4{"G4 approvazione utente"}
+    G4 -->|no| S4
+    G4 -->|si| S5["5 UI/UX: flusso, HUD, stati, input, accessibilita"]
+    S5 --> G5{"G5 al massimo 3 input + gamepad + a11y"}
+    G5 -->|no| S5
+    G5 -->|si| S6["6 Vertical slice: 5 minuti, inizio-fine"]
+    S6 --> G6{"G6 un estraneo arriva alla fine"}
+    G6 -->|no| S6
+    G6 -->|si| S7["7 Contenuto data-only"]
+    S7 --> S8["8 Test e performance"]
+    S8 --> S9["9 Build e distribuzione"]
+    S9 --> S10["10 Verifica e postmortem"]
+    S10 --> G10{"G10 evidenza + verdetto"}
+    G10 -->|ITERATE| S6
+    G10 -->|KEEP| DONE["build pubblicabile"]
+    G10 -->|KILL| KILL
+```
 
 ## Quanto costa
 
@@ -139,6 +289,18 @@ Tre scope, un'identità di progetto.
 L'identità di progetto viene dalla `location` della sessione passata da OpenCode, mai dal `cwd` del processo: se non è determinabile, una scrittura `project` viene **rifiutata** invece di finire nel progetto sbagliato.
 
 Le memorie precedenti a questa regola restano **non attribuite**: sono visibili con `scope: "all"` e si riattribuiscono solo con una mappatura esplicita (`tools/mind-memory-migrate.mjs`), con dry-run e backup.
+
+```mermaid
+flowchart TD
+    R1["ricorda o memorizza"] --> ADD["tool memory add"]
+    R2["dimentica"] --> FOR[tool memory forget]
+    R3["riepiloga la sessione"] --> SUM[tool memory summarize]
+    R4["come avevamo fatto..."] --> SEA[tool memory search PRIMA di rispondere]
+    ADD --> S[memories.json: scope user, oppure project con projectId]
+    SEA --> S
+    S --> L[ricerca locale pesata, top 5]
+    S -.->|cloud opzionale| C[baseUrl + apiKey, timeout 5s]
+```
 
 ## Persistenza
 
