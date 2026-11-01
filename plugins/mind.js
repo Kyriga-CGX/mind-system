@@ -2,7 +2,7 @@ import path from 'path';
 import fs from 'fs';
 import os from 'os';
 import crypto from 'crypto';
-import { headOf, originHead, shortSha } from './mind-update.js';
+import { headOf, originHead, shortSha, installedOn } from './mind-update.js';
 import { readJsonFile, writeJsonAtomic, withFileLockSync, appendLineAtomic } from './mind-store.js';
 
 // ---------------------------------------------------------------------------
@@ -386,20 +386,24 @@ const buildUpdateNotice = (sessionID) => {
   }
 
   _updateNoted.add(sessionID);
-  const lines = [];
+  // Prima riga dell'avviso: cosa e' installato e in che giorno.
+  const syncedOn = installedOn(manifest);
+  const lines = [`installato: ${shortSha(manifest.commit) || 'commit non registrato'}${syncedOn ? ` del ${syncedOn}` : ''}`];
   if (proposals.length) {
     const names = proposals.slice(0, 3).map((p) => path.basename(p)).join(', ');
     const extra = proposals.length > 3 ? ` e altri ${proposals.length - 3}` : '';
     lines.push(`versioni proposte in attesa di adozione: ${names}${extra}`);
   }
   if (uninstalled) {
-    lines.push(`il repo e' a ${shortSha(head.sha)} e l'ultimo sync registra ${shortSha(manifest.commit)}: ci sono modifiche non installate`);
+    lines.push(`il repo e' a ${shortSha(head.sha)}: ci sono modifiche non installate`);
   }
   if (differ.length) lines.push(`i plugin del repo differiscono da quelli installati: ${differ.join(', ')}`);
   if (behindOrigin) lines.push(`${origin.ref} e' a ${shortSha(origin.sha)} e HEAD a ${shortSha(head.sha)}: ci sono commit da prendere`);
   return `<MIND_UPDATE>
 Segnale automatico mind: ${lines.join('; ')}.
-Se l'utente vuole allinearsi: chiedi conferma, poi esegui \`sync.ps1\` (installa dal repo) e, se ci sono commit da origin, \`git pull\` prima di sincronizzare.
+Domanda da porre una volta sola, al primo scambio: "Sincronizzo ora? si'/no".
+Se risponde si': \`git pull\` se ci sono commit da origin, poi \`sync.ps1\`; chiudi dicendo cosa e' stato installato e in che data.
+Se risponde no: non riproporre nella stessa sessione.
 Se ci sono file .new non adottarli da solo: sono proposte da confrontare, e la scelta e' dell'utente.
 Non allineare da solo: sync sovrascrive file (con backup) e la scelta e' dell'utente.
 </MIND_UPDATE>`;
