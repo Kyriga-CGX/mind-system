@@ -99,6 +99,14 @@ try {
     Check ((Get-Content $cfgFile -Raw) -match 'modifica locale') 'config locale modificata conservata'
     Check (Test-Path "$cfgFile.new") 'nuova versione proposta in .new'
 
+    # --- 5c) due sync consecutivi senza toccare niente: la config non si tocca ---
+    & $sync -ConfigRoot $cfg -AgentsSkillsRoot $agents | Out-Null
+    Check ((Get-Content $cfgFile -Raw) -match 'modifica locale') 'config locale sopravvive al secondo sync'
+    $m2 = Get-Content (Join-Path $cfg 'mind\installed.json') -Raw | ConvertFrom-Json
+    $shippedCfg = ($m2.files.PSObject.Properties | Where-Object { $_.Name -eq $cfgFile }).Value
+    $srcCfg = (Get-FileHash (Join-Path $repo 'config\opencode.jsonc') -Algorithm SHA256).Hash.ToLower()
+    Check ($shippedCfg -eq $srcCfg) 'manifest registra la versione proposta, non quella locale'
+
     # --- 5b) restore: un aggiornamento si annulla ---
     $rTarget = Join-Path $cfg 'plugins\mind-store.js'
     Set-Content -Path $rTarget -Value '// contenuto locale prima del restore'
