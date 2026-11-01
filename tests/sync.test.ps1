@@ -120,6 +120,26 @@ try {
     Check ((Get-Content $rTarget -Raw) -match 'contenuto locale prima') 'restore riporta il file allo stato precedente'
     & $sync -ConfigRoot $cfg -AgentsSkillsRoot $agents | Out-Null
     Check ((Get-Content $rTarget -Raw) -notmatch 'contenuto locale prima') 'dopo il restore un sync normale sovrascrive di nuovo'
+    # --- 5d) manifest scritto dal codice vecchio (version 1): si propone, non si sovrascrive ---
+    $legacyCfg = Join-Path $root 'cfg-legacy'
+    $legacyAgents = Join-Path $root 'agents-legacy'
+    New-Item -ItemType Directory -Path $legacyCfg -Force | Out-Null
+    & $sync -ConfigRoot $legacyCfg -AgentsSkillsRoot $legacyAgents | Out-Null
+    $legacyFile = Join-Path $legacyCfg 'opencode.jsonc'
+    Set-Content -Path $legacyFile -Value '{ "vecchia": "config" }' -NoNewline
+    $lmp = Join-Path $legacyCfg 'mind\installed.json'
+    $lm = Get-Content $lmp -Raw | ConvertFrom-Json
+    $lf = @{}
+    foreach ($p in $lm.files.PSObject.Properties) { $lf[$p.Name] = $p.Value }
+    $lf[$legacyFile] = (Get-FileHash $legacyFile -Algorithm SHA256).Hash.ToLower()
+    $lm | Add-Member -NotePropertyName files -NotePropertyValue ([pscustomobject]$lf) -Force
+    $lm | Add-Member -NotePropertyName version -NotePropertyValue 1 -Force
+    [IO.File]::WriteAllText($lmp, ($lm | ConvertTo-Json -Depth 6), (New-Object System.Text.UTF8Encoding($false)))
+    & $sync -ConfigRoot $legacyCfg -AgentsSkillsRoot $legacyAgents | Out-Null
+    Check ((Get-Content $legacyFile -Raw) -match 'vecchia') 'manifest vecchio: config locale non sovrascritta'
+    Check (Test-Path "$legacyFile.new") 'manifest vecchio: nuova versione proposta in .new'
+    Check ((Get-Content $lmp -Raw | ConvertFrom-Json).version -eq 2) 'manifest riscritto in version 2'
+
     # --- 6) pruning dei backup ---
     $target = Join-Path $cfg 'plugins\mind.js'
     1..10 | ForEach-Object { Copy-Item $target "$target.2026010$_-000000.bak" -Force }
