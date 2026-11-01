@@ -326,10 +326,14 @@ foreach ($item in $plan) {
             # Prima esecuzione: non si puo' distinguere una versione vecchia da una
             # personalizzazione. Sovrascrivere qui cancella config locale (e' successo:
             # un blocco provider e' sparito). Si propone e basta.
-            $expected = $destHash
+            # Nel manifest va l'hash di cio' che il repo propone, non quello del file
+            # locale: altrimenti al giro dopo il sync crede di aver distribuito la
+            # versione dell'utente e la sovrascrive senza chiedere.
+            $expected = $srcHash
             $counts.proposed++
             Copy-Item -LiteralPath $item.Source -Destination "$($item.Dest).new" -Force
             Write-Warning "prima esecuzione: config locale conservata, nuova versione in $($item.Dest).new"
+            Write-Host ("  confronta: git diff --no-index -- `"{0}`" `"{0}.new`"" -f $item.Dest)
         }
         elseif ($shipped -and $shipped -eq $destHash) {
             Backup-File $item.Dest
@@ -337,10 +341,11 @@ foreach ($item in $plan) {
             $counts.copied++
         }
         else {
-            $expected = $destHash
+            $expected = $srcHash
             $counts.proposed++
             Copy-Item -LiteralPath $item.Source -Destination "$($item.Dest).new" -Force
             Write-Warning "config modificata localmente, nuova versione in $($item.Dest).new"
+            Write-Host ("  confronta: git diff --no-index -- `"{0}`" `"{0}.new`"" -f $item.Dest)
         }
     }
     else {
