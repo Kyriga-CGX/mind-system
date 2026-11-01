@@ -1,4 +1,4 @@
-﻿#Requires -Version 5.1
+#Requires -Version 5.1
 <#
 .SYNOPSIS
     Sincronizza questo repo (source of truth) con la configurazione locale di opencode.
@@ -401,8 +401,12 @@ foreach ($item in $plan) {
         [void]$problems.Add("mancante: $($item.Dest)")
         continue
     }
+    # Il manifest registra la versione distribuita oppure quella proposta in .new:
+    # la destinazione e' coerente se coincide con l'una o con l'altra. Guardare
+    # solo la destinazione segnalava un falso "hash diverso" a ogni proposta
+    # pendente (primo avvio, config modificata) e faceva uscire con codice 1.
     $expected = $newFiles[$item.Dest]
-    if ($expected -and $actual -ne $expected) {
+    if ($expected -and $actual -ne $expected -and (Get-Sha "$($item.Dest).new") -ne $expected) {
         [void]$problems.Add("hash diverso: $($item.Dest)")
     }
 }
