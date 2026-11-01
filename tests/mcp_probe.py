@@ -8,13 +8,16 @@ Verifica che il server veda l'Editor e che una tool call risponda.
 import asyncio
 import json
 import os
+import pathlib
 import shutil
 import sys
 
 from mcp import ClientSession, StdioServerParameters
 from mcp.client.stdio import stdio_client
 
-UVX = os.environ.get("UVX") or shutil.which("uvx") or r"C:\Users\Kyrig\AppData\Roaming\Python\Python312\Scripts\uvx.exe"
+UVX = os.environ.get("UVX") or shutil.which("uvx") or str(
+    pathlib.Path.home() / "AppData" / "Roaming" / "Python" / "Python312" / "Scripts" / "uvx.exe"
+)
 
 
 async def main() -> int:
