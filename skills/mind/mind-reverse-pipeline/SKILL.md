@@ -155,5 +155,3 @@ analisi vive in `mind-reverse`. Non è offensiva (`mind-breach-pipeline`), non �
 onboarding su sorgente (`mind-onboarding-pipeline`), non è sviluppo
 (`mind-pipeline`): consegna **comprensione con evidenza** e, se richiesto, una
 specifica da implementare.
-
-Base directory for this skill: C:\Users\Kyrig\.config\opencode\mind\skills\mind-reverse-pipeline
