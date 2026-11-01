@@ -139,5 +139,3 @@ confine con le vicine è netto: `mind-explore` legge **sorgente disponibile**,
 `mind-breach` cerca **vulnerabilità**, `mind-debugging` corregge un **difetto**,
 `mind-implementation` **costruisce**. mind-reverse sta a monte: capisce un artefatto
 chiuso e consegna una specifica verificabile.
-
-Base directory for this skill: C:\Users\Kyrig\.config\opencode\mind\skills\mind-reverse
