@@ -261,11 +261,20 @@ Add-Single (Join-Path $RepoRoot 'config\barra.md') (Join-Path $ConfigRoot 'mind\
 
 # ---------------------------------------------------------------- manifest ---
 $oldFiles = @{}
+$manifestVersion = 1
 if (Test-Path -LiteralPath $manifestPath) {
     try {
         $old = Get-Content -LiteralPath $manifestPath -Raw | ConvertFrom-Json
         if ($old -and $old.files) {
             foreach ($p in $old.files.PSObject.Properties) { $oldFiles[$p.Name] = [string]$p.Value }
+        }
+        # Provenienza delle voci. Dal format 2 il manifest registra l'hash di cio' che il
+        # repo propone, non quello del file locale. Un manifest piu' vecchio (version 1,
+        # scritto dal codice precedente) non permette di distinguere "l'utente non ha
+        # toccato niente" da "il repo e' cambiato": provenienza sconosciuta, quindi si
+        # propone invece di sovrascrivere.
+        if ($old -and $old.version) {
+            try { $manifestVersion = [int]$old.version } catch { $manifestVersion = 1 }
         }
     } catch {
         Write-Warning "Manifest illeggibile, lo ricostruisco: $manifestPath"
@@ -335,7 +344,7 @@ foreach ($item in $plan) {
             Write-Warning "prima esecuzione: config locale conservata, nuova versione in $($item.Dest).new"
             Write-Host ("  confronta: git diff --no-index -- `"{0}`" `"{0}.new`"" -f $item.Dest)
         }
-        elseif ($shipped -and $shipped -eq $destHash) {
+        elseif ($shipped -and $shipped -eq $destHash -and $manifestVersion -ge 2) {
             Backup-File $item.Dest
             Copy-Item -LiteralPath $item.Source -Destination $item.Dest -Force
             $counts.copied++
@@ -344,7 +353,11 @@ foreach ($item in $plan) {
             $expected = $srcHash
             $counts.proposed++
             Copy-Item -LiteralPath $item.Source -Destination "$($item.Dest).new" -Force
-            Write-Warning "config modificata localmente, nuova versione in $($item.Dest).new"
+            if ($shipped -and $shipped -eq $destHash) {
+                Write-Warning "manifest di una versione precedente (version $manifestVersion): hash non affidabile, nuova versione in $($item.Dest).new"
+            } else {
+                Write-Warning "config modificata localmente, nuova versione in $($item.Dest).new"
+            }
             Write-Host ("  confronta: git diff --no-index -- `"{0}`" `"{0}.new`"" -f $item.Dest)
         }
     }
@@ -422,7 +435,7 @@ try { $commit = (& git -C $RepoRoot rev-parse HEAD 2>$null) } catch { $commit = 
 if ($commit) { $commit = (@($commit)[0]).Trim() }
 
 $manifest = [pscustomobject]@{
-    version = 1
+    version = 2
     at      = (Get-Date).ToString('o')
     stamp   = $runStamp
     repo    = $RepoRoot
