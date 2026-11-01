@@ -1,8 +1,8 @@
-﻿import path from 'path';
+import path from 'path';
 import fs from 'fs';
 import os from 'os';
 import crypto from 'crypto';
-import { execFileSync } from 'child_process';
+import { execFileSync, spawn } from 'child_process';
 import { readJsonFile, writeJsonAtomic, withFileLockSync, appendLineAtomic } from './mind-store.js';
 
 // ---------------------------------------------------------------------------
@@ -354,6 +354,42 @@ const headOf = (repo) => {
 };
 
 const _updateNoted = new Set();
+let _originRefreshed = false;
+
+// git fetch staccato: aggiorna i ref per la PROSSIMA sessione senza aggiungere
+// latenza a questa (misurato su questo repo: 520-575 ms online, 2.1 s senza
+// rete). Un solo tentativo per processo.
+const refreshOriginInBackground = (repo) => {
+  if (_originRefreshed) return;
+  _originRefreshed = true;
+  try {
+    const child = spawn('git', ['-C', repo, 'fetch', '--quiet', '--no-tags'], {
+      detached: true, stdio: 'ignore', windowsHide: true
+    });
+    child.unref();
+  } catch {
+    // best-effort: senza rete restano i ref gia' presenti
+  }
+};
+
+// Proposte in attesa: sync.ps1 scrive <file>.new accanto alla destinazione
+// invece di sovrascrivere. Si guardano solo le posizioni dei file di config
+// (radice e mind/), non tutto l'albero: hashing di 200 file a ogni avvio no.
+const pendingProposals = () => {
+  const found = [];
+  for (const dir of [configDir(), path.join(configDir(), 'mind')]) {
+    try {
+      for (const name of fs.readdirSync(dir)) {
+        if (!name.endsWith('.new')) continue;
+        const full = path.join(dir, name);
+        try { if (fs.statSync(full).isFile()) found.push(full); } catch { /* ignora */ }
+      }
+    } catch {
+      // directory assente: niente da segnalare
+    }
+  }
+  return found;
+};
 
 const buildUpdateNotice = (sessionID) => {
   if (!sessionID || _updateNoted.has(sessionID)) return null;
@@ -371,21 +407,38 @@ const buildUpdateNotice = (sessionID) => {
   }
 
   const head = headOf(repo);
+  // Il manifest registra il commit installato: se non coincide con HEAD, il
+  // repo e' andato avanti dopo l'ultimo sync (skill, agenti, config, plugin).
+  const uninstalled = Boolean(manifest.commit && head && manifest.commit !== head);
   const origin = originHead(repo);
   const behindOrigin = Boolean(head && origin && origin.sha !== head);
+  const proposals = pendingProposals();
 
-  if (!differ.length && !behindOrigin) {
+  // i ref si leggono prima e si aggiornano dopo: questa sessione usa lo stato
+  // noto, la prossima vede se il remoto e' andato avanti. Zero latenza qui.
+  refreshOriginInBackground(repo);
+
+  if (!differ.length && !behindOrigin && !uninstalled && !proposals.length) {
     _updateNoted.add(sessionID);
     return null;
   }
 
   _updateNoted.add(sessionID);
   const lines = [];
-  if (differ.length) lines.push(`il repo ha modifiche non installate: ${differ.join(', ')}`);
+  if (proposals.length) {
+    const names = proposals.slice(0, 3).map((p) => path.basename(p)).join(', ');
+    const extra = proposals.length > 3 ? ` e altri ${proposals.length - 3}` : '';
+    lines.push(`versioni proposte in attesa di adozione: ${names}${extra}`);
+  }
+  if (uninstalled) {
+    lines.push(`il repo e' a ${head.slice(0, 7)} e l'ultimo sync registra ${String(manifest.commit).slice(0, 7)}: ci sono modifiche non installate`);
+  }
+  if (differ.length) lines.push(`i plugin del repo differiscono da quelli installati: ${differ.join(', ')}`);
   if (behindOrigin) lines.push(`${origin.ref} e' a ${origin.sha.slice(0, 7)} e HEAD a ${(head || '').slice(0, 7)}: ci sono commit da prendere`);
   return `<MIND_UPDATE>
 Segnale automatico mind: ${lines.join('; ')}.
 Se l'utente vuole allinearsi: chiedi conferma, poi esegui \`sync.ps1\` (installa dal repo) e, se ci sono commit da origin, \`git pull\` prima di sincronizzare.
+Se ci sono file .new non adottarli da solo: sono proposte da confrontare, e la scelta e' dell'utente.
 Non allineare da solo: sync sovrascrive file (con backup) e la scelta e' dell'utente.
 </MIND_UPDATE>`;
 };
