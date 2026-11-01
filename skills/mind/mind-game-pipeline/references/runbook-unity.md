@@ -34,15 +34,13 @@ Perche': solo Node, OpenCode supportato, `run_tests` e play mode, config project
 1. Package Manager → `+` → Add package from git URL: `https://github.com/CoderGamester/mcp-unity.git`
 2. `Tools > MCP Unity > Server Window` → `Start Server` (porta 8090 di default).
 3. Nella finestra, `Configure [Client] (Project)` per generare la config; se OpenCode non e' in lista, copia il JSON.
-4. In `~/.config/opencode/opencode.jsonc`, sotto `mcp`, aggiungi una voce (forma verificata del file):
+4. In `~/.config/opencode/opencode.jsonc`, sotto `mcp.servers`, aggiungi una voce (forma OpenCode V2):
 
 ```jsonc
 "unity": {
-  "type": "stdio",
-  "command": "node",
-  "args": ["<path-al-server>/build/index.js"],
-  "enabled": true,
-  "env": {
+  "type": "local",
+  "command": ["node", "<path-al-server>/build/index.js"],
+  "environment": {
     "MCP_UNITY_SETTINGS_PATH": "<path-progetto>/ProjectSettings/McpUnitySettings.json",
     "MCP_UNITY_AUTH_TOKEN_PATH": "<path-progetto>/Library/McpUnity/bridge-token"
   }
@@ -109,7 +107,7 @@ Se mcp-unity non parte: verifica porta 8090, token, path del progetto (gli spazi
 - Package: `com.coplaydev.unity-mcp` via git UPM (`https://github.com/CoplayDev/unity-mcp.git?path=/MCPForUnity#main`).
 - Server: `mcpforunityserver` 10.3.0 via `uvx` (uv 0.13.5 installato con pip).
 - Trasporto: **stdio**. EditorPrefs `MCPForUnity.UseHttpTransport = 0` → il plugin apre il bridge su **6400** e il server si collega.
-- Client opencode: voce `unity` in `opencode.jsonc`, `type: stdio`, command = path assoluto di `uvx.exe`, args `--from mcpforunityserver mcp-for-unity --transport stdio`, `DISABLE_TELEMETRY=1`.
+- Client opencode: voce `unity` in `opencode.jsonc` sotto `mcp.servers`, `type: local`, `command: ["uvx", "--from", "mcpforunityserver", "mcp-for-unity", "--transport", "stdio"]` (`uvx` nel PATH), `environment: { "DISABLE_TELEMETRY": "1" }`.
 - Verifica eseguita con `tests/mcp_probe.py` (client MCP stdio): 48 tool; `manage_editor {action: telemetry_status}` → `{"success":true}`; `refresh_unity {}` → `{"success":true,"refresh_triggered":true}`.
 - Tool group sincronizzati da Unity: animation, asset_gen, core, docs, probuilder, profiling, scripting_ext, testing, ui, vfx.
 - Nota: il default del plugin è HTTP (`UseHttpTransport=true`); con HTTP il server va configurato come `remote` su `http://127.0.0.1:8080/mcp` e richiede l'auto-start del bridge. La rotta stdio è più semplice da usare con opencode e non richiede un demone.

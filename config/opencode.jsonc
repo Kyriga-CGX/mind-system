@@ -1,54 +1,35 @@
 {
-    "$schema": "https://opencode.ai/config.json",
-    "plugin": [
-        "@tarquinen/opencode-dcp@3.2.0"
-    ],
-    "skills": {
-        "paths": [
-            "C:/Users/Kyrig/.agents/skills",
-            "C:/Users/Kyrig/.config/opencode/mind/skills"
-        ]
-    },
-    "mcp": {
-        "context7": {
-            "type": "remote",
-            "url": "https://mcp.context7.com/mcp",
-            "oauth": false,
-            "headers": {
-                "CONTEXT7_API_KEY": "{env:CONTEXT7_API_KEY}"
-            }
+  "$schema": "https://opencode.ai/config.json",
+
+  // Plugin npm del sistema. I plugin locali in ~/.config/opencode/plugins/
+  // sono auto-caricati.
+  "plugins": ["@tarquinen/opencode-dcp@3.2.0"],
+
+  // mind/skills non e' una cartella auto-scoperta da OpenCode V2: va dichiarata.
+  // ~/.agents/skills invece lo e', quindi non serve elencarla.
+  "skills": ["~/.config/opencode/mind/skills"],
+
+  // Questo file distribuisce solo context7: le integrazioni personali
+  // (rea, notion, unity, google-sheets, airtable) restano nella config locale.
+  "mcp": {
+    "servers": {
+      "context7": {
+        "type": "remote",
+        "url": "https://mcp.context7.com/mcp",
+        "oauth": false,
+        "headers": {
+          "CONTEXT7_API_KEY": "{env:CONTEXT7_API_KEY}"
         }
-    },
-    "policies": [
-        {
-            "action": "tool.use",
-            "resource": "read:*.env",
-            "effect": "deny"
-        },
-        {
-            "action": "tool.use",
-            "resource": "edit:*.env",
-            "effect": "deny"
-        },
-        {
-            "action": "tool.use",
-            "resource": "shell:git push --force*",
-            "effect": "deny"
-        },
-        {
-            "action": "tool.use",
-            "resource": "shell:git push --force-with-lease*",
-            "effect": "allow"
-        },
-        {
-            "action": "tool.use",
-            "resource": "shell:git clean -fdx*",
-            "effect": "deny"
-        },
-        {
-            "action": "tool.use",
-            "resource": "shell:git reset --hard*",
-            "effect": "deny"
-        }
-    ]
+      }
+    }
+  },
+
+  "policies": [
+    { "action": "tool.use", "resource": "read:*.env", "effect": "deny" },
+    { "action": "tool.use", "resource": "edit:*.env", "effect": "deny" },
+    { "action": "tool.use", "resource": "shell:git push --force*", "effect": "deny" },
+    { "action": "tool.use", "resource": "shell:git push --force-with-lease*", "effect": "allow" },
+    { "action": "tool.use", "resource": "shell:git clean -fdx*", "effect": "deny" },
+    { "action": "tool.use", "resource": "shell:git reset --hard*", "effect": "deny" }
+  ]
 }
