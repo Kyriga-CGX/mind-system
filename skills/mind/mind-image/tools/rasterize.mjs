@@ -4,12 +4,25 @@ import os from 'node:os';
 import path from 'node:path';
 import { spawnSync } from 'node:child_process';
 
+// I percorsi si derivano dall ambiente, non da C:: il repo gira anche su altre macchine.
+const PF = process.env.ProgramFiles || "";
+const PF86 = process.env["ProgramFiles(x86)"] || "";
+const LOCAL = process.env.LOCALAPPDATA || "";
 const BROWSERS = [
   process.env.EDGE_PATH,
-  'C:/Program Files (x86)/Microsoft/Edge/Application/msedge.exe',
-  'C:/Program Files/Microsoft/Edge/Application/msedge.exe',
-  'C:/Program Files/Google/Chrome/Application/chrome.exe',
-  'C:/Program Files (x86)/Google/Chrome/Application/chrome.exe'
+  PF86 && path.join(PF86, "Microsoft/Edge/Application/msedge.exe"),
+  PF && path.join(PF, "Microsoft/Edge/Application/msedge.exe"),
+  PF && path.join(PF, "Google/Chrome/Application/chrome.exe"),
+  PF86 && path.join(PF86, "Google/Chrome/Application/chrome.exe"),
+  LOCAL && path.join(LOCAL, "Microsoft/Edge/Application/msedge.exe"),
+  LOCAL && path.join(LOCAL, "Google/Chrome/Application/chrome.exe"),
+  // macOS e Linux: stessi nomi, posizioni standard
+  "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome",
+  "/Applications/Microsoft Edge.app/Contents/MacOS/Microsoft Edge",
+  "/usr/bin/google-chrome",
+  "/usr/bin/chromium",
+  "/usr/bin/chromium-browser",
+  "/usr/bin/microsoft-edge"
 ].filter(Boolean);
 
 const browser = BROWSERS.find(function (p) { return fs.existsSync(p); });
@@ -61,7 +74,7 @@ for (const size of sizes) {
     '--window-size=' + size + ',' + size,
     '--screenshot=' + out,
     'file:///' + page.replace(/\\/g, '/')
-  ], { stdio: 'ignore', timeout: 30000 });
+  ], { stdio: 'ignore', timeout: 30000, windowsHide: true });
   if (!fs.existsSync(out)) {
     console.error('fallito a ' + size + 'px' + (res.error ? ' (' + res.error.message + ')' : ''));
     fail++;

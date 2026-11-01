@@ -64,6 +64,8 @@ assert.ok(out.includes('<MIND_UPDATE>'), 'deve avvisare quando il repo e avanti'
 assert.ok(/sync\.ps1/.test(out), 'deve dire come allinearsi');
 assert.ok(/git pull/.test(out), 'deve nominare anche i commit da origin');
 assert.ok(/non allineare da solo/i.test(out), 'deve vietare l allineamento automatico');
+assert.ok(/installato: [0-9a-f]{7} del \d{4}-\d{2}-\d{2}/.test(out), 'deve dire cosa e installato e in che giorno: ' + out.slice(0, 200));
+assert.ok(/Sincronizzo ora\? si'\/no/.test(out), 'deve chiudere con la domanda a due scelte');
 
 // 3) una volta per sessione
 out = ctx(hooks, 'ses_b');
