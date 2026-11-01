@@ -24,3 +24,6 @@ __pycache__/
 health-report.json
 evals/runs*.jsonl
 evals/mapping-*.json
+
+# Backup manuali (le copie gestite da sync.ps1 vivono nella config, non nel repo)
+*.bak*

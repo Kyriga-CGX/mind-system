@@ -2,7 +2,7 @@ import path from 'path';
 import fs from 'fs';
 import os from 'os';
 import crypto from 'crypto';
-import { execFileSync, spawn } from 'child_process';
+import { headOf, originHead, shortSha } from './mind-update.js';
 import { readJsonFile, writeJsonAtomic, withFileLockSync, appendLineAtomic } from './mind-store.js';
 
 // ---------------------------------------------------------------------------
@@ -329,48 +329,11 @@ const fileHash = (p) => {
   }
 };
 
-const originHead = (repo) => {
-  for (const ref of ['origin/main', 'origin/master']) {
-    try {
-      const out = execFileSync('git', ['-C', repo, 'rev-parse', ref], {
-        encoding: 'utf8', timeout: 2000, stdio: ['ignore', 'pipe', 'ignore']
-      }).trim();
-      if (out) return { ref, sha: out };
-    } catch {
-      // ref assente: si prova la successiva
-    }
-  }
-  return null;
-};
-
-const headOf = (repo) => {
-  try {
-    return execFileSync('git', ['-C', repo, 'rev-parse', 'HEAD'], {
-      encoding: 'utf8', timeout: 2000, stdio: ['ignore', 'pipe', 'ignore']
-    }).trim();
-  } catch {
-    return null;
-  }
-};
+// headOf/originHead vivono in ./mind-update.js: leggono i ref come file, senza processi.
 
 const _updateNoted = new Set();
-let _originRefreshed = false;
 
-// git fetch staccato: aggiorna i ref per la PROSSIMA sessione senza aggiungere
-// latenza a questa (misurato su questo repo: 520-575 ms online, 2.1 s senza
-// rete). Un solo tentativo per processo.
-const refreshOriginInBackground = (repo) => {
-  if (_originRefreshed) return;
-  _originRefreshed = true;
-  try {
-    const child = spawn('git', ['-C', repo, 'fetch', '--quiet', '--no-tags'], {
-      detached: true, stdio: 'ignore', windowsHide: true
-    });
-    child.unref();
-  } catch {
-    // best-effort: senza rete restano i ref gia' presenti
-  }
-};
+// Nessun fetch in avvio: la rete si tocca solo dopo un si' esplicito dell'utente.
 
 // Proposte in attesa: sync.ps1 scrive <file>.new accanto alla destinazione
 // invece di sovrascrivere. Si guardano solo le posizioni dei file di config
@@ -409,14 +372,13 @@ const buildUpdateNotice = (sessionID) => {
   const head = headOf(repo);
   // Il manifest registra il commit installato: se non coincide con HEAD, il
   // repo e' andato avanti dopo l'ultimo sync (skill, agenti, config, plugin).
-  const uninstalled = Boolean(manifest.commit && head && manifest.commit !== head);
+  const uninstalled = Boolean(manifest.commit && head && manifest.commit !== head.sha);
   const origin = originHead(repo);
-  const behindOrigin = Boolean(head && origin && origin.sha !== head);
+  const behindOrigin = Boolean(head && origin && origin.sha !== head.sha);
   const proposals = pendingProposals();
 
-  // i ref si leggono prima e si aggiornano dopo: questa sessione usa lo stato
-  // noto, la prossima vede se il remoto e' andato avanti. Zero latenza qui.
-  refreshOriginInBackground(repo);
+  // Nessuno aggiorna origin qui: il ref resta quello dell'ultimo pull esplicito.
+  // Un avviso che scarica da solo non e' un avviso, e' un'azione.
 
   if (!differ.length && !behindOrigin && !uninstalled && !proposals.length) {
     _updateNoted.add(sessionID);
@@ -431,10 +393,10 @@ const buildUpdateNotice = (sessionID) => {
     lines.push(`versioni proposte in attesa di adozione: ${names}${extra}`);
   }
   if (uninstalled) {
-    lines.push(`il repo e' a ${head.slice(0, 7)} e l'ultimo sync registra ${String(manifest.commit).slice(0, 7)}: ci sono modifiche non installate`);
+    lines.push(`il repo e' a ${shortSha(head.sha)} e l'ultimo sync registra ${shortSha(manifest.commit)}: ci sono modifiche non installate`);
   }
   if (differ.length) lines.push(`i plugin del repo differiscono da quelli installati: ${differ.join(', ')}`);
-  if (behindOrigin) lines.push(`${origin.ref} e' a ${origin.sha.slice(0, 7)} e HEAD a ${(head || '').slice(0, 7)}: ci sono commit da prendere`);
+  if (behindOrigin) lines.push(`${origin.ref} e' a ${shortSha(origin.sha)} e HEAD a ${shortSha(head.sha)}: ci sono commit da prendere`);
   return `<MIND_UPDATE>
 Segnale automatico mind: ${lines.join('; ')}.
 Se l'utente vuole allinearsi: chiedi conferma, poi esegui \`sync.ps1\` (installa dal repo) e, se ci sono commit da origin, \`git pull\` prima di sincronizzare.
