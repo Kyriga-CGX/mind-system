@@ -1,4 +1,4 @@
-﻿#Requires -Version 5.1
+#Requires -Version 5.1
 <#
 .SYNOPSIS
     Verifica di accettazione di sync.ps1 su una root temporanea.
@@ -100,12 +100,14 @@ try {
     Check (Test-Path "$cfgFile.new") 'nuova versione proposta in .new'
 
     # --- 5c) due sync consecutivi senza toccare niente: la config non si tocca ---
-    & $sync -ConfigRoot $cfg -AgentsSkillsRoot $agents | Out-Null
+    $o = & $sync -ConfigRoot $cfg -AgentsSkillsRoot $agents *>&1 | Out-String
     Check ((Get-Content $cfgFile -Raw) -match 'modifica locale') 'config locale sopravvive al secondo sync'
     $m2 = Get-Content (Join-Path $cfg 'mind\installed.json') -Raw | ConvertFrom-Json
     $shippedCfg = ($m2.files.PSObject.Properties | Where-Object { $_.Name -eq $cfgFile }).Value
     $srcCfg = (Get-FileHash (Join-Path $repo 'config\opencode.jsonc') -Algorithm SHA256).Hash.ToLower()
     Check ($shippedCfg -eq $srcCfg) 'manifest registra la versione proposta, non quella locale'
+    Check ($o -notmatch 'PROBLEMI') 'proposta pendente non fa fallire la verifica finale'
+    Check ((Get-FileHash "$cfgFile.new" -Algorithm SHA256).Hash.ToLower() -eq $srcCfg) '.new contiene la versione proposta'
 
     # --- 5b) restore: un aggiornamento si annulla ---
     $rTarget = Join-Path $cfg 'plugins\mind-store.js'
