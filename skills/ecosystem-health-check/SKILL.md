@@ -25,7 +25,7 @@ Esegue il controllo dello stato dell'ecosistema e lo riporta all'utente, applica
 | Sezione | Status | Azione |
 |---|---|---|
 | skills | missing | Reinstalla le skill mancanti: copia la cartella nel path `$HOME\.agents\skills\` |
-| context7 | misconfigured | Correggi la sezione `mcp.context7` in `$HOME\.config\opencode\opencode.jsonc` (url `https://mcp.context7.com/mcp`, `enabled: true`) |
+| context7 | misconfigured | Correggi la voce `mcp.servers.context7` in `$HOME\.config\opencode\opencode.jsonc` (url `https://mcp.context7.com/mcp`, `oauth: false`, header `CONTEXT7_API_KEY: "{env:CONTEXT7_API_KEY}"`, senza `disabled`) |
 | pluginContract | misconfigured / check-failed | I plugin mind devono essere in **forma V2**: `export default { id, async setup(ctx) {...} }`, con hook registrati per dominio (`ctx.session.hook("context"|"prompt")`, `ctx.tool.hook("execute.after")`, `ctx.tool.transform`). Uno stile V1 (`export default { id, server: async (...) => ({...}) }`) **NON viene eseguito in V2**: fallisce con *"Plugin must export a default definition with an id and an effect or setup function"*. Verifica SEMPRE il log `~/.local/share/opencode/log/opencode.log`: se compare `failed to load plugin` per un plugin mind, l'intero runtime (bootstrap using-mind, registratore `skills-used.json`, tool `memory`) è spento. `mind.js` = bootstrap + segnale fuori-rotta + registratore; `mind-memory.js` = tool `memory` via `ctx.tool.transform` che ritorna `{content}` (V2), **non** `{output}` (V1) |
 | backup | stale / no-backup | Riesegui `create-backup.ps1` (nella root del repo di lavoro) per rigenerare lo zip |
 

@@ -58,7 +58,8 @@ sequenceDiagram
     O->>S: skill successiva della rotta (catena)
 ```
 
-- Il plugin **mind** fa solo 2 cose: registra la dir skill in `config.skills.paths` e inietta il bootstrap nel system prompt a ogni turno. Nessuna rete, nessun update-check (motivo: niente lentezza all'avvio).
+- La cartella `mind/skills` va dichiarata in `skills` di `opencode.jsonc`, perché OpenCode la carichi: non è auto-scoperta. `~/.agents/skills` invece lo è.
+- Il plugin **mind** non tocca la config: inietta il bootstrap di using-mind nel system prompt a ogni turno, segnala le sessioni fuori-rotta e registra l'uso di skill e subagent in `mind/gaps/`. Nessuna rete, nessun update-check (motivo: niente lentezza all'avvio).
 - Il plugin **mind-memory** è locale-first: legge `mind-memory.json` (cloud opzionale), storage in `~/.local/share/opencode/mind-memory/memories.json`.
 
 ---
