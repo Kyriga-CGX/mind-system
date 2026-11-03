@@ -28,6 +28,7 @@ Durante il lavoro, se noti un problema o un'opportunità NON previsti nel piano:
 - **Contesto isolato**: ogni subagent parte fresco, con SOLO il contesto del proprio task (brief file, non cronologia della chat) + il path assoluto di `~/.config/opencode/mind/barra.md` e `.mind/barra.md`. Il plugin la inietta anche nelle sessioni dei subagent; il path serve perché nei worktree la barra di progetto può mancare (`.mind/` spesso git-ignorato) e il brief deve puntare al checkout principale, non al worktree.
 - **Ledger**: file di stato che sopravvive alla compressione della memoria — registra ogni task, il suo stato, i risultati dei review
 - **TDD**: test fallito PRIMA, poi implementazione, poi test verde
+- **Nessun DONE senza aver guardato**: `mind-verification/reference/visual-gate.md`: ogni modifica FE lascia le prove in `.mind/visual/<feature>/`; senza evidenza letta non si dichiara `DONE`. Il subagent produce e LEGGE ritaglio + viewport e scrive una riga `atteso -> visto` per requisito del brief. La classificazione non è discrezionale: la decide il diff (`git diff --name-only`). Un refactor che non deve cambiare resa produce la prova "identico a prima" (coppia prima/dopo o baseline)
 
 ## Setup
 
@@ -54,11 +55,12 @@ Regole dispatch:
 - Un subagent per unità, tutte in parallelo
 - Preferisci subagent freschi per ogni task (non riusare lo stesso agent per task successivi, se il contesto si è sporcato)
 - Ogni subagent produce: report file con stato + diff testato
+- **Brief FE**: includi i requisiti visivi presi dal piano e il path assoluto della cartella prove (`.mind/visual/<feature>/` nel checkout principale). Il subagent non inventa i requisiti: se li inventa, si auto-assolve il gate
 
 ## Stati del report
 
 Ogni subagent termina con UNO di:
-- `DONE` — completato e testato
+- `DONE` — completato e testato e, se il diff tocca frontend, con evidenza visiva letta (screenshot + tabella `atteso -> visto`). La classificazione la decide il diff, non l'agente. Senza l'evidenza lo stato è `DONE_WITH_CONCERNS`, mai `DONE`
 - `DONE_WITH_CONCERNS` — completato con dubbi da verificare
 - `NEEDS_CONTEXT` — servono informazioni o decisioni
 - `BLOCKED` — non può procedere

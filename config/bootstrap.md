@@ -20,7 +20,7 @@ poi carica la skill con il tool `skill` e annuncia `Uso <skill> per <scopo>`.
 1. Istruzioni dell'utente prima di tutto.
 2. Sicurezza prima del codice (auth, dati sensibili, pagamenti, rete) → `mind-security`.
 3. Niente codice senza design approvato; niente fix senza root cause.
-4. `mind-verification` e' l'unico gate: nessun "fatto" senza comandi eseguiti e output citato.
+4. `mind-verification` e' l'unico gate: nessun "fatto" senza comandi eseguiti e output citato; ogni modifica FE lascia le prove visive in `.mind/visual/`.
 5. `MIND_BARRA` sono vincoli, non suggerimenti: verificala prima di consegnare; un rifiuto d'approccio va in `## Rifiuti`.
 6. Pipeline solo se consegna unica, almeno 3 stage e stato su file; altrimenti rotta singola.
 7. Rotta ambigua → conservativa (creativo→costruire, anomalia→fixare, domanda→decidere). Rotta sbagliata → rifalla.

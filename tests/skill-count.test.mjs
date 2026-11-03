@@ -1,4 +1,4 @@
-﻿// I3.3 - conteggio skill: appartengono al sistema anche le skill installate
+// I3.3 - conteggio skill: appartengono al sistema anche le skill installate
 // fuori dal prefisso `mind` (design-system, motion, stop-slop, frontend-design,
 // context7-mcp, orchestrator...). Se non vengono contate, il segnale "fuori
 // rotta" dichiara che non e' stata usata nessuna skill mentre ne e' stata usata una.
@@ -23,7 +23,7 @@ for (const dir of [
   path.join(homeDir, '.agents', 'skills', 'motion'),
   path.join(homeDir, '.agents', 'skills', 'stop-slop'),
   path.join(homeDir, '.agents', 'skills', 'context7-mcp'),
-  path.join(homeDir, '.agents', 'skills', 'orchestrator'),
+  path.join(homeDir, '.agents', 'skills', 'design-md'),
   path.join(proj, '.mind')
 ]) fs.mkdirSync(dir, { recursive: true });
 
@@ -62,7 +62,7 @@ assert.strictEqual(e.skills['mind-debugging'], 1, 'skill mind registrata');
 assert.strictEqual(e.noSkillTurns, 0, 'nessun turno "senza skill" quando ne usi una');
 
 // Le altre skill esterne del sistema contano tutte.
-for (const id of ['design-system', 'motion', 'stop-slop', 'context7-mcp', 'orchestrator', 'using-mind']) {
+for (const id of ['design-system', 'motion', 'stop-slop', 'context7-mcp', 'design-md', 'using-mind']) {
   const sid = 'ses_' + id;
   hooks.prompt({ sessionID: sid, prompt: { text: 'x' } });
   hooks['execute.after']({ sessionID: sid, tool: 'skill', input: { id } });

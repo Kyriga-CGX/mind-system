@@ -515,7 +515,6 @@ plugins/
   mind-memory/   plugin memoria locale-first (tool memory)
 skills/
   mind/          using-mind (orchestratore) + routing.md + fma-agents.md + 46 skill di dominio
-  orchestrator/  wrapper storico del routing (fonte verità: using-mind/routing.md)
   + 8 skill custom (context7-mcp, design-md, design-system, ecosystem-health-check,
     execution-hygiene, frontend-design, motion, stop-slop)
 config/agents/   sage.md (subagent Sage = Van Hohenheim, consulenza/ragionamento)
