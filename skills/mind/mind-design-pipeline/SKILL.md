@@ -11,7 +11,7 @@ description: Pipeline di design end-to-end per UI nuove o rifatte (brief → aud
 2. **Due gate di approvazione, mai saltati**: (a) la direzione estetica la sceglie l'utente tra 2-3 concept; (b) il mockup va approvato PRIMA del codice di produzione. Niente approvazione = niente stage successivo.
 3. **DESIGN.md è la fonte di verità**: dallo Stage 4 in poi ogni colore, spaziatura, radius e font viene dai token. Hex hardcoded e px letterali nel diff = difetto (`design-system/enforce.md`).
 4. **Anti-slop prima della maturità**: prima si passa il gate C1-C9 (`anti-slop.md`), poi si applicano i pattern P1-P3 (`design-system/patterns.md`) e F1-F7 (`motion/patterns.md`: F1-F3 atmosfera/load, F4 ricette, F5 performance, F6 icone, F7 esserini vivi). I pattern non giustificano lo slop.
-5. **Si guarda, non si immagina**: mockup e risultato finale vanno VISTI (screenshot letti dall'agente, o verifica nel browser chiesta all'utente). Un'affermazione estetica senza screenshot non è verificata.
+5. **Si guarda, non si immagina**: mockup e risultato finale vanno VISTI, con gli screenshot LETTI dall'agente; se non è possibile, lo stato è `DONE_WITH_CONCERNS` e la consegna chiede la conferma dell'utente. Un'affermazione estetica senza screenshot non è verificata. `mind-verification/reference/visual-gate.md`: ogni modifica FE lascia le prove in `.mind/visual/<feature>/`; senza evidenza letta non si dichiara `DONE`.
 6. **Skip solo per assenza**: niente audit senza UI esistente, niente motion senza animazioni, niente copy senza testi nuovi. Mai saltare per fretta.
 7. **Budget di chiamate**: ogni stage produce UN artefatto in `.mind/design/<progetto>/`; nessuno riesplora ciò che un artefatto già contiene.
 8. **Nessun controllo nativo al default**: `<select>`, scrollbar, checkbox, radio, range, file, date, placeholder, autofill e focus ring non sono componenti "minori". Ognuno è stilizzato con i token o dichiarato nativo per scelta, con il motivo scritto (`design-system/native-controls.md`). Un menu bianco su tema scuro non è un dettaglio da rifinire: è un FAIL.
@@ -154,7 +154,7 @@ E $f '- **→ design-md / design-system**: Stage 4 (`create.md` per il DESIGN.md
 - **→ design-md / design-system**: Stage 4 (`create.md` per il DESIGN.md), Stage 6b e 9-10 (`native-controls.md` per le superfici native, `enforce.md`, `anti-slop.md`, `patterns.md`).
 | Chi implementa si auto-valuta esteticamente | review in contesto fresco: subagent Lust, read-only |
 | Animazioni sparse per "dare vita" | una coreografia di load + motion che risponde alle azioni |
-| Dire "è bello" senza screenshot | screenshot letti o verifica nel browser chiesta all'utente |
+| Dire "è bello" senza screenshot | screenshot letti dall'agente; se non è possibile, `DONE_WITH_CONCERNS` + conferma dell'utente |
 | Consegnare un path nudo da cercare a mano | hyperlink `file://` assoluto (Ctrl+click) per mockup e artefatti |
 | Interrompere l'utente a ogni passo | interruzioni solo ai due gate di approvazione |
 
