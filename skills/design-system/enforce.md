@@ -21,6 +21,7 @@ Ogni spaziatura in pixel va mappata sulla scala semantica del DESIGN.md invece c
 
 - Gli spazi `padding`, `margin`, `gap`, `inset` ecc. espressi in px vanno sostituiti con il token semantico più vicino della scala (es. `--space-1`, `--space-2`, `--space-4`) rispettando il ritmo definito nel DESIGN.md.
 - Non introdurre un px "a caso" tra due step della scala: se serve un valore che non esiste, il passo giusto è arrotondare allo step più vicino o estendere la scala nel DESIGN.md, non aggiungere un letterale.
+- Se il DESIGN.md non dichiara ancora una scala di spaziatura, usa il default 8pt/4pt di `sizing.md` finché il progetto non ne dichiara una propria con un motivo scritto.
 - Lo stesso vale per altri valori ritmici (larghezze di contenitore, raggi — vedi `rounded`): usa i token del DESIGN.md, non numeri sparsi.
 
 ## Regola 3 — Verifica il contrasto per ogni nuova coppia colore/testo
@@ -61,6 +62,7 @@ Vale per `<select>`, scrollbar, checkbox, radio, range, file input, date input, 
 Tipografia, radius, pesi e spaziature sono **scale chiuse**: un valore nuovo o entra nella scala del DESIGN.md, o non esiste.
 
 - Prima di scrivere un valore, cerca quello esistente più vicino nella scala. Se non c'è, la scelta è tra arrotondare e **estendere la scala nel DESIGN.md** con una riga di motivo. Mai un letterale nel CSS.
+- Dimensioni dei componenti (bottoni, input, icone) e bersagli tocco seguono la stessa logica di scala chiusa: vedi `sizing.md` per i valori di default e le soglie minime di accessibilità.
 - Un valore che compare su un solo elemento è deriva, non gerarchia. È misurabile: `scripts/teardown/teardown.mjs` conta le "misure occasionali" (≤3 elementi) di qualsiasi artefatto, incluso il tuo.
 - La scala tipografica serve a ridurre le decisioni: se le misure usate sono più di 5-6, la gerarchia non sta nella tipografia — sta nel peso, nel colore o nello spazio.
 - Font variabile: la gerarchia si fa con pesi intermedi **dichiarati** (es. 500/600/650), non aggiungendo un colore dove basta un peso.

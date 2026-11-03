@@ -62,7 +62,7 @@ Uso: si percorre tutta la lista una volta, si segna PASS/FAIL per voce, e si cor
 
 - **H1 · Lo stato vive nell'URL** - filtri, tab e paginazione sono nella URL; indietro e avanti funzionano; un link incollato riapre la stessa vista. *Verifica:* cambia filtro, copia la URL, aprila in una scheda nuova, poi usa indietro.
 - **H2 · Tema scuro** - `color-scheme` dichiarato e contrasti riverificati sul tema scuro, non ereditati. *Verifica:* cambia il tema di sistema e ripeti A2 e A3 sul tema scuro.
-- **H3 · Touch** - bersagli almeno 44px, `touch-action` corretto, nessun evidenziazione del tap rimossa senza sostituto. *Verifica:* misura il lato dei bersagli e prova con il dito, non con il mouse.
+- **H3 · Touch** - bersagli almeno 44px (48dp se il target include Android), spaziatura minima 8px tra bersagli adiacenti, `touch-action` corretto, nessun evidenziazione del tap rimossa senza sostituto (soglie e dimensioni componenti in `sizing.md`). *Verifica:* misura il lato dei bersagli e prova con il dito, non con il mouse.
 - **H4 · Formati** - date, numeri e valute con `Intl`, mai composti a mano. *Verifica:* cerca nel codice le date composte a mano (concatenazioni, `split` su stringhe di data).
 
 ## Come si chiude

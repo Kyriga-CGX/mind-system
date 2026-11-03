@@ -14,7 +14,7 @@ Fai queste domande alla persona, una alla volta. Cerca risposte con un punto di 
 1. **Aesthetic** — Come deve sentirsi questo prodotto? (ad es. amichevole, clinico, premium, industriale, editoriale). Nome una cosa memorabile che la gente dovrebbe notare.
 2. **Colore** — Quale palette racconta la storia? Chiedi un colore primario, una superficie (sfondo), un colore del testo e un'accent. Ottieni valori hex o descrizioni forti.
 3. **Tipografia** — Avete typeface di brand, o dobbiamo sceglierne una? Chiedi una display face, una body face e una utility face (se serve per caption/dati).
-4. **Spaziatura** — Quale ritmo va bene? Chiedi se vogliono whitespace generoso/arioso o layout densi/compatti. Usa uno step base di spaziatura (ad es. 4px, 8px).
+4. **Spaziatura** — Quale ritmo va bene? Chiedi se vogliono whitespace generoso/arioso o layout densi/compatti. Default: scala a step 8px (unità 4px per componenti piccoli), vedi `sizing.md` per la tabella completa e il motivo del default. Se la persona non ha un'opinione, proponi 8pt invece di lasciare la domanda aperta; una scala diversa si adotta solo con un motivo esplicito da scrivere nel DESIGN.md.
 5. **Forme** — Arrotondate o squadrate? Chiedi una scala di radius e se gli angoli trasmettono amichevolezza, pulizia o rigidità.
 6. **Livello di rischio** — Quanto audaci possiamo essere? Chiedi se vogliono un singolo elemento caratteristico e il resto quieto, oppure una pagina più massimalista.
 
@@ -40,7 +40,7 @@ Scrivi `DESIGN.md` alla root del progetto. Segui esattamente lo standard DESIGN.
   - `colors:` — la palette (token nominati → valori hex).
   - `typography:` — le display/body/utility face e la scala tipografica.
   - `rounded:` — la scala dei radius.
-  - `spacing:` — la scala di spaziatura e l'unità base.
+  - `spacing:` — la scala di spaziatura e l'unità base. Senza un motivo esplicito per deviare, usa il default 8pt/4pt di `sizing.md` (include anche dimensioni componenti e bersagli tocco minimi).
   - `controls:` — solo se la UI ha form, liste o contenitori scrollabili: tecnica scelta per `<select>`, scrollbar, checkbox/radio, range, file, date e focus ring, con la data `verified`.
 - **Rationale in prosa** — in italiano, spiega *perché* esistono questi token: il soggetto, il pubblico, il compito della pagina. Ogni token deve avere una ragione, non solo un valore.
 - **Direzione estetica** — una breve sezione che descrive la sensazione visiva e il singolo elemento caratteristico. È l'ancora anti-slop: deve essere specifica del prodotto, non una descrizione di maniera.
