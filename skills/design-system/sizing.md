@@ -4,12 +4,12 @@ Questo file viene letto dall'agente in due momenti: durante il survey di `create
 
 ## Perché 8pt come default
 
-Non è una convenzione estetica: è la scala che la maggior parte degli schermi (densità di pixel multiple di 8 su iOS/Android/desktop) rende senza arrotondamenti frazionari, ed è lo standard de facto di Material Design, Apple HIG e dei principali design system (Tailwind, Chakra, Material 3). Usarla come default riduce le decisioni arbitrarie nel survey di `create.md`, non le elimina: un progetto con un motivo scritto (es. un brand con una griglia a 10px già esistente) può dichiarare una scala diversa nel `DESIGN.md`.
+Non è una convenzione estetica: è la scala che la maggior parte degli schermi (densità di pixel multiple di 8 su iOS/Android/desktop) rende senza arrotondamenti frazionari, ed è la griglia dichiarata da Material 3 (4dp, con spaziatura a 8dp) e da Apple HIG (4pt/8pt), e la stessa unità base da 4px su cui sono costruiti i design system più diffusi: Tailwind parte da 0.25rem e ammette step intermedi (12, 20, 28), quindi non è una scala di soli multipli di 8. Usarla come default riduce le decisioni arbitrarie nel survey di `create.md`, non le elimina: un progetto con un motivo scritto (es. un brand con una griglia a 10px già esistente) può dichiarare una scala diversa nel `DESIGN.md`.
 
 ## La scala
 
-- **Unità base: 4px.** Usala per spaziature interne a componenti piccoli (tra icona e testo in un bottone, tra label e input).
-- **Step: multipli di 8px** per tutto il resto: `4, 8, 12, 16, 24, 32, 40, 48, 64, 80, 96`.
+- **Unità base: 4px, il mezzo passo.** Usala per le spaziature interne a un componente (tra icona e testo in un bottone, tra label e input).
+- **Passo: 8px** per tutto il resto. Il mezzo passo resta ammesso solo dentro un componente (4 e 12): la scala è `4, 8, 12, 16, 24, 32, 40, 48, 64, 80, 96`, e 6, 10, 14, 18 non esistono.
 - Un valore che non cade su uno step è un letterale fuori scala (`enforce.md` Regola 2/7): o si arrotonda, o si estende la scala nel `DESIGN.md` con un motivo scritto.
 
 ## Dimensioni dei componenti (punto di partenza, da token-izzare nel DESIGN.md)

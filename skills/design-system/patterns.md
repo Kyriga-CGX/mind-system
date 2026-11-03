@@ -38,13 +38,13 @@ Una riga sottile di stato del sistema (es. "prossimo refresh in 12m · 3 watcher
 
 Prima di scrivere JS (o adottare una libreria) per un effetto che il browser offre nativamente, controlla se una di queste capacità lo copre. Non è una lista di tendenze da inseguire a memoria: è un controllo di freschezza, stesso protocollo di `native-controls.md`, si riverifica online, non si cita a data vecchia.
 
-Verificato online al 2026-11-03 (supporto stimato; una voce con verifica più vecchia di 180 giorni si riverifica prima di riusarla):
+Verificato online al 2026-11-03 su MDN browser-compat-data e caniuse (una voce con verifica più vecchia di 180 giorni si riverifica prima di riusarla):
 
 | Capacità | Copre | Supporto | Nota |
 |---|---|---|---|
-| **View Transitions (cross-document)**: `@view-transition { navigation: auto }` | transizione tra pagine della stessa origin senza libreria SPA-like | Chrome/Edge consolidato, in crescita sugli altri motori (~83-85% globale) | sostituisce il fade/slide scritto a mano in JS per le navigazioni multi-pagina |
+| **View Transitions (cross-document)**: `@view-transition { navigation: auto }` | transizione tra pagine della stessa origin senza libreria SPA-like | Chrome/Edge 126+, Safari 18.2+; Firefox no (solo same-document, da 144); ~88% globale su caniuse | sostituisce il fade/slide scritto a mano in JS per le navigazioni multi-pagina |
 | **Scroll-driven animations**: `animation-timeline: scroll()`/`view()` | reveal, parallax, barra di progresso lettura, senza scroll listener JS | Chrome/Edge stabile dal 2023, Safari 26 | preferita a `IntersectionObserver` fatto a mano per lo stesso effetto, coerente con `motion/priority-ladder.md`, livello 1 (CSS prima di JS) |
-| **Anchor positioning**: `anchor-name` / `position-anchor` | popover, tooltip, dropdown ancorati senza libreria di posizionamento JS | Chrome 125+, Edge 125+, Safari 26; Firefox non ancora | già citata in `native-controls.md` N7 per gli overlay |
+| **Anchor positioning**: `anchor-name` / `position-anchor` | popover, tooltip, dropdown ancorati senza libreria di posizionamento JS | Baseline 2026 (settembre): Chrome/Edge 125+, Firefox 147+, Safari 26 parziale / 27 completo; ~84% globale | già citata in `native-controls.md` N7 per gli overlay |
 
 - **APPLICATO** se una di queste capacità sostituisce codice JS o una libreria che facevano la stessa cosa, o abilita un effetto richiesto dal brief che altrimenti servirebbe una dipendenza.
 - **NON APPLICATO** (ed è corretto) se nessuna serve al brief: usarle "perché sono nuove" è lo stesso default da evitare di una libreria styled adottata senza motivo (`native-controls.md`, scelta di libreria).
