@@ -49,7 +49,24 @@ Saltare un passaggio = mentire, non verificare
 | Barra rispettata | Ogni criterio di `barra.md` verificato sul deliverable + ogni rifiuto d'approccio della sessione ha una riga in `## Rifiuti` | "Ho seguito il brief", barra non letta |
 | UI accessibile | Axe-core: 0 violations + check manuali (contrasto, tastiera, etichette) | "Il testo c'è", contrasto verificato a occhio |
 | Regressione visiva ok | Diff screenshot esaminati / baseline confermata | "Sembra uguale", screenshot accettato a scatola chiusa |
+| Delta FE adeguato alla richiesta | Screenshot del delta LETTO + una riga `atteso -> visto` per requisito (`reference/visual-gate.md`) | Test verdi, "dovrebbe apparire", path citato senza aprire l'immagine |
 | Testi/nomi senza slop | Blacklist + tells (stop-slop/references/naming.md) passati sul deliverable | "Sembra originale", check non eseguito |
+
+## Gate visivo (ogni modifica FE)
+
+`mind-verification/reference/visual-gate.md`: ogni modifica FE lascia le prove in `.mind/visual/<feature>/`; senza evidenza letta non si dichiara `DONE`.
+
+"Modifica FE" si decide dal diff (`git diff --name-only`: componenti, stili, template, asset statici, token), non da un giudizio su cosa si vede. **Senza eccezioni** (decisione utente 2026-11-03): un refactor che non deve cambiare resa produce la prova "identico a prima" (coppia prima/dopo o baseline di regressione).
+
+1. **Le prove sono file**: `.mind/visual/<feature>/` con il ritaglio dell'elemento, il viewport e `visual.md` (requisito | file | atteso | visto | esito), scritti nel checkout principale, non nel worktree.
+2. **Chi scrive il codice le legge** e dichiara `atteso -> visto`; senza questo non c'è `DONE`.
+3. **Lust** giudica gli stessi file in contesto fresco contro brief, `barra.md` e token.
+4. **L'orchestratore non accetta il verdetto di Lust come evidenza**: apre una immagine per superficie consegnata e conferma lui. Fidarsi del report di un agente è un red flag di questa skill.
+5. **Se la superficie non è raggiungibile** (login, dati reali, browser assente): `DONE_WITH_CONCERNS` con il motivo e conferma visiva dell'utente. Mai passare in silenzio.
+
+Ricetta (tre vie per produrre lo screenshot, 8 difetti da cercare, anti-pattern): `reference/visual-gate.md`.
+
+Controllo meccanico delle prove: `node skills/mind/mind-verification/tools/visual-check.mjs .mind/visual/<feature>` (exit 0 = complete; altrimenti dice riga per riga cosa manca).
 
 ## Red flags — FERMATI
 
@@ -123,6 +140,12 @@ Saltare un passaggio = mentire, non verificare
 ```
 ✅ [Esegui screenshot diff] [Vedi: baseline o diff esaminati] → "La UI non è regredita"
 ❌ "Sembra uguale a prima"
+```
+
+**Gate visivo (delta FE):**
+```
+✅ [Screenshot elemento + viewport, LETTI] [Tabella: atteso -> visto per requisito] -> "La modifica fa quello che era chiesto"
+❌ "I test passano, la UI dovrebbe essere a posto" / "screenshot salvato" senza aprirlo
 ```
 
 **Slop check (deliverable con nomi/testi):**

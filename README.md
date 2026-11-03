@@ -1,4 +1,4 @@
-﻿# mind-system
+# mind-system
 
 Orchestrazione per agenti di coding: skill che dichiarano *come* si lavora, un router che decide *quale* skill usare, memoria che sopravvive alle sessioni, e controlli che dicono la verità quando qualcosa non funziona.
 
@@ -71,7 +71,7 @@ flowchart LR
 | `scrivere` | docs, copy, i18n, dati | `mind-docs` / `mind-copy` |
 | `manutenere` | il sistema mind stesso | `mind-system-sync` |
 
-Regole che valgono su ogni rotta: istruzioni dell'utente prima di tutto, sicurezza prima del codice, niente codice senza design approvato, niente fix senza root cause, `mind-verification` come unico gate (nessun "fatto" senza comandi eseguiti e output citato).
+Regole che valgono su ogni rotta: istruzioni dell'utente prima di tutto, sicurezza prima del codice, niente codice senza design approvato, niente fix senza root cause, `mind-verification` come unico gate (nessun "fatto" senza comandi eseguiti e output citato); ogni delta FE passa dal gate visivo (screenshot letti, tabella `atteso -> visto`, orchestratore che conferma di persona: `mind-verification/reference/visual-gate.md`).
 ﻿
 ## I flussi, per intento
 
@@ -281,7 +281,7 @@ Una pipeline si usa **solo** se ricorrono tre condizioni: consegna unica, almeno
 
 ## Skill, agenti, copertura
 
-- **59 skill** in `skills/mind` (40 di dominio + 19 pipeline) e **9 skill esterne** in `skills/` (design-system, frontend-design, motion, stop-slop, context7-mcp, design-md, execution-hygiene, ecosystem-health-check, orchestrator deprecata).
+- **59 skill** in `skills/mind` (40 di dominio + 19 pipeline) e **8 skill esterne** in `skills/` (design-system, frontend-design, motion, stop-slop, context7-mcp, design-md, execution-hygiene, ecosystem-health-check).
 - **8 agenti** in `config/agents`: `sage` (consulenza), `lust` (review visiva), `forge` (sistema), `game-director`, `game-art-director`, `game-ui-designer`, `feel-engineer`, `playtest-critic`.
 - **Copertura** dichiarata in `docs/coverage.md`: 13 domini per 4 momenti (capire, progettare, fare, verificare), con i **gap espliciti** dove non esiste un metodo.
 

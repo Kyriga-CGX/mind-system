@@ -94,6 +94,8 @@ Da usare quando la strategia (FASE 1) ha individuato flussi utente critici end-t
 
 ### FASE 5.1 — VISUAL REGRESSION (screenshot diff)
 
+> **Adeguatezza != regressione.** Questa fase verifica che il vecchio non sia cambiato. Che il nuovo faccia quello che era chiesto lo dice il gate visivo (`mind-verification/reference/visual-gate.md`): ogni modifica FE lascia le prove in `.mind/visual/<feature>/`; senza evidenza letta non si dichiara `DONE`.
+
 Per rotte/componenti UI dove la regressione visiva conta (stili, layout, DESIGN.md). Complementare al design debt check dell'orchestratore.
 
 - **Setup**: Playwright `toHaveScreenshot()` (o Percy se il progetto lo usa già). Baseline = screenshot del primo run accettato.

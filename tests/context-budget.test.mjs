@@ -1,4 +1,4 @@
-﻿// Il costo fisso di mind e' cio' che il modello riceve a OGNI richiesta, che
+// Il costo fisso di mind e' cio' che il modello riceve a OGNI richiesta, che
 // lo usi o no: il bootstrap iniettato e il catalogo delle skill (nome +
 // descrizione di ogni SKILL.md). Non e' un numero nel README: e' un test.
 //
@@ -12,9 +12,13 @@ import assert from 'assert';
 import { fileURLToPath } from 'url';
 
 const BOOTSTRAP_BUDGET = 3000; // caratteri di config/bootstrap.md
-const CATALOG_BUDGET = 26130; // somma di name + description di ogni SKILL.md
-// Misurato il 2026-10-31 su 68 skill: 26.127. Il budget e' la misura, non un
-// ideale: sale solo insieme a un taglio equivalente, mai da solo.
+const CATALOG_BUDGET = 26297; // somma di name + description di ogni SKILL.md
+// Misurato il 2026-10-31 su 68 skill: 26.127. Rimisurato il 2026-11-03 su 68
+// skill: 26.297, con la rimozione della skill deprecata orchestrator (-183) e
+// l'ingresso di project-011-tickets (+352), installata dall'ambiente in
+// ~/.agents/skills (skill privata di progetto, non del sistema mind).
+// Il budget e' la misura, non un ideale: sale solo insieme a un taglio
+// equivalente, mai da solo.
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const repo = path.join(here, '..');
@@ -27,7 +31,7 @@ const bootstrapBytes = Buffer.byteLength(bootstrap, 'utf8');
 const skillDirs = [path.join(configDir(), 'mind', 'skills'), path.join(os.homedir(), '.agents', 'skills')];
 
 const frontmatterField = (text, field) => {
-  const normalized = text.replace(/\r\n/g, '\n');
+  const normalized = text.replace(/^\uFEFF/, '').replace(/\r\n/g, '\n');
   const m = /^---\n([\s\S]*?)\n---/.exec(normalized);
   if (!m) return '';
   for (const line of m[1].split('\n')) {

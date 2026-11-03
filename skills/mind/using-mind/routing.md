@@ -61,6 +61,10 @@ Le pipeline di dominio (data, mobile, infra, observability, ml, rollout, decommi
 
 Solo due approvazioni utente bloccano una pipeline: mockup e contratti critici. Il resto fila senza interruzioni. Mockup-first: ogni implementazione che crea un FE nuovo parte da un mockup; se il FE esiste gia, niente mockup rigenerato salvo richiesta esplicita dell'utente.
 
+## Gate visivo (ogni delta FE)
+
+`mind-verification/reference/visual-gate.md`: ogni modifica FE lascia le prove in `.mind/visual/<feature>/`; senza evidenza letta non si dichiara `DONE`. La modifica è FE se lo dice il diff (`git diff --name-only`), non l'impressione di chi ha scritto il codice. Screenshot LETTI, tabella `atteso -> visto`, Lust per il giudizio di design, orchestratore che conferma di persona.
+
 ## Matrice lacune (forge vs eval vs routing)
 
 ```
