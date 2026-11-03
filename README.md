@@ -281,7 +281,7 @@ Una pipeline si usa **solo** se ricorrono tre condizioni: consegna unica, almeno
 
 ## Skill, agenti, copertura
 
-- **59 skill** in `skills/mind` (40 di dominio + 19 pipeline) e **9 skill esterne** in `skills/` (design-system, frontend-design, motion, stop-slop, context7-mcp, design-md, execution-hygiene, ecosystem-health-check, orchestrator deprecata).
+- **59 skill** in `skills/mind` (40 di dominio + 19 pipeline) e **8 skill esterne** in `skills/` (design-system, frontend-design, motion, stop-slop, context7-mcp, design-md, execution-hygiene, ecosystem-health-check).
 - **8 agenti** in `config/agents`: `sage` (consulenza), `lust` (review visiva), `forge` (sistema), `game-director`, `game-art-director`, `game-ui-designer`, `feel-engineer`, `playtest-critic`.
 - **Copertura** dichiarata in `docs/coverage.md`: 13 domini per 4 momenti (capire, progettare, fare, verificare), con i **gap espliciti** dove non esiste un metodo.
 
