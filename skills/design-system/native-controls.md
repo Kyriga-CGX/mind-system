@@ -18,6 +18,16 @@ Il gradino 2 non è vietato, è **dichiarato**. Vietato è arrivarci senza dirlo
 
 **Regola anti-slop**: se da uno screenshot si riconosce la libreria, non hai progettato. Una styled lib si adotta insieme alla mappatura completa dei suoi token (colore, radius, spaziatura, ombra, focus ring) e alla cancellazione delle varianti morte: adottarla e basta significa consegnare il tema di qualcun altro.
 
+## La stessa scala, oltre i controlli di form
+
+La scala a tre gradini non è specifica di `<select>` e scrollbar: è il criterio con cui si sceglie **qualsiasi** libreria di componenti (bottoni, card, dialog, tabelle, navigazione), non solo le superfici di form coperte sopra.
+
+- **Gradino 0, CSS/HTML nativo + componenti custom sui token del DESIGN.md.** Default per componenti semplici (bottoni, card, badge): costruirli direttamente sui token (`colors:`, `spacing:`/`sizing.md`, `rounded:`) costa poco e non porta un look estraneo.
+- **Gradino 1, headless component library** (gli stessi candidati del registro sotto: Base UI, Radix Primitives, React Aria, Ark UI) quando il comportamento è complesso (tabelle con sort/filtro, combobox, drawer, virtualizzazione) ma l'aspetto deve restare quello del DESIGN.md.
+- **Gradino 2, styled component library** (shadcn/ui, HeroUI, Chakra v3, Mantine, Ant Design) quando il brief accetta un look non originale o il tempo batte l'identità (UI interne, admin, MVP). Si adotta con lo stesso vincolo della Regola anti-slop sopra: mappatura completa dei token, non il tema di default.
+
+Criterio di scelta in una riga: parti da 0, sali di gradino solo quando il gradino sotto non copre il requisito (comportamento o tempo), e scrivi la scelta nel `DESIGN.md` con lo stesso formato superficie → tecnica → versione/licenza → `verified: AAAA-MM-GG` del protocollo di ricerca qui sotto. Le dimensioni dei componenti scelti (bottoni, input, icone) seguono comunque la scala di `sizing.md`, anche quando arrivano da una libreria: una libreria con i suoi size token (es. Radix Themes) va rimappata sulla scala del progetto, non adottata con i suoi valori di default.
+
 ## Cosa è vero al 2026-10-27
 
 Verificato online in questa data. Riverifica prima di citarlo in un brief: queste righe invecchiano.
