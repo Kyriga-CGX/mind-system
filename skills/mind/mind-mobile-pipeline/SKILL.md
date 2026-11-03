@@ -88,7 +88,7 @@ Collega le funzionalità native e i servizi: push notification (FCM/APNs), stora
 **Gate**: build firmata testata in store interno PRIMA della pubblicazione pubblica; rollback plan con versione precedente nota.
 
 ### Stage 10 — Verifica finale + memoria
-`mind-verification` su TUTTO il delta: test verdi, build firmata, requisiti rispettati (rientro su `01-brief.md`/`state.json`), regressione su emulatore e dispositivo. Se fallisce → torna allo stage che lo ha prodotto (fix loop, budget R≤3). Salva in `mind-memory` (tool `memory` add): stack scelto, decisioni, architettura, pattern, esito. Se richiesto → riepilogo consegna.
+`mind-verification` su TUTTO il delta: test verdi, build firmata, requisiti rispettati (rientro su `01-brief.md`/`state.json`), regressione su emulatore e dispositivo, gate visivo chiuso. `mind-verification/reference/visual-gate.md`: ogni modifica FE lascia le prove in `.mind/visual/<feature>/`; senza evidenza letta non si dichiara `DONE`. Se fallisce → torna allo stage che lo ha prodotto (fix loop, budget R≤3). Salva in `mind-memory` (tool `memory` add): stack scelto, decisioni, architettura, pattern, esito. Se richiesto → riepilogo consegna.
 
 ## Economia di chiamate (budget)
 

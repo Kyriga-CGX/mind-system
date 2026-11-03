@@ -1,4 +1,4 @@
-﻿# mind-system
+# mind-system
 
 Orchestrazione per agenti di coding: skill che dichiarano *come* si lavora, un router che decide *quale* skill usare, memoria che sopravvive alle sessioni, e controlli che dicono la verità quando qualcosa non funziona.
 
@@ -71,7 +71,7 @@ flowchart LR
 | `scrivere` | docs, copy, i18n, dati | `mind-docs` / `mind-copy` |
 | `manutenere` | il sistema mind stesso | `mind-system-sync` |
 
-Regole che valgono su ogni rotta: istruzioni dell'utente prima di tutto, sicurezza prima del codice, niente codice senza design approvato, niente fix senza root cause, `mind-verification` come unico gate (nessun "fatto" senza comandi eseguiti e output citato).
+Regole che valgono su ogni rotta: istruzioni dell'utente prima di tutto, sicurezza prima del codice, niente codice senza design approvato, niente fix senza root cause, `mind-verification` come unico gate (nessun "fatto" senza comandi eseguiti e output citato); ogni delta FE passa dal gate visivo (screenshot letti, tabella `atteso -> visto`, orchestratore che conferma di persona: `mind-verification/reference/visual-gate.md`).
 ﻿
 ## I flussi, per intento
 

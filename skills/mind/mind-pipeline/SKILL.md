@@ -35,7 +35,7 @@ Cartella di lavoro: `.mind/delivery/<feature>/` (feature = slug kebab-case).
 | `02-mockup.md` | mockup/design approvato (o nulla se skip) |
 | `02-feedback.md` | esito approvazione utente |
 | `03-contracts.md` | contratti API: endpoint, payload, errori, auth (da `mind-api`) |
-| `04-fe.md` | implementazione FE (subagent FE) |
+| `04-fe.md` | implementazione FE (subagent FE) + evidenza visiva in `.mind/visual/<feature>/` (`visual.md` con `atteso -> visto`) |
 | `05-be.md` | implementazione BE (subagent BE) |
 | `06-integration.md` | collegamento endpoint FE↔BE, verifica flusso |
 | `07-security.md` | threat model + fix (da `mind-security`) |
@@ -62,6 +62,8 @@ Se tocca auth/dati sensibili: `mind-security` (threat model) entra QUI, prima de
 ### Stage 4 — Implementazione FE
 Subagent FE (in parallelo con BE SOLO se i contratti sono già definiti e i file non collidono — vedi controllo conflitti). TDD. Aggiorna `04-fe.md`.
 
+**Gate visivo (obbligatorio, nessuna eccezione)**: `mind-verification/reference/visual-gate.md`: ogni modifica FE lascia le prove in `.mind/visual/<feature>/`; senza evidenza letta non si dichiara `DONE`. Il subagent scatta ritaglio + viewport, li LEGGE e scrive `atteso -> visto`; la classificazione la decide il diff. Senza l'evidenza il task torna indietro, non passa allo Stage 5.
+
 Brief ai subagent FE/BE: includi il path assoluto di `~/.config/opencode/mind/barra.md` e del `.mind/barra.md` del checkout principale, con l'istruzione di verificare i criteri prima di consegnare.
 
 ### Stage 5 — Implementazione BE
@@ -78,7 +80,7 @@ Collega FE ↔ BE secondo `03-contracts.md`. Verifica i flussi reali (chiamate, 
 `mind-testing`: unità + integrazione + (se UI) e2e con Playwright. Visual regression e a11y se rotta UI. Aggiorna con evidenza.
 
 ### Stage 9 — Gate finale
-`mind-verification` su TUTTO il delta: test verdi, build ok, requisiti rispettati (rientro su `01-brief.md`), regressione ok. Se qualcosa fallisce → torna allo stage che lo ha prodotto (fix loop, budget R≤3).
+`mind-verification` su TUTTO il delta: test verdi, build ok, requisiti rispettati (rientro su `01-brief.md`), regressione ok, gate visivo chiuso (leggi `visual.md` e apri una immagine per superficie consegnata: il verdetto di Lust non è evidenza). Se qualcosa fallisce → torna allo stage che lo ha prodotto (fix loop, budget R≤3).
 
 ### Stage 10 — Memoria
 Salva in `mind-memory` (tool `memory` add): decisioni, architettura, pattern, esito. Se richiesto → riepilogo consegna.
