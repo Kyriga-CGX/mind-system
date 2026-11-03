@@ -112,3 +112,5 @@ Regola: un gate che non si può eseguire **si dichiara**, non si salta in silenz
 ## Il gate è verificabile
 
 `visual.md` con una riga per requisito, ogni file esistente e non vuoto, ogni `visto` compilato. Se manca una riga, il delta non è verificato — indipendentemente da quanti test sono verdi.
+
+**Controllo meccanico**: `node skills/mind/mind-verification/tools/visual-check.mjs .mind/visual/<feature>` (exit 0 = prove complete; altrimenti elenca riga per riga cosa manca, incluso il viewport). Non giudica se l'immagine somiglia alla richiesta: quello resta a una persona o a Lust.
