@@ -10,6 +10,7 @@ import fs from 'fs';
 import path from 'path';
 import assert from 'assert';
 import { fileURLToPath } from 'url';
+import { execFileSync } from 'child_process';
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const repo = path.join(here, '..');
@@ -36,6 +37,12 @@ assert.ok(!ref.includes('tocca pixel'), 'visual-gate.md usa ancora la formula di
 assert.ok(ref.includes('-prima.png'), 'visual-gate.md non chiede lo stato prima del refactor');
 assert.ok(ref.includes('baseline'), 'visual-gate.md non ammette la baseline di regressione come prova');
 
+// 3b. Il controllo a runtime esiste e funziona (non solo la documentazione).
+const toolPath = path.join(mind, 'mind-verification', 'tools', 'visual-check.mjs');
+assert.ok(fs.existsSync(toolPath), 'manca il controllo a runtime visual-check.mjs');
+const selfTestOut = execFileSync(process.execPath, [toolPath, '--self-test'], { encoding: 'utf8' });
+assert.ok(selfTestOut.includes('SELFTEST OK'), 'self-test del controllo fallito: ' + selfTestOut);
+assert.ok(ref.includes('visual-check.mjs'), 'visual-gate.md non nomina il controllo a runtime');
 // 4. Frase normativa identica in ogni carrier (una sola formulazione, niente riscritture divergenti).
 const CANON = 'ogni modifica FE lascia le prove in `.mind/visual/<feature>/`; senza evidenza letta non si dichiara `DONE`.';
 assert.ok(ref.toLowerCase().includes('ogni modifica fe lascia le prove'), 'visual-gate.md non contiene la frase normativa');

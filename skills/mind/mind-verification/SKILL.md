@@ -66,6 +66,8 @@ Saltare un passaggio = mentire, non verificare
 
 Ricetta (tre vie per produrre lo screenshot, 8 difetti da cercare, anti-pattern): `reference/visual-gate.md`.
 
+Controllo meccanico delle prove: `node skills/mind/mind-verification/tools/visual-check.mjs .mind/visual/<feature>` (exit 0 = complete; altrimenti dice riga per riga cosa manca).
+
 ## Red flags — FERMATI
 
 - Usi "dovrebbe", "probabilmente", "sembra"
