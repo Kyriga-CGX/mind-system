@@ -15,7 +15,7 @@ Il sistema mind è un artefatto con un ciclo di vita: esistono fonti esterne (re
 | 2 | MAI SYNC ALLA CIECA: prima il preflight (backup timestampato + dry-run con diff), poi il sync selettivo. Il preflight è di `ecosystem-health-check` — non reimplementarlo qui. |
 | 3 | MAI SOVRASCRIVERE `opencode.jsonc` da un repo esterno (path utente e sintassi env locali): riconciliazione manuale, sempre. |
 | 4 | NON DUPLICARE: prima di integrare, controlla che una skill esistente non copra già il caso (`using-mind/routing.md`). Se esiste e rende male → `mind-eval`, non una seconda skill. |
-| 5 | REGISTRAZIONE OBBLIGATORIA: nessun pezzo integrato senza voce in `using-mind/SKILL.md` + `using-mind/routing.md` + `orchestrator/*`. Una skill non instradata è nata morta. |
+| 5 | REGISTRAZIONE OBBLIGATORIA: nessun pezzo integrato senza voce in `using-mind/SKILL.md` + `using-mind/routing.md`. Una skill non instradata è nata morta. |
 | 6 | DOCS NELLO STESSO GIRO: README, conteggi skill/pipeline e diagrammi si aggiornano nella stessa sessione del sync, non "dopo". |
 | 7 | UNA FONTE ALLA VOLTA: un upstream per ciclo (un repo, una cartella, un artefatto), con verifica prima di passare al successivo. |
 
@@ -62,7 +62,6 @@ Il sistema mind è un artefatto con un ciclo di vita: esistono fonti esterne (re
 ### FASE 5 — REGISTRAZIONE NEL ROUTING
 - [ ] `using-mind/SKILL.md`: tabella intenti + precedenza.
 - [ ] `using-mind/routing.md`: tabella INTENT → STAGE → GATE, esempio, dettaglio rotta, caso particolare.
-- [ ] `orchestrator/SKILL.md` + `orchestrator/routing.md`: voce nella tabella e caso.
 - [ ] Se è un agente: aggiungilo in `using-mind/fma-agents.md` (ruolo, verbo, emoji, battuta).
 - [ ] Controlla che il nome non collida e che il routing punti al file reale.
 
@@ -93,7 +92,7 @@ Nessun sync è completo senza: (1) preflight con backup + dry-run diff, (2) vend
 
 - Un candidato senza licenza dichiarata → non vendorabile: segnala e ferma.
 - README che dice un numero di skill diverso da quello reale.
-- Pezzo integrato ma assente da `using-mind`/`orchestrator` → nato non instradato.
+- Pezzo integrato ma assente da `using-mind` → nato non instradato.
 - "L'ho già fatto ma non l'ho scritto": non è fatto.
 
 ## COORDINAMENTO (obbligatorio)
