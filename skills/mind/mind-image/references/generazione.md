@@ -29,7 +29,7 @@ Esempio usabile: "tazzina di ceramica smaltata bianca su bancone di marmo grigio
 | Mani e oggetti tenuti in mano | l'errore piu frequente | inquadratura che le evita, o compositing con foto vera |
 | Dettagli piccoli (< 2% del frame) | si fondono | dettaglio grande o assente |
 | Precisione geometrica | simmetrie sbagliate di poco, fastidio garantito | costruzione procedurale |
-| Icone e segni | e il lavoro di `mind-mark` | SVG disegnato, poi `mind-image` per i file |
+| Icone e segni | dipende dal segno: se e un simbolo geometrico il vettoriale vince a 16 px; se serve materia o un disegno che non sai costruire, il modello locale (`modello-locale.md`) | `mind-mark` per il segno, questa skill per i file; il confronto a 48 px decide |
 
 ## Due passaggi, non venti
 
