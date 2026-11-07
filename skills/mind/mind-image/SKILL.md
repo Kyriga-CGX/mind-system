@@ -1,6 +1,6 @@
 ---
 name: mind-image
-description: Produzione e consegna di FILE immagine: raster (foto, illustrazioni, texture, hero, screenshot di prodotto) e contenitori di icone (.ico, .icns, favicon set, PNG per lo store), piu conversione, ritaglio, upscale e colore di un asset esistente. Attivazione: "genera o serve un'immagine", "converti in .ico", "la favicon del sito", "app icon per lo store da esportare", "screenshot per la scheda dello store", "upscala questa foto", "ritaglia", "cambia il colore del logo", "riduci il peso delle immagini". NON e per disegnare un segno o un'icona che non esiste (-> mind-mark), NON e per UI o token (-> frontend-design, design-system), NON e per il motion (-> motion), NON e per comporre o modificare un documento PDF/DOCX/XLSX/PPTX (-> mind-documents), NON e per la prosa (-> mind-copy).
+description: Produzione e consegna di FILE immagine: raster (foto, illustrazioni, texture, hero, screenshot) e contenitori di icone (.ico, .icns, favicon set, mipmap Android, PNG per lo store), piu conversione, ritaglio, upscale e colore. Se c'e un modello locale va verificato e usato; se manca si propone il download con GB e VRAM. Attivazione: "genera o serve un'immagine", "l'icona dell'app", "converti in .ico", "la favicon del sito", "screenshot per lo store", "upscala questa foto", "ritaglia", "cambia il colore del logo", "riduci il peso delle immagini". NON per disegnare un segno che non esiste (-> mind-mark), NON per UI o token (-> frontend-design, design-system), NON per il motion (-> motion), NON per documenti PDF/DOCX/XLSX/PPTX (-> mind-documents), NON per la prosa (-> mind-copy).
 ---
 
 # mind-image — immagini che reggono dove vengono usate
@@ -13,7 +13,7 @@ Questa skill rifiuta due scorciatoie: chiedere a un modello senza specifica, e g
 
 | # | Legge |
 |---|-------|
-| 1 | **Il modello e l'ultimo gradino, non il primo.** Ordine: materiale reale → costruzione procedurale → compositing → modello generativo. Ogni salto va motivato in una riga. |
+| 1 | **Se la macchina ha un modello generativo per immagini, va verificato per primo** (`tools/model-fit.mjs`: enum del loader, non assenza presunta) e usato quando l'utente non ha vietato il costo. Il gradino procedurale resta obbligatorio per i soggetti geometrici e come alternativa quando il modello manca. In ogni caso il verdetto e il test alla dimensione d'uso. |
 | 2 | **Nessuna immagine senza destinazione.** Formato, dimensione d'uso, sfondo su cui vivra, peso massimo: decisi prima di produrre il primo pixel. |
 | 3 | **Il prompt e una specifica, non una poesia.** Soggetto, luce, lente, materia, composizione, cosa NON deve comparire. "Cinematic, 8k, masterpiece" non sono informazioni. |
 | 4 | **Si guarda alla dimensione d'uso.** L'immagine si legge come file, poi si rivede a 320px (o 16px). Se il dettaglio sparisce, era decorazione. |
@@ -55,12 +55,14 @@ Percorri la scala e fermati al gradino piu basso che basta, scrivendo perche:
 | 3. Compositing | serve un'immagine con elementi veri (prodotto su fondo, mockup, collage) | medio, controllabile |
 | 4. Modello generativo | serve materia o atmosfera che non puoi costruire: pelle, tessuto, paesaggio, luce | costo per immagine, non deterministico |
 
+- [ ] Se la macchina ha un modello generativo per immagini, verificalo prima di tutto il resto: `node tools/model-fit.mjs` (`references/modello-locale.md`). Presente -> si usa e si dichiara il costo; assente -> gate con quattro numeri misurati (GB su disco, VRAM di picco, secondi per immagine, cartella) e la scelta e dell'utente.
+
 - [ ] Elenca cio che esiste gia nel progetto (`public/`, `assets/`, `docs/`) prima di generare.
 - [ ] Raccogli 3-5 riferimenti reali con la ragione di ciascuno: composizione, luce, materia. Non "stile".
 - [ ] Scrivi i divieti: cosa non deve comparire (concorrente, simbolo di categoria, volto riconoscibile, testo).
-- [ ] Se serve il gradino 4 e non c'e una chiave API: dichiaralo e proponi il gradino 2 o 3, non fingere.
+- [ ] Se serve il gradino 4 e non c'e ne modello locale ne chiave API: dichiaralo e proponi il gradino 2 o 3, non fingere.
 
-**Gate**: gradino scelto + riferimenti + divieti, scritti prima di produrre.
+**Gate**: gradino scelto + riferimenti + divieti + stato del modello (presente e usato, o assente con il gate risposto), scritti prima di produrre.
 
 ## FASE 2 — Costruzione
 
