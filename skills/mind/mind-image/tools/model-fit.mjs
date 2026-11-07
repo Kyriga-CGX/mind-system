@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 // model-fit - la macchina puo reggere il modello? Inventario prima del gate di download.
 //
-// Zero dipendenze. Node 18+ (node:http, fs.statfsSync).
+// Zero dipendenze. Node 18.15+ (fs.statfsSync esiste da li; verificato su Node 24).
 // Non scarica niente e non modifica niente: legge e stampa.
 //
 //   node model-fit.mjs
