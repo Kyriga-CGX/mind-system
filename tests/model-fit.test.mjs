@@ -89,7 +89,10 @@ const run = (port, extra = []) =>
   const r = await run(9, ['--timeout', '400']);
   assert.equal(r.status, 3, 'motore spento deve uscire 3');
   assert.match(r.stdout, /NON RISPONDE/);
+  assert.match(r.stdout, /NON VERIFICATO/);
+  assert.match(r.stdout, /motore spento: presenza non verificabile/);
   assert.match(r.stdout, /verdetto\s+motore-assente/);
+  assert.doesNotMatch(r.stdout, /\bnull\b/, 'senza motore non si stampa null');
 }
 
 // 5. --json: la forma che serve a una skill per decidere

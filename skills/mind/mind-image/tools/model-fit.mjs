@@ -123,6 +123,7 @@ async function main() {
     const entry = { id: m.id, label: m.label, measured: m.measured, present: null, missing_nodes: [], loadable: [], fits: null, reason: null };
     if (!report.engine.up) {
       entry.present = "unknown";
+      entry.reason = "motore spento: presenza non verificabile";
       report.models.push(entry);
       continue;
     }
@@ -180,7 +181,7 @@ async function main() {
     console.log("disco     " + (report.disk ? report.disk.free_gb + " GB liberi in " + report.disk.dir : "non verificato (passa --models-dir)"));
     for (const e of report.models) {
       const k = KNOWN.find((x) => x.id === e.id);
-      const state = e.present === true ? "PRESENTE" : e.present === false ? "ASSENTE" : "?";
+      const state = e.present === true ? "PRESENTE" : e.present === false ? "ASSENTE" : "NON VERIFICATO";
       console.log("");
       console.log(e.label + "  ->  " + state);
       console.log("  " + e.reason);
