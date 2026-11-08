@@ -98,7 +98,7 @@
       "accept": [
         "mind-recall"
       ],
-      "note": "il caso riguarda il tool memory, non una skill: 'nessuna skill' e' una risposta valida"
+      "note": "il caso riguarda il tool memory: `mind-recall` e' la skill attesa quando la ricerca diretta in memoria non basta"
     },
     {
       "id": "caso-19",
