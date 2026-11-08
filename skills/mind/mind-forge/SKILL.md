@@ -121,6 +121,7 @@ Presenta all'utente una proposta **prima di creare qualsiasi file**:
 
 - [ ] Nome proposto (segue le convenzioni: `mind-*` per skill, personaggio FMA per agenti).
 - [ ] Problema che risolve + evidenza (dalla FASE 1).
+- [ ] **Esito atteso concreto**: cosa cambia per l utente quando il pezzo esiste (una richiesta tipo che oggi fallisce e domani funziona). Non "migliora la copertura": un comportamento osservabile.
 - [ ] Cosa copre / cosa NON copre (confini vs skill esistenti, controllo anti-duplicazione).
 - [ ] Tipo: skill / agente / pipeline.
 - [ ] Costo (righe stimate, impatto sul routing).
@@ -196,7 +197,7 @@ mind-forge NON decide la rotta: è richiamato da **using-mind** (orchestratore).
 
 ## Gate
 
-Nessun file creato senza: (1) evidenza della lacuna, (2) approvazione utente, (3) controllo anti-duplicazione. La skill è "completa" solo quando è **instradata** e **verificata**.
+Nessun file creato senza: (1) evidenza della lacuna, (2) approvazione utente, (3) controllo anti-duplicazione, (4) esito atteso osservabile (una richiesta tipo che oggi fallisce e domani funziona). La skill è "completa" solo quando è **instradata** e **verificata**.
 
 ## NB
 
