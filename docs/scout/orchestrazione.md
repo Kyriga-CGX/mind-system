@@ -19,7 +19,7 @@ Bersaglio del giro: **la decisione di rotta non è misurata da nessuna parte.** 
 ### orchestrazione/eval-coherence — Il bench e la tabella di routing non possono divergere in silenzio
 - **fonte**: https://www.promptfoo.dev/docs/integrations/ci-cd/ · pubblicata non dichiarata · consultata 2026-11-08 · nessuna versione indicata · licenza non dichiarata
 - **cosa**: eval solo sui path che cambiano, exit non-zero sotto soglia, JSON + JUnit. Soglia invece del 100% perché il giudizio non è deterministico.
-- **difetto che copre**: `evals/routing-cases.json:18` — senza questo la golden si sposta per far passare il caso e niente lo segnala: `caso-18` accetta `mind-recall` mentre `routing.md` dice "PRIMA: memory search → se non basta: mind-recall"; nessun file in `tests/` cita `routing-cases.json` né `routing-eval-set.md`.
+- **difetto che copre**: `evals/routing-cases.json` — senza questo la deriva tra bench e router è silenziosa: misurato in questo giro, 4 golden (`mind-refactor`, `mind-api`, `mind-design-explore`, `mind-security-audit-pipeline`) chiedono skill che `using-mind/SKILL.md` + `routing.md` non nominano mai, e il baseline del 30 ottobre conteneva una golden impossibile (`mind-memory`, skill inesistente).
 - **verdetto**: affina(`mind-eval`)
 - **proposta**: `tests/routing-coherence.test.mjs` senza modello, che fallisca quando una golden contraddice la riga corrispondente di `routing.md` (e quando la golden nomina una skill inesistente); il bench con modello resta manuale con path filter su `routing.md` + `skills/*/SKILL.md`.
 - **costo / rischio**: ~30 righe, zero rete, zero licenze. Copre la deriva delle golden, non l'accuratezza.

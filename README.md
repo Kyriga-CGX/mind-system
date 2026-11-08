@@ -386,7 +386,7 @@ OpenCode ricarica configurazione e plugin locali da solo. Se un plugin non viene
 
 ## Verifica
 
-20 suite Node e 26 verifiche PowerShell. Ognuna protegge un comportamento preciso, non una speranza.
+24 suite Node e 26 verifiche PowerShell. Ognuna protegge un comportamento preciso, non una speranza.
 
 | Suite | Cosa impedisce |
 |---|---|
@@ -406,6 +406,8 @@ OpenCode ricarica configurazione e plugin locali da solo. Se un plugin non viene
 | `docs-coherence` | conteggi sbagliati nel testo che il modello legge; doppi entry point |
 | `eval-runner` | un verdetto dichiarato senza controlli; confronti fra modelli diversi; un `node --test` annidato che esce 0 senza misurare |
 | `context-budget` | il costo fisso (bootstrap + catalogo) che cresce senza che nessuno lo abbia deciso |
+| `routing-coherence` | una golden che chiede una skill inesistente, o una skill che il router non nomina mai |
+| `scout-ledger` | registro degli scout che invecchia: schede scadute, indice che promette file inesistenti, chiavi duplicate |
 | `version-notice` | un avviso di aggiornamento che si ripete o che mente |
 | `sync.test.ps1` | installazione su macchina pulita, file ritirati, config locale sovrascritta |
 
@@ -496,7 +498,7 @@ skills/          9 skill esterne, ricompilate o copiate con provenienza
 docs/            coverage.md, eval, research, session-registry, scout (registro delle scoperte esterne)
 evals/           casi di valutazione, fixture, ledger dei run
 tools/           eval-run.mjs, mind-memory-migrate.mjs
-tests/           20 suite Node + verifiche PowerShell
+tests/           24 suite Node + verifiche PowerShell
 sync.ps1         installa e aggiorna la macchina dal repo
 ```
 

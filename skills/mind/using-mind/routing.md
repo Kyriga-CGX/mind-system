@@ -37,11 +37,14 @@ Un esempio per intent (quello che riduce gli errori su DeepSeek/Qwen):
 
 ```
 costruire:  mind-brainstorming → mind-planning → mind-implementation → mind-verification
+            pulizia senza cambio stack → mind-refactor | endpoint e contratti → mind-api
 design-ui:  Design Track (vedi sotto) → mind-verification
+            direzioni visive distinte da far scegliere → mind-design-explore (2-3 direzioni, poi la scelta è dell'utente)
             icona/marchio/favicon → mind-mark (brief → 3 direzioni mono → riduzione 16px → colore/varianti → export → verifica visiva) → mind-verification
             asset raster / .ico / favicon set / .icns / ritaglio / conversione → mind-image (destinazione → scala fonti → costruzione → verifica a dimensione d'uso → formati) → mind-verification
 fixare:     mind-debugging → mind-implementation → mind-verification
             assessment offensivo → mind-breach (gate auth SEMPRE) → mind-security → implementation → mind-verification | assessment multi-sessione/bounty → mind-breach-pipeline (scope→…→retest, stato su file)
+            audit strutturato di un'area (pre-release, pre-deploy, due diligence) → mind-security-audit-pipeline (8 stage, report riproducibile)
             hardware fisico (USB/driver/radio/device, APK da cavo) → mind-hardware (azioni fisiche SOLO con conferma utente) → mind-verification
 esplorare:  mind-explore → mind-docs? → memory (nessun gate, read-only)
             artefatto senza sorgente → mind-reverse (gate auth SEMPRE; motore: leggi di ferro + evidenza) → multi-feature/multi-sessione → mind-reverse-pipeline (stato in .mind/reverse/<target>/) → GATE=verification
