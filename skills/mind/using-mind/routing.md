@@ -31,6 +31,7 @@ Un esempio per intent (quello che riduce gli errori su DeepSeek/Qwen):
 - `rilasciare`: "v1.2.0" → changelog → tag → build CI verde → publish (+ rollback pronto).
 - `scrivere`: "README API" → docs dal codice reale → verification (link e comandi verificati).
 - `manutenere`: "ci sono aggiornamenti dal nostro github?" → discovery → vendoring → integrazione → registrazione nel routing → README/diagrammi → verification.
+- `manutenere` (scout): "cerca cose nuove per l'orchestratore" → mind-scout (3 domini in parallelo: orchestrazione/strumenti/design) → schede datate con il difetto che coprono → indice → **una** proposta al gate mind-forge → verification.
 
 ## Dettaglio Rotte (skill precise per intent)
 
@@ -48,6 +49,7 @@ decidere:   mind-consult (sage) / mind-architecture (ADR) / mind-research (+cont
 rilasciare: mind-release → mind-devops (build/publish) | incidente → mind-incident → debugging/security/devops → mind-docs (postmortem) → mind-verification
 scrivere:   mind-docs | mind-copy → stop-slop | mind-i18n | mind-data → mind-verification
 manutenere: mind-system-sync (preflight → ecosystem-health-check; singolo pezzo → mind-forge se nuovo / mind-eval se affinamento; docs → mind-docs/mind-release; commit → mind-git) → mind-verification
+            novità esterne → mind-scout (dominio orchestrazione: scout-orchestrazione | strumenti: scout-strumenti | design: scout-design; schede in docs/scout/, indice unico, max 1 proposta per giro) → mind-forge (gate utente) → mind-system-sync (vendoring) → mind-verification
 ```
 
 ## Regola pipeline vs singola (unica)
@@ -145,6 +147,7 @@ SE VUOTA/CORROTTA: procedi con default + segnala, mai bloccare.
 - **Dubbio sul tipo**: route conservativa (creativo→costruire, anomalia→fixare, domanda→decidere); se sbagliata, rifalla.
 - **Skill in dubbio**: scegli quella più vicina al gate (verifica), richiama l'altra se serve.
 - **Sorgente vs artefatto**: il codice c'è → `mind-explore`; il codice NON c'è (binario, APK, app Electron, firmware, WASM, EVM, archivio, cattura) → `mind-reverse` (gate `mind-auth-gate` SEMPRE, prima di ogni analisi). Più feature o più sessioni → `mind-reverse-pipeline`. Obiettivo = vulnerabilità, non comprensione → `mind-breach`/`mind-breach-pipeline`.
+- **Novità esterne vs ricerca vs integrazione**: scoprire cosa esiste fuori e tenerne un registro datato con il difetto che coprirebbe → `mind-scout` (tre scout, un indice, nessuna adozione); rispondere a "quale libreria scelgo e perché" con benchmark → `mind-research`; monitorare le novità dei programmi dello stack dell'utente → `mind-stack-watch`; integrare e registrare ciò che si è deciso di adottare → `mind-system-sync`. Confine netto: scout trova e propone, sync integra, forge crea col gate.
 - **Sync del sistema vs salute ecosistema**: integrare/sincronizzare contenuti nel sistema mind (repo upstream, skill esterne, README/diagrammi) → `mind-system-sync`; verificare salute/backup/plugin/Context7 e il preflight del sync (backup + dry-run) → `ecosystem-health-check`. Confine netto: una integra, l'altra verifica.
 - **Hardware fisico**: periferica USB/seriale, driver, radio/Bluetooth, drone, tastiera/batterie/retroilluminazione, APK da dispositivo → `mind-hardware` (azioni fisiche sempre dietro conferma utente; l'app estratta va a `mind-reverse`).
 - **Registro sessioni (consapevolezza tra sessioni)**: all'avvio di un task (non per una domanda singola) leggi `~/.config/opencode/mind/sessions/` (schede attive delle altre sessioni; scarta quelle stantie oltre 48h) e aggiorna la scheda della sessione corrente (`goal`, `status`, `step`). Protocollo in `mind/sessions/README.md`. È disciplina dell'orchestratore, non una skill.
