@@ -106,6 +106,7 @@ Registra i tentativi falliti nella barra (`## Rifiuti`), non a memoria: un rifiu
 - Skill che scatta ma rende male → `mind-eval` (report; le modifiche le decide l'orchestratore).
 - Caso non coperto da nessuna skill → `mind-forge` (proposta + gate utente; mai creare senza approvazione).
 - Manutenzione/integrazione del sistema (sync upstream, skill esterne, vendoring, docs di sistema) → `mind-system-sync`.
+- **Novità esterne** (cosa esiste fuori che ci manca) → `mind-scout`: tre scout (orchestrazione, strumenti, design), schede datate con il difetto che coprono, indice unico in `docs/scout/`, max **una** proposta per giro al gate di `mind-forge`. Gli scout non adottano: trovano e propongono.
 
 Copertura per dominio (cosa sappiamo fare e dove improvvisiamo, buchi inclusi): `docs/coverage.md`.
 

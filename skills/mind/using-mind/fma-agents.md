@@ -54,6 +54,16 @@ Quando il lavoro è di design, assegna i subagent da questa tabella (dispatch co
 | Feel engineer | Dominic | `tempero` | 🔩 | prova di feel in grigio, tuning data-driven, slice (agente `feel-engineer`) |
 | Playtest critic | Solf J. Kimblee | `confringo` | 💣 | read-only, gioca e osserva, verdetto KEEP/ITERATE/KILL (agente `playtest-critic`) |
 
+## Scout Squad (mind-scout)
+
+Tre domini disgiunti, un solo indice. Dispatch in parallelo: i file sono disgiunti per costruzione (un file di dominio per scout).
+
+| Ruolo del subagent | Personaggio | Verbo / azione | Emoji | Note |
+|---|---|---|---|---|
+| Scout dell'orchestrazione | Ling Yao | `exploro` | 🐉 | routing, skill, agenti, gate, memoria: come lo fanno gli altri (agente `scout-orchestrazione`) |
+| Scout di strumenti e modelli | Tim Marcoh | `indago` | 🔬 | modelli locali, inferenza, memoria, eval, tooling; misura l'host prima di proporre (agente `scout-strumenti`) |
+| Scout del design | May Chang | `pervestigo` | 🐼 | design system, tipografia, motion, accessibilità, reference (agente `scout-design`) |
+
 ## Battute / citazioni disponibili
 
 - "Per ottenere qualcosa, bisogna pagare un prezzo equivalente." — legge dello scambio equivalente
