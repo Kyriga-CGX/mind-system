@@ -31,11 +31,12 @@ Trovati leggendo il codice mentre verificavo le fonti. Restano qui perché sono 
 
 | # | Difetto | Evidenza | Conseguenza |
 |---|---|---|---|
-| D1 | Una golden punta a una skill che non esiste | `evals/routing-cases.json` caso-18 `golden: "mind-memory"` — tra le 60 skill non c'è nessun `mind-memory` | il caso non può passare per costruzione: il 92,5% del 2026-10-30 conta un fallimento impossibile dentro l'accuratezza |
+| D1 | **Era un errore mio, corretto.** Il baseline del 2026-10-30 conteneva una golden impossibile | `evals/routing-baseline-2x.json` caso-18 `golden: "mind-memory"`; `routing-cases.json` **oggi** ha `mind-recall` (corretto il 31/10) | il 92,5% storico conta un fallimento che non poteva passare; il caso corrente è coerente. Resta un'incoerenza di testo: la nota promette "\'nessuna skill\' è una risposta valida" ma `accept` non la contiene |
 | D2 | Il bench non esegue l'input reale | `tools/eval-run.mjs:366` sostituisce la richiesta con un meta-prompt "Classifica questa richiesta…" | il numero misura la distinguibilità delle descrizioni sotto un altro prompt, non la rotta dell'orchestratore |
 | D3 | 20 casi golden, nessun test che li citi | `grep "routing-cases\|routing-eval-set" tests/` → 0 match | il bench è un report datato, non un gate: la golden si può spostare in silenzio |
 | D4 | La memoria non deduplica | `plugins/mind-memory.js:284` (`addLocal` appende) — misurate 228 memorie, 2 titoli presenti 3 volte | i duplicati entrano nel ranking come concorrenti |
 | D5 | La ricerca in memoria è substring, non semantica | `plugins/mind-memory.js:273` (`score += 0.5` se una parola contiene l'altra) | una memoria scritta con altre parole non si trova |
+| D6 | **Corretto in questo giro.** Quattro skill esistono e il router non le nomina mai | 0 occorrenze di `mind-refactor`, `mind-api`, `mind-design-explore`, `mind-security-audit-pipeline` in `using-mind/SKILL.md` + `routing.md` | 4 dei 20 casi golden chiedono una skill che il testo del router non nomina: il modello non ha una frase per sceglierla. Aggiunte 3 righe in `routing.md` |
 
 ## Giri
 
@@ -47,7 +48,7 @@ Trovati leggendo il codice mentre verificavo le fonti. Restano qui perché sono 
 
 Ordine dato da **gravità del difetto × costo più basso**:
 
-1. `orchestrazione/eval-coherence` + D1: 30 righe, zero rete. Corregge la golden impossibile e fa fallire il test quando una golden contraddice `routing.md`. Nessuna approvazione di merito: è un fix.
+1. `orchestrazione/eval-coherence`: ~30 righe, zero rete. `tests/routing-coherence.test.mjs` fallisce se una golden nomina una skill inesistente o una skill che il router non nomina. Ha già trovato D6 (corretto in `routing.md`).
 2. `design/stylelint-regex-rules`: porta 4 dei 9 check anti-slop da prosa a exit code.
 3. `orchestrazione/trigger-eval`: la modalità "richiesta reale" nel bench, 3 ripetizioni. ~40 righe.
 4. `strumenti/llama-bench`: **richiede un download** (build Vulkan, dimensione non dichiarata) e riempie 3 righe di tabella in `modello-locale.md`. Si fa solo se approvi.
