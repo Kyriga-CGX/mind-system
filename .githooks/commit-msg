@@ -1,0 +1,26 @@
+#!/bin/sh
+# Un co-autore e' una persona che ha scritto il codice, non un modello che l'ha
+# digitato. La riga "Co-Authored-By:" con il nome di un agente non resta nel
+# messaggio: GitHub la legge come attribuzione e mette quell'account nel grafo
+# dei contributors del repo.
+#
+# Caso misurato (2026-11-10, Kyriga-CGX/mind-system): un solo trailer
+# "Co-Authored-By: Claude ..." su 156 commit ha fatto comparire l'account
+# "claude" fra i contributors; per toglierlo e' servito riscrivere 18 commit e
+# forzare il push di main.
+#
+# Attivazione, una volta per clone:  git config core.hooksPath .githooks
+# Il co-autore persona resta permesso: il blocco scatta solo sui nomi di agente.
+
+msg="$1"
+agenti='claude|anthropic|openai|gpt|copilot|gemini|deepseek|qwen|cursor'
+
+trovata=$(grep -Ei "^co-authored-by:.*($agenti)" "$msg" | head -n 1)
+if [ -n "$trovata" ]; then
+  echo "commit rifiutato: riga di co-autore con un agente." >&2
+  echo "  $trovata" >&2
+  echo "Un co-autore e' una persona: il nome di un modello finisce nei contributors del repo." >&2
+  echo "Togli la riga dal messaggio. Se il co-autore e' una persona reale, usa il suo nome." >&2
+  exit 1
+fi
+exit 0
