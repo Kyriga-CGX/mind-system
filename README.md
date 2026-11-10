@@ -6,7 +6,7 @@ Non è una raccolta di prompt. È un livello operativo con tre proprietà che si
 
 - **non dichiara il falso**: se una scrittura fallisce, la risposta lo dice; se una protezione è degradata, lo scrive nel contesto;
 - **non perde dati**: scritture atomiche, lock fra processi, quarantena dei file illeggibili;
-- **si può misurare**: 20 suite di test, un banco di routing e un confronto con OpenCode senza mind.
+- **si può misurare**: 25 suite di test, un banco di routing e un confronto con OpenCode senza mind.
 
 ## Architettura
 
@@ -386,7 +386,7 @@ OpenCode ricarica configurazione e plugin locali da solo. Se un plugin non viene
 
 ## Verifica
 
-24 suite Node e 26 verifiche PowerShell. Ognuna protegge un comportamento preciso, non una speranza.
+25 suite Node e 26 verifiche PowerShell. Ognuna protegge un comportamento preciso, non una speranza.
 
 | Suite | Cosa impedisce |
 |---|---|
@@ -498,9 +498,22 @@ skills/          9 skill esterne, ricompilate o copiate con provenienza
 docs/            coverage.md, eval, research, session-registry, scout (registro delle scoperte esterne)
 evals/           casi di valutazione, fixture, ledger dei run
 tools/           eval-run.mjs, mind-memory-migrate.mjs
-tests/           24 suite Node + verifiche PowerShell
+tests/           25 suite Node + verifiche PowerShell
+.githooks/       commit-msg: rifiuta il co-autore agente
 sync.ps1         installa e aggiorna la macchina dal repo
 ```
+
+## Storia e attribuzione
+
+Un commit dichiara chi ha scritto il codice, e la riga `Co-Authored-By:` con il nome di un agente finisce davvero nei contributors: il 2026-11-10 un solo trailer su 156 commit ha messo l'account `claude` nel grafo di `Kyriga-CGX/mind-system`, e per toglierlo è servito riscrivere 18 commit di `main` e forzare il push (protezione del branch allentata per trenta secondi e ripristinata a mano).
+
+Il blocco è meccanico, non una raccomandazione: `.githooks/commit-msg` rifiuta il commit quando il co-autore somiglia a un agente (`claude`, `anthropic`, `openai`, `gpt`, `copilot`, `gemini`, `deepseek`, `qwen`, `cursor`); un co-autore persona passa. Si attiva una volta per clone:
+
+```
+git config core.hooksPath .githooks
+```
+
+Il file deve restare eseguibile: se un editor lo perde, `git update-index --chmod=+x .githooks/commit-msg`. `tests/commit-msg-hook.test.mjs` lo esegue dentro un repository git vero, quindi un hook che git non chiama più fa fallire il test invece di lasciar credere che il blocco ci sia.
 
 ## Provenienza dei contenuti esterni
 
