@@ -12,7 +12,7 @@ Il sistema mind è un artefatto con un ciclo di vita: esistono fonti esterne (re
 | # | Legge |
 |---|-------|
 | 1 | VENDORING OBBLIGATORIO: qualunque contenuto esterno utile viene **copiato in locale** (`reference/<nome>-vendored.md`) con licenza, commit hash e data. Mai e poi mai lasciare una skill dipendente da un URL remoto: se il repo sparisce o diventa privato, la skill deve restare autonoma. |
-| 2 | MAI SYNC ALLA CIECA: prima il preflight (backup timestampato + dry-run con diff), poi il sync selettivo. Il preflight è di `ecosystem-health-check` — non reimplementarlo qui. |
+| 2 | MAI SYNC ALLA CIECA: prima il preflight (backup timestampato + dry-run con diff), poi il sync selettivo. Il preflight è di `ecosystem-health-check` — non reimplementarlo qui. Lo stato solo-locale (barra, memoria, sessioni: cio che git non vede) si fotografa con `backup-local.ps1` alla root del repo. |
 | 3 | MAI SOVRASCRIVERE `opencode.jsonc` da un repo esterno (path utente e sintassi env locali): riconciliazione manuale, sempre. |
 | 4 | NON DUPLICARE: prima di integrare, controlla che una skill esistente non copra già il caso (`using-mind/routing.md`). Se esiste e rende male → `mind-eval`, non una seconda skill. |
 | 5 | REGISTRAZIONE OBBLIGATORIA: nessun pezzo integrato senza voce in `using-mind/SKILL.md` + `using-mind/routing.md`. Una skill non instradata è nata morta. |
