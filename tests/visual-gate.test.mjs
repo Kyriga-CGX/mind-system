@@ -90,4 +90,10 @@ assert.ok(ver.includes('## Gate visivo (ogni modifica FE)'), 'mind-verification:
 const testing = read(path.join(mind, 'mind-testing', 'SKILL.md'));
 assert.ok(testing.includes('Adeguatezza != regressione'), 'mind-testing confonde adeguatezza e regressione');
 
-console.log('TEST OK: gate visivo meccanico (diff), frase normativa identica in 7 carrier, DONE legato all evidenza, nessuna formula discrezionale, Lust non sostituisce l orchestratore');
+// 9. Il DONE dell'implementer richiede l'output citato del controllo a runtime,
+// non solo "evidenza letta": senza filo meccanico il gate resta discrezionale.
+assert.ok(impl.includes('visual-check.mjs'), 'mind-implementation non nomina visual-check.mjs nel DONE');
+assert.ok(impl.includes('exit 0'), 'mind-implementation non richiede exit 0 per il DONE');
+assert.ok(impl.includes('output citato'), 'mind-implementation non richiede l output citato del controllo');
+
+console.log('TEST OK: gate visivo meccanico (diff), frase normativa identica in 7 carrier, DONE legato all evidenza e all output citato di visual-check.mjs, nessuna formula discrezionale, Lust non sostituisce l orchestratore');

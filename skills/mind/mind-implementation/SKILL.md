@@ -60,7 +60,7 @@ Regole dispatch:
 ## Stati del report
 
 Ogni subagent termina con UNO di:
-- `DONE` — completato e testato e, se il diff tocca frontend, con evidenza visiva letta (screenshot + tabella `atteso -> visto`). La classificazione la decide il diff, non l'agente. Senza l'evidenza lo stato è `DONE_WITH_CONCERNS`, mai `DONE`
+- `DONE` — completato e testato e, se il diff tocca frontend, con evidenza visiva letta (screenshot + tabella `atteso -> visto`) e l'output citato di `node skills/mind/mind-verification/tools/visual-check.mjs .mind/visual/<feature>` (exit 0, allegato al report). La classificazione la decide il diff, non l'agente. Senza l'evidenza lo stato è `DONE_WITH_CONCERNS`, mai `DONE` (manca l'evidenza o l'output citato del controllo)
 - `DONE_WITH_CONCERNS` — completato con dubbi da verificare
 - `NEEDS_CONTEXT` — servono informazioni o decisioni
 - `BLOCKED` — non può procedere
