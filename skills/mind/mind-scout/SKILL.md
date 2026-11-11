@@ -15,7 +15,7 @@ Il registro vive nel repo `mind-system`, cartella `docs/scout/`: un indice e un 
 |---|-------|
 | 1 | **NESSUNA SCOPERTA SENZA DIFETTO.** Ogni scheda deve citare un punto reale del sistema (`file:riga` o `file#sezione`) che migliorerebbe. Se non lo sai indicare, la voce va in `osserva` e non è una proposta. |
 | 2 | **NESSUNO SCOUT ADOTTA.** Gli scout non scrivono sul sistema: consegnano schede. L'adozione passa da `mind-forge` (proposta + gate utente). Un agente che modifica il sistema da solo è il fix silenzioso già rifiutato il 2026-11-01. |
-| 3 | **FRESCHEZZA MISURATA.** Ogni voce porta `verified` (data del controllo) e `stale_after`: 180 giorni per pattern e design, **30 giorni** per modelli, tool e API. Una voce scaduta non si propone: si riverifica o si scarta. |
+| 3 | **FRESCHEZZA MISURATA.** Ogni voce porta `verifica` (data del controllo) e `scade`: 180 giorni per pattern e design, **30 giorni** per modelli, tool e API. Una voce scaduta non si propone: si riverifica o si scarta. |
 | 4 | **DEDUPLICA PER CHIAVE.** Chiave = `<dominio>/<identificativo-normalizzato>`. Se esiste già, si aggiornano `last_seen` e `verdetto`: mai una seconda riga per la stessa cosa. |
 | 5 | **UN INDICE, TRE FILE.** `docs/scout/INDICE.md` è l'unico file che `mind-forge` e l'orchestratore leggono. I dettagli stanno in `docs/scout/<dominio>.md`. |
 | 6 | **BUDGET PER GIRO.** Max 8 fonti nuove per dominio, max 12 fetch per agente, una invocazione = un giro. Niente cicli autonomi. |
@@ -46,13 +46,13 @@ Se un agente dedicato non è ancora caricato (serve un riavvio di opencode), il 
 - **costo / rischio**: righe da scrivere, dipendenze, licenza, manutenzione, cosa rompe.
 - **falsificabile se**: l'osservazione che smentirebbe la proposta.
 - **stato**: proposta | in attesa di gate | adottata <data> | scartata <data> — motivo
-- **verified**: <AAAA-MM-GG> · **stale_after**: <AAAA-MM-GG>
+- **verifica**: <AAAA-MM-GG> · **scade**: <AAAA-MM-GG>
 ```
 
 Riga corrispondente nell'indice:
 
 ```md
-| <chiave> | <dominio> | <verdetto> | <priorità 1-3> | <verified> | <stale_after> | <file:riga> |
+| <chiave> | <dominio> | <verdetto> | <priorità 1-3> | <verifica> | <scade> | <file:riga> |
 ```
 
 ## FASI
@@ -109,7 +109,7 @@ Un giro è chiuso solo se: (1) `INDICE.md` aggiornato, (2) ogni scheda ha fonte+
 ## Red flags
 
 - Una scheda senza `falsificabile se` → non è una proposta, è una speranza.
-- `verified` più vecchio di `stale_after` → la voce va riverificata prima di parlarne.
+- `verifica` più vecchio di `scade` → la voce va riverificata prima di parlarne.
 - Indice che cresce e file di dominio che non cambiano → qualcuno sta scrivendo solo l'indice.
 
 ## COORDINAMENTO

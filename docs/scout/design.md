@@ -11,7 +11,7 @@ Bersaglio: **la regola di freschezza è scritta e non misurata.** `design-system
 - **cosa**: catalogo condiviso di feature della piattaforma; il pacchetto associa a ogni feature uno stato Baseline con le date low/high. Il supporto browser diventa una query a build time, non una cella scritta a mano.
 - **difetto che copre**: `design-system/native-controls.md:33` — la tabella "Cosa è vero al 2026-10-27" viene citata in un brief del 2027 come se fosse attuale, e la freschezza dichiarata a `:84` non la controlla nessuno.
 - **verdetto**: affina(`design-system`)
-- **proposta**: `scripts/design/freshness.mjs` che mappa le 9 tecniche di `native-controls.md:35-45` su feature id, risolve Baseline e stampa `verified`/`stale_after`; se una riga è scaduta il gate fallisce.
+- **proposta**: `scripts/design/freshness.mjs` che mappa le 9 tecniche di `native-controls.md:35-45` su feature id, risolve Baseline e stampa `verifica`/`scade`; se una riga è scaduta il gate fallisce.
 - **costo / rischio**: una dev dependency Apache-2.0, ~9 mapping manuali, un file. Non copre ciò che `web-features` non cataloga (interni di `::file-selector-button`, date picker): quelle righe restano manutenzione manuale e vanno marcate.
 - **falsificabile se**: per 2 o più delle 9 tecniche non esiste un feature id con data Baseline.
 - **verifica**: 2026-11-08 · **scade**: 2027-05-07
