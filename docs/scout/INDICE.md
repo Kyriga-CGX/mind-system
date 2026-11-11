@@ -2,7 +2,7 @@
 
 Unico file che l'orchestratore e `mind-forge` leggono. Una riga per chiave, dettaglio in `<dominio>.md`. Chiave = `<dominio>/<identificativo>`. Nessuna riga si duplica: si aggiorna `verifica` e `verdetto`.
 
-**Stato al 2026-11-08** — primo giro, 3 domini, 16 schede (di cui 2 scartate), 17 URL aperti e verificati (200), 8 difetti riletti sul codice alla riga citata.
+**Stato al 2026-11-09** — 3 domini, 24 schede (di cui 3 scartate, 2 osservate). Il 4° giro (strumenti) ha rimisurato l'host: niente device Vulkan reale (`llvmpipe`), niente llama.cpp, niente GGUF. I due bersagli di misura — ms/query di embedding su Vulkan e riuso KV di `llama-server` — restano **non eseguiti**; le due schede nuove (`bge-m3-gguf`, `llguidance`) dicono come renderli eseguibili, non li dichiarano fatti. Il 3° giro (orchestrazione) ha aperto tre bersagli di misura, nessuno con un numero.
 
 ## Tabella
 
@@ -10,6 +10,9 @@ Unico file che l'orchestratore e `mind-forge` leggono. Una riga per chiave, dett
 |---|---|---|---|---|---|
 | `orchestrazione/trigger-eval` | affina(`mind-eval`) | **1** | `tools/eval-run.mjs:366` | 2026-11-08 | 2026-12-08 |
 | `orchestrazione/eval-coherence` | affina(`mind-eval`) | **1** | `evals/routing-cases.json:18` | 2026-11-08 | 2026-12-08 |
+| `orchestrazione/prefix-cache-stability` | affina(`using-mind`) | **1** | `plugins/mind.js:651` | 2026-11-09 | 2026-12-09 |
+| `orchestrazione/route-jsonl-envelope` | affina(`mind-eval`) | **1** | `plugins/mind.js:83` | 2026-11-09 | 2027-05-08 |
+| `orchestrazione/subagent-cost-usage` | affina(`mind-eval`) | 2 | `skills/mind/mind-implementation/SKILL.md:27` | 2026-11-09 | 2026-12-09 |
 | `design/stylelint-regex-rules` | affina(`design-system`) | **1** | `design-system/anti-slop.md:12` | 2026-11-08 | 2027-05-07 |
 | `strumenti/llama-bench` | adotta | **1** | `mind-image/references/modello-locale.md:83` | 2026-11-08 | 2026-12-08 |
 | `design/baseline-web-features` | affina(`design-system`) | 2 | `design-system/native-controls.md:33` | 2026-11-08 | 2027-05-07 |
@@ -17,6 +20,11 @@ Unico file che l'orchestratore e `mind-forge` leggono. Una riga per chiave, dett
 | `design/wcag22-numeric-thresholds` | affina(`design-system`) | 2 | `design-system/native-controls.md:125` | 2026-11-08 | 2027-05-07 |
 | `strumenti/sqlite-vec` | affina(`mind-memory`) | 3 | `plugins/mind-memory.js:273` | 2026-11-08 | 2026-12-08 |
 | `orchestrazione/stop-hook-gate` | affina(`using-mind`) | 3 | `using-mind/SKILL.md:49` | 2026-11-08 | 2026-12-08 |
+| `strumenti/llama-server` | affina(`mind-eval`) | **1** | `tools/eval-run.mjs:379` | 2026-11-09 | 2026-12-08 |
+| `strumenti/llguidance` | osserva | 3 | `tools/eval-run.mjs:379` | 2026-11-09 | 2026-12-09 |
+| `strumenti/bge-m3` | affina(`mind-memory`) | **1** | `plugins/mind-memory.js:273` | 2026-11-09 | 2026-12-08 |
+| `strumenti/bge-m3-gguf` | osserva | **1** | `plugins/mind-memory.js:273` | 2026-11-09 | 2026-12-09 |
+| `strumenti/nomic-embed-text-v1.5` | scarta | — | `plugins/mind-memory.js:273` | 2026-11-08 | 2026-12-08 |
 | `design/carbon-token-corpus` | adotta (corpus) | 3 | `design-system/SKILL.md:18` | 2026-11-08 | 2027-05-07 |
 | `design/carbon-motion-durations` | osserva | 3 | `motion/philosophy.md:40` | 2026-11-08 | 2026-12-08 |
 | `design/long-animation-frames` | osserva | 3 | `motion/priority-ladder.md:73` | 2026-11-08 | 2026-12-08 |
@@ -43,8 +51,17 @@ Trovati leggendo il codice mentre verificavo le fonti. Restano qui perché sono 
 | Data | Domini | Fonti aperte | Schede nuove | Scartate | Proposta passata al gate |
 |---|---|---|---|---|---|
 | 2026-11-08 | orchestrazione, strumenti, design | 17 | 14 | 2 | nessuna (questo giro è l'inventario) |
+| 2026-11-08 (2° giro) | strumenti | 5 | 3 | 1 | `strumenti/bge-m3` (embedder per `mind-memory`) |
+| 2026-11-09 (3° giro) | orchestrazione | 10 | 3 | 0 | `orchestrazione/prefix-cache-stability` (riordino del prefisso in `plugins/mind.js`) |
+| 2026-11-09 (4° giro) | strumenti | 7 | 2 | 2 (+1 misura non eseguita) | nessuna (nessun bersaglio eseguibile su questo host) |
 
 ## Cosa fare adesso
+
+Novità del 4° giro: nessuna proposta nuova al gate. I due bersagli di misura restano non eseguibili qui; `strumenti/bge-m3-gguf` (605 MiB Q8_0, MIT) e `strumenti/llguidance` (MIT) sono le due vie per renderli eseguibili, entrambe in `osserva`. Se arriva un host con llama.cpp, la prima misura è bge-m3 Q8_0 su CPU con `--embeddings --pooling cls`, 20 query × 3 reps, `timings.prompt_ms`, configurazione scritta accanto al numero.
+
+Novità del 3° giro: la proposta passata al gate è **`orchestrazione/prefix-cache-stability`** — spostare i segnali dinamici in coda al prefisso di sistema, ~15 righe in `plugins/mind.js` più un test. Le altre due (schema JSONL della rotta, costo del subagent) restano in attesa perché toccano `mind-eval` prima di `mind-forge`.
+
+Novità del 2° giro: l'unica proposta passata al gate è **`strumenti/bge-m3`** (embedder multilingua per la ricerca in memoria). `strumenti/llama-server` resta in attesa: sull'host di questa sessione non c'è né llama.cpp né un device Vulkan reale, quindi la misura del riuso KV è dichiarata non eseguita, non "positiva".
 
 Ordine dato da **gravità del difetto × costo più basso**:
 

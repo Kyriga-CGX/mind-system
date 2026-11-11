@@ -1,0 +1,23 @@
+[
+  {
+    "date": "2026-11-08",
+    "domain": "strumenti",
+    "cards": 3,
+    "sources": 5,
+    "status": "chiuso"
+  },
+  {
+    "date": "2026-11-09",
+    "domain": "orchestrazione",
+    "cards": 3,
+    "sources": 10,
+    "status": "chiuso"
+  },
+  {
+    "date": "2026-11-09",
+    "domain": "strumenti",
+    "cards": 2,
+    "sources": 7,
+    "status": "chiuso"
+  }
+]

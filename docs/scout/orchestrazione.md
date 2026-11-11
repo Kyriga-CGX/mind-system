@@ -2,6 +2,8 @@
 
 Giro del **2026-11-08**. Agente: `scout-orchestrazione` (Ling Yao 🐉). Fonti: 6 ricerche, 6 fetch, tutte aperte e verificate (HTTP 200).
 
+Aggiornamento **2026-11-09**: 3 schede sui bersagli di mind-eval (costo di isolamento subagent, schema JSONL della rotta dichiarata, stabilità del prefisso per il caching). 10 fetch, 3 URL primari verificati (HTTP 200).
+
 Bersaglio del giro: **la decisione di rotta non è misurata da nessuna parte.** `tools/eval-run.mjs:366` la sostituisce con un meta-prompt di classificazione, `plugins/mind.js:83` registra il prompt senza la rotta, e il registratore mostra 235 usi / 26 skill distinte su ~60 in 13 giorni con **0 rotte dichiarate**.
 
 ---
@@ -56,6 +58,42 @@ Bersaglio del giro: **la decisione di rotta non è misurata da nessuna parte.** 
 - **falsificabile se**: OpenCode espone un caricamento differito del catalogo — allora il tetto di 26.297 caratteri non è il vincolo vero.
 - **verifica**: 2026-11-08 · **scade**: 2026-12-08
 
+### orchestrazione/subagent-cost-usage — Costo per run aggregato su handoff e tool
+- **fonte**: https://openai.github.io/openai-agents-python/usage/ · ultima modifica 2026-09-08 (commit f355af6, v0.22.1) · consultata 2026-11-09 · licenza MIT
+- **cosa**: l'SDK registra `input_tokens`, `output_tokens`, `total_tokens` e `request_usage_entries` per ogni run; l'aggregato include le chiamate che producono tool call e handoff, e `input_tokens_details` separa `cached_tokens` e `cache_write_tokens`. Ogni run ha un `Usage` isolato; l'eccezione dichiarata è il nested `Agent.as_tool()` dopo un resume, che confluisce nel run esterno.
+- **difetto che copre**: `skills/mind/mind-implementation/SKILL.md:27` — la regola "Più subagent, non uno ... Mai un singolo subagent per tutto il lavoro" è assoluta, ma `plugins/mind.js:225` registra solo il nome del subagent: non esiste un numero che dica quando il contesto fresco costa più di caricare la skill nello stesso contesto.
+- **perché vale la pena**: il costo in token è già pagato ma non misurato; con un campo `cost` la regola "più subagent" diventa una decisione con un numero, non una prescrizione.
+- **verdetto**: affina(`mind-eval`)
+- **proposta**: aggiungere al campione una riga `t:"cost"` con `in`, `out`, `cached`, `kind:"skill"|"subagent"`; il campo si legge dall'evento se presente, altrimenti dal messaggio di sessione. Poi un caso in `tools/eval-run.mjs`: stessa unità eseguita (a) con skill in contesto e (b) con subagent, 3 reps, confronto token e tempo. ~35 righe.
+- **costo / rischio**: ~35 righe plugin/report + 1 test; nessuna dipendenza; MIT. Se l'evento OpenCode non espone l'usage, il campo resta `null`: la misura si legge dalla sessione, non si inventa.
+- **falsificabile se**: su 10 unità piccole il subagent non costa più del 20% in input rispetto alla skill — allora la regola assoluta è giustificata e la misura è rumore.
+- **stato**: proposta
+- **verifica**: 2026-11-09 · **scade**: 2026-12-09
+
+### orchestrazione/route-jsonl-envelope — Busta comune per la rotta dichiarata
+- **fonte**: https://opentelemetry.io/docs/specs/otel/logs/data-model/ · pubblicata non dichiarata (spec stabile v1.62.0) · consultata 2026-11-09 · licenza CC-BY-4.0
+- **cosa**: un LogRecord ha campi nominati (`Timestamp`, `ObservedTimestamp`, `TraceId`, `SpanId`, `TraceFlags`, `SeverityText/Number`, `Body`, `Resource`, `InstrumentationScope`, `Attributes`, `EventName`). Gli eventi sono LogRecord con `EventName` non vuoto; il resto va in `Attributes`, con serializzazione JSON prevista dal file exporter.
+- **difetto che copre**: `plugins/mind.js:83` — `recordSampleTurn` scrive `t,ts,sid,n,dir,p` e nient'altro; il commento a `:14` promette "prompt corto redatto + rotta", ma la rotta non c'è. `tools/routing-sample-report.mjs:72` chiama "Rotte osservate" un conteggio di tool, non di `INTENT/STAGE/GATE`.
+- **perché vale la pena**: senza la rotta nel JSONL ogni eval misura il tool usato, non la decisione; lo schema è ~30 righe e rende confrontabili due giri.
+- **verdetto**: affina(`mind-eval`)
+- **proposta**: schema versionato `{v:1,t:"route",ts,sid,n,intent,stage,gate,declared:{src:"text"|"manual"}}`; `EventName="mind.route"`, il resto in `Attributes`. Emetterlo da un hook sul testo dell'assistente (prima riga `INTENT=... → STAGE=... → GATE=...`) e unirlo nel report. `plugins/mind.js` + `tools/routing-sample-report.mjs` + `tests/routing-sample.test.mjs`, ~30 righe.
+- **costo / rischio**: il parsing della riga è fragile (i modelli cambiano formato): `declared.src` deve dire se la rotta è letta o dedotta, e un turno senza rotta resta valido. Nessun contenuto del prompt nel campo. ~30 righe, zero dipendenze, CC-BY-4.0 (si adotta lo schema, non il testo).
+- **falsificabile se**: su 20 turni reali la riga di rotta manca o non è parsabile in più del 20% dei casi — allora il campo va compilato a mano e il plugin non è la fonte.
+- **stato**: proposta
+- **verifica**: 2026-11-09 · **scade**: 2027-05-08
+
+### orchestrazione/prefix-cache-stability — Il prefisso iniettato cambia a ogni richiesta
+- **fonte**: https://github.com/anthropics/claude-cookbooks/blob/main/misc/prompt_caching.ipynb · ultima modifica 2026-10-24 (commit bfe50e5) · consultata 2026-11-09 · licenza MIT
+- **cosa**: con `cache_control` la prima chiamata scrive 187.361 token di prefisso, la seconda li legge dalla cache (4,89s → 1,48s, 3,3×); in multi-turno quasi il 100% dei token d'ingresso è letto dalla cache. Il notebook usa un `TIMESTAMP` unico "to ensure we don't hit a stale cache": è la dimostrazione che un prefisso che cambia non viene riusato.
+- **difetto che copre**: `plugins/mind.js:651` — ogni richiesta fa `event.system.unshift(...)`; l'ordine finale è `MIND_UPDATE`, `MIND_LOOP`, `MIND_RIFIUTO`, `MIND_BARRA`, `MIND_SIGNAL`, poi il bootstrap statico. Un segnale che appare o sparisce cambia il prefisso *prima* del testo statico, quindi invalida anche il bootstrap.
+- **perché vale la pena**: il bootstrap è ~2,5 KB iniettato a ogni richiesta; se il prefisso resta stabile, il costo per turno scende senza toccare il contenuto.
+- **verdetto**: affina(`using-mind`)
+- **proposta**: costruire l'array in ordine deterministico: bootstrap, barra, poi i segnali dinamici in coda; niente `unshift` per i blocchi condizionali. Test `tests/context-prefix.test.mjs`: due eventi `context` consecutivi con file invariati devono avere lo stesso primo blocco e la stessa porzione statica. ~15 righe + test.
+- **costo / rischio**: ~15 righe nel plugin + ~20 di test; nessuna dipendenza; MIT. Spostare i segnali in coda può ridurne la salienza: il bootstrap resta primo e i segnali mantengono il tag. La cache è del provider: se OpenCode non la espone, la modifica è solo igiene.
+- **falsificabile se**: con gli stessi file, dopo il riordino `cache_read_input_tokens` non sale e `cache_creation_input_tokens` non scende su 3 reps — oppure il provider non cachea i blocchi di sistema: allora il cambio è cosmetico.
+- **stato**: proposta
+- **verifica**: 2026-11-09 · **scade**: 2026-12-09
+
 ---
 
 ## Scartate
@@ -64,3 +102,8 @@ Bersaglio del giro: **la decisione di rotta non è misurata da nessuna parte.** 
 - **promptfoo come dipendenza**: la pratica entra (eval-coherence), il tool no: `eval-run.mjs` ha già verdetti meccanici e assert.
 - **Mem0 / Letta / Graphiti per la memoria**: nessuna fonte copre un difetto misurato qui meglio di due righe di codice (vedi `strumenti/mem0` e `strumenti/graphiti`).
 - **Aggregatori e "top 10 harness"**: scartati per regola — nessuna data, nessuna licenza, nessun uso concreto.
+
+## Passate al dominio competente
+
+- **vLLM automatic prefix caching** (Apache-2.0): il riuso del prefisso a livello di serving è tooling di inferenza, non orchestrazione → `scout-strumenti`.
+- **Anthropic multi-agent research system** (blog 2025-06-13): i numeri 4× chat / 15× multi-agent sono contesto per `subagent-cost-usage`, ma il blog non dichiara licenza; nessuna scheda.
