@@ -410,10 +410,12 @@ OpenCode ricarica configurazione e plugin locali da solo. Se un plugin non viene
 | `scout-ledger` | registro degli scout che invecchia: schede scadute, indice che promette file inesistenti, chiavi duplicate |
 | `version-notice` | un avviso di aggiornamento che si ripete o che mente |
 | `sync.test.ps1` | installazione su macchina pulita, file ritirati, config locale sovrascritta |
+| `backup-local.test.ps1` | snapshot dello stato solo-locale, restore, retention, WhatIf, percorsi assenti |
 
 ```powershell
 Get-ChildItem tests\*.test.mjs | ForEach-Object { node $_.FullName }
 powershell -File tests\sync.test.ps1
+powershell -File tests\backup-local.test.ps1
 ```
 
 ## Avviso di aggiornamento
