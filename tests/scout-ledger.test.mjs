@@ -19,7 +19,7 @@ const today = new Date(new Date().toISOString().slice(0, 10));
 
 // 1. Indice: una riga per chiave, senza duplicati.
 const indice = read(path.join(dir, 'INDICE.md'));
-const rows = [...indice.matchAll(/^\|\s*`([a-z-]+\/[a-z0-9_-]+)`\s*\|/gm)].map((m) => m[1]);
+const rows = [...indice.matchAll(/^\|\s*`([a-z-]+\/[a-z0-9_.-]+)`\s*\|/gm)].map((m) => m[1]);
 assert.ok(rows.length >= 5, 'righe di indice trovate: ' + rows.length);
 const seen = new Set();
 for (const key of rows) {
@@ -33,7 +33,7 @@ for (const file of fs.readdirSync(dir).filter((f) => f.endsWith('.md') && f !== 
   const text = read(path.join(dir, file));
   const blocks = text.split(/^### /m).slice(1);
   for (const block of blocks) {
-    const key = (block.match(/^([a-z-]+\/[a-z0-9_-]+)\s+—/) || [])[1];
+    const key = (block.match(/^([a-z-]+\/[a-z0-9_.-]+)\s+—/) || [])[1];
     if (!key) continue;
     if (schede.has(key)) problems.push(file + ': chiave duplicata `' + key + '`');
     schede.set(key, { file, block });
