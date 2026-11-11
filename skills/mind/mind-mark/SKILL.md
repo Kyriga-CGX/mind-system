@@ -32,6 +32,17 @@ Qui l'ordine e invertito: **il primo artefatto che guardi e 16px**. Tutto il res
 | Animazione dell'icona (splash, apertura app) | questa per il segno → `motion` |
 | Illustrazione, foto, texture, immagine per lo store | sorgenti `imagegen`/`fal-*` (chiave in env var, mai in chat) |
 | Nome dell'app, claim, testi dello store | `mind-copy` → `stop-slop` |
+| Icona di interfaccia che esiste già (check, trash, server, warning...) | non si disegna: `references/base/INDEX.md` |
+
+## Base di partenza — 181 icone già disegnate
+
+Prima di scrivere un path nuovo, si guarda cosa c'è: `references/base/` contiene **181 SVG in 6 collezioni** su due vocabolari — `prodotto-24` (30 concetti di interfaccia: home, search, file, lock...) e `console-16` (30 concetti dev/ops: bug, debug, env, log, queue, server, ticket, trace...). Catalogo leggibile dalla macchina in `references/base/catalogo.json`.
+
+- **Si copia il file nel progetto.** La base è un magazzino: un progetto che referenzia questo percorso non è spedibile.
+- **Un vocabolario per superficie.** Griglie 24 e 16: affiancate si vede che sono due set.
+- **La taglia minima è dichiarata in `INDEX.md`** e non è negoziabile: `vetro` sotto 24 px e `bagliore` sotto 32 px non sono "piccole", sono un'altra icona che non c'è.
+- **Due collezioni hanno un difetto misurato**, scritto nell'INDEX con i numeri: `piastra` (glifo bianco sotto 3:1 in 12 icone su 30) e `bagliore` (alone che a 16 px mangia il tratto). Se le usi, lo dichiari.
+- **La prova è un'immagine letta**: `references/sheet-chiaro.png` e `sheet-scuro.png`, rigenerabili con `node references/sheet.mjs`. Un giudizio sulle icone senza il foglio guardato non è un giudizio.
 
 ## FASE 0 — Brief del segno (cinque righe, non un prompt)
 
