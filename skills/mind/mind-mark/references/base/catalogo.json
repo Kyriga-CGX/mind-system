@@ -1,0 +1,1669 @@
+{
+  "generato": "2026-11-11",
+  "totale": 181,
+  "vocabolari": {
+    "prodotto-24": {
+      "filo": {
+        "file": 30,
+        "icone": [
+          {
+            "nome": "bell",
+            "file": "prodotto-24/filo/bell.svg",
+            "griglia": "24",
+            "byte": 359,
+            "currentColor": true,
+            "gradiente": false,
+            "coloriFissi": 0
+          },
+          {
+            "nome": "bookmark",
+            "file": "prodotto-24/filo/bookmark.svg",
+            "griglia": "24",
+            "byte": 297,
+            "currentColor": true,
+            "gradiente": false,
+            "coloriFissi": 0
+          },
+          {
+            "nome": "calendar",
+            "file": "prodotto-24/filo/calendar.svg",
+            "griglia": "24",
+            "byte": 384,
+            "currentColor": true,
+            "gradiente": false,
+            "coloriFissi": 0
+          },
+          {
+            "nome": "camera",
+            "file": "prodotto-24/filo/camera.svg",
+            "griglia": "24",
+            "byte": 418,
+            "currentColor": true,
+            "gradiente": false,
+            "coloriFissi": 0
+          },
+          {
+            "nome": "card",
+            "file": "prodotto-24/filo/card.svg",
+            "griglia": "24",
+            "byte": 385,
+            "currentColor": true,
+            "gradiente": false,
+            "coloriFissi": 0
+          },
+          {
+            "nome": "cart",
+            "file": "prodotto-24/filo/cart.svg",
+            "griglia": "24",
+            "byte": 393,
+            "currentColor": true,
+            "gradiente": false,
+            "coloriFissi": 0
+          },
+          {
+            "nome": "clock",
+            "file": "prodotto-24/filo/clock.svg",
+            "griglia": "24",
+            "byte": 312,
+            "currentColor": true,
+            "gradiente": false,
+            "coloriFissi": 0
+          },
+          {
+            "nome": "cloud",
+            "file": "prodotto-24/filo/cloud.svg",
+            "griglia": "24",
+            "byte": 329,
+            "currentColor": true,
+            "gradiente": false,
+            "coloriFissi": 0
+          },
+          {
+            "nome": "download",
+            "file": "prodotto-24/filo/download.svg",
+            "griglia": "24",
+            "byte": 347,
+            "currentColor": true,
+            "gradiente": false,
+            "coloriFissi": 0
+          },
+          {
+            "nome": "file",
+            "file": "prodotto-24/filo/file.svg",
+            "griglia": "24",
+            "byte": 321,
+            "currentColor": true,
+            "gradiente": false,
+            "coloriFissi": 0
+          },
+          {
+            "nome": "filter",
+            "file": "prodotto-24/filo/filter.svg",
+            "griglia": "24",
+            "byte": 275,
+            "currentColor": true,
+            "gradiente": false,
+            "coloriFissi": 0
+          },
+          {
+            "nome": "folder",
+            "file": "prodotto-24/filo/folder.svg",
+            "griglia": "24",
+            "byte": 381,
+            "currentColor": true,
+            "gradiente": false,
+            "coloriFissi": 0
+          },
+          {
+            "nome": "heart",
+            "file": "prodotto-24/filo/heart.svg",
+            "griglia": "24",
+            "byte": 335,
+            "currentColor": true,
+            "gradiente": false,
+            "coloriFissi": 0
+          },
+          {
+            "nome": "home",
+            "file": "prodotto-24/filo/home.svg",
+            "griglia": "24",
+            "byte": 309,
+            "currentColor": true,
+            "gradiente": false,
+            "coloriFissi": 0
+          },
+          {
+            "nome": "image",
+            "file": "prodotto-24/filo/image.svg",
+            "griglia": "24",
+            "byte": 448,
+            "currentColor": true,
+            "gradiente": false,
+            "coloriFissi": 0
+          },
+          {
+            "nome": "link",
+            "file": "prodotto-24/filo/link.svg",
+            "griglia": "24",
+            "byte": 329,
+            "currentColor": true,
+            "gradiente": false,
+            "coloriFissi": 0
+          },
+          {
+            "nome": "lock",
+            "file": "prodotto-24/filo/lock.svg",
+            "griglia": "24",
+            "byte": 399,
+            "currentColor": true,
+            "gradiente": false,
+            "coloriFissi": 0
+          },
+          {
+            "nome": "mail",
+            "file": "prodotto-24/filo/mail.svg",
+            "griglia": "24",
+            "byte": 380,
+            "currentColor": true,
+            "gradiente": false,
+            "coloriFissi": 0
+          },
+          {
+            "nome": "message",
+            "file": "prodotto-24/filo/message.svg",
+            "griglia": "24",
+            "byte": 389,
+            "currentColor": true,
+            "gradiente": false,
+            "coloriFissi": 0
+          },
+          {
+            "nome": "mic",
+            "file": "prodotto-24/filo/mic.svg",
+            "griglia": "24",
+            "byte": 361,
+            "currentColor": true,
+            "gradiente": false,
+            "coloriFissi": 0
+          },
+          {
+            "nome": "music",
+            "file": "prodotto-24/filo/music.svg",
+            "griglia": "24",
+            "byte": 366,
+            "currentColor": true,
+            "gradiente": false,
+            "coloriFissi": 0
+          },
+          {
+            "nome": "play",
+            "file": "prodotto-24/filo/play.svg",
+            "griglia": "24",
+            "byte": 318,
+            "currentColor": true,
+            "gradiente": false,
+            "coloriFissi": 0
+          },
+          {
+            "nome": "search",
+            "file": "prodotto-24/filo/search.svg",
+            "griglia": "24",
+            "byte": 301,
+            "currentColor": true,
+            "gradiente": false,
+            "coloriFissi": 0
+          },
+          {
+            "nome": "settings",
+            "file": "prodotto-24/filo/settings.svg",
+            "griglia": "24",
+            "byte": 447,
+            "currentColor": true,
+            "gradiente": false,
+            "coloriFissi": 0
+          },
+          {
+            "nome": "share",
+            "file": "prodotto-24/filo/share.svg",
+            "griglia": "24",
+            "byte": 391,
+            "currentColor": true,
+            "gradiente": false,
+            "coloriFissi": 0
+          },
+          {
+            "nome": "shield",
+            "file": "prodotto-24/filo/shield.svg",
+            "griglia": "24",
+            "byte": 341,
+            "currentColor": true,
+            "gradiente": false,
+            "coloriFissi": 0
+          },
+          {
+            "nome": "star",
+            "file": "prodotto-24/filo/star.svg",
+            "griglia": "24",
+            "byte": 320,
+            "currentColor": true,
+            "gradiente": false,
+            "coloriFissi": 0
+          },
+          {
+            "nome": "upload",
+            "file": "prodotto-24/filo/upload.svg",
+            "griglia": "24",
+            "byte": 341,
+            "currentColor": true,
+            "gradiente": false,
+            "coloriFissi": 0
+          },
+          {
+            "nome": "user",
+            "file": "prodotto-24/filo/user.svg",
+            "griglia": "24",
+            "byte": 340,
+            "currentColor": true,
+            "gradiente": false,
+            "coloriFissi": 0
+          },
+          {
+            "nome": "wallet",
+            "file": "prodotto-24/filo/wallet.svg",
+            "griglia": "24",
+            "byte": 411,
+            "currentColor": true,
+            "gradiente": false,
+            "coloriFissi": 0
+          }
+        ]
+      },
+      "timbro": {
+        "file": 30,
+        "icone": [
+          {
+            "nome": "bell",
+            "file": "prodotto-24/timbro/bell.svg",
+            "griglia": "24",
+            "byte": 577,
+            "currentColor": true,
+            "gradiente": false,
+            "coloriFissi": 0
+          },
+          {
+            "nome": "bookmark",
+            "file": "prodotto-24/timbro/bookmark.svg",
+            "griglia": "24",
+            "byte": 572,
+            "currentColor": true,
+            "gradiente": false,
+            "coloriFissi": 0
+          },
+          {
+            "nome": "calendar",
+            "file": "prodotto-24/timbro/calendar.svg",
+            "griglia": "24",
+            "byte": 1026,
+            "currentColor": true,
+            "gradiente": false,
+            "coloriFissi": 0
+          },
+          {
+            "nome": "camera",
+            "file": "prodotto-24/timbro/camera.svg",
+            "griglia": "24",
+            "byte": 755,
+            "currentColor": true,
+            "gradiente": false,
+            "coloriFissi": 0
+          },
+          {
+            "nome": "card",
+            "file": "prodotto-24/timbro/card.svg",
+            "griglia": "24",
+            "byte": 698,
+            "currentColor": true,
+            "gradiente": false,
+            "coloriFissi": 0
+          },
+          {
+            "nome": "cart",
+            "file": "prodotto-24/timbro/cart.svg",
+            "griglia": "24",
+            "byte": 899,
+            "currentColor": true,
+            "gradiente": false,
+            "coloriFissi": 0
+          },
+          {
+            "nome": "clock",
+            "file": "prodotto-24/timbro/clock.svg",
+            "griglia": "24",
+            "byte": 535,
+            "currentColor": true,
+            "gradiente": false,
+            "coloriFissi": 0
+          },
+          {
+            "nome": "cloud",
+            "file": "prodotto-24/timbro/cloud.svg",
+            "griglia": "24",
+            "byte": 508,
+            "currentColor": true,
+            "gradiente": false,
+            "coloriFissi": 0
+          },
+          {
+            "nome": "download",
+            "file": "prodotto-24/timbro/download.svg",
+            "griglia": "24",
+            "byte": 798,
+            "currentColor": true,
+            "gradiente": false,
+            "coloriFissi": 0
+          },
+          {
+            "nome": "file",
+            "file": "prodotto-24/timbro/file.svg",
+            "griglia": "24",
+            "byte": 710,
+            "currentColor": true,
+            "gradiente": false,
+            "coloriFissi": 0
+          },
+          {
+            "nome": "filter",
+            "file": "prodotto-24/timbro/filter.svg",
+            "griglia": "24",
+            "byte": 457,
+            "currentColor": true,
+            "gradiente": false,
+            "coloriFissi": 0
+          },
+          {
+            "nome": "folder",
+            "file": "prodotto-24/timbro/folder.svg",
+            "griglia": "24",
+            "byte": 607,
+            "currentColor": true,
+            "gradiente": false,
+            "coloriFissi": 0
+          },
+          {
+            "nome": "heart",
+            "file": "prodotto-24/timbro/heart.svg",
+            "griglia": "24",
+            "byte": 572,
+            "currentColor": true,
+            "gradiente": false,
+            "coloriFissi": 0
+          },
+          {
+            "nome": "home",
+            "file": "prodotto-24/timbro/home.svg",
+            "griglia": "24",
+            "byte": 549,
+            "currentColor": true,
+            "gradiente": false,
+            "coloriFissi": 0
+          },
+          {
+            "nome": "image",
+            "file": "prodotto-24/timbro/image.svg",
+            "griglia": "24",
+            "byte": 581,
+            "currentColor": true,
+            "gradiente": false,
+            "coloriFissi": 0
+          },
+          {
+            "nome": "link",
+            "file": "prodotto-24/timbro/link.svg",
+            "griglia": "24",
+            "byte": 1085,
+            "currentColor": true,
+            "gradiente": false,
+            "coloriFissi": 0
+          },
+          {
+            "nome": "lock",
+            "file": "prodotto-24/timbro/lock.svg",
+            "griglia": "24",
+            "byte": 906,
+            "currentColor": true,
+            "gradiente": false,
+            "coloriFissi": 0
+          },
+          {
+            "nome": "mail",
+            "file": "prodotto-24/timbro/mail.svg",
+            "griglia": "24",
+            "byte": 583,
+            "currentColor": true,
+            "gradiente": false,
+            "coloriFissi": 0
+          },
+          {
+            "nome": "message",
+            "file": "prodotto-24/timbro/message.svg",
+            "griglia": "24",
+            "byte": 771,
+            "currentColor": true,
+            "gradiente": false,
+            "coloriFissi": 0
+          },
+          {
+            "nome": "mic",
+            "file": "prodotto-24/timbro/mic.svg",
+            "griglia": "24",
+            "byte": 1194,
+            "currentColor": true,
+            "gradiente": false,
+            "coloriFissi": 0
+          },
+          {
+            "nome": "music",
+            "file": "prodotto-24/timbro/music.svg",
+            "griglia": "24",
+            "byte": 791,
+            "currentColor": true,
+            "gradiente": false,
+            "coloriFissi": 0
+          },
+          {
+            "nome": "play",
+            "file": "prodotto-24/timbro/play.svg",
+            "griglia": "24",
+            "byte": 466,
+            "currentColor": true,
+            "gradiente": false,
+            "coloriFissi": 0
+          },
+          {
+            "nome": "search",
+            "file": "prodotto-24/timbro/search.svg",
+            "griglia": "24",
+            "byte": 718,
+            "currentColor": true,
+            "gradiente": false,
+            "coloriFissi": 0
+          },
+          {
+            "nome": "settings",
+            "file": "prodotto-24/timbro/settings.svg",
+            "griglia": "24",
+            "byte": 2434,
+            "currentColor": true,
+            "gradiente": false,
+            "coloriFissi": 0
+          },
+          {
+            "nome": "share",
+            "file": "prodotto-24/timbro/share.svg",
+            "griglia": "24",
+            "byte": 1132,
+            "currentColor": true,
+            "gradiente": false,
+            "coloriFissi": 0
+          },
+          {
+            "nome": "shield",
+            "file": "prodotto-24/timbro/shield.svg",
+            "griglia": "24",
+            "byte": 582,
+            "currentColor": true,
+            "gradiente": false,
+            "coloriFissi": 0
+          },
+          {
+            "nome": "star",
+            "file": "prodotto-24/timbro/star.svg",
+            "griglia": "24",
+            "byte": 550,
+            "currentColor": true,
+            "gradiente": false,
+            "coloriFissi": 0
+          },
+          {
+            "nome": "upload",
+            "file": "prodotto-24/timbro/upload.svg",
+            "griglia": "24",
+            "byte": 783,
+            "currentColor": true,
+            "gradiente": false,
+            "coloriFissi": 0
+          },
+          {
+            "nome": "user",
+            "file": "prodotto-24/timbro/user.svg",
+            "griglia": "24",
+            "byte": 564,
+            "currentColor": true,
+            "gradiente": false,
+            "coloriFissi": 0
+          },
+          {
+            "nome": "wallet",
+            "file": "prodotto-24/timbro/wallet.svg",
+            "griglia": "24",
+            "byte": 545,
+            "currentColor": true,
+            "gradiente": false,
+            "coloriFissi": 0
+          }
+        ]
+      },
+      "vetro": {
+        "file": 30,
+        "icone": [
+          {
+            "nome": "bell",
+            "file": "prodotto-24/vetro/bell.svg",
+            "griglia": "24",
+            "byte": 3312,
+            "currentColor": false,
+            "gradiente": true,
+            "coloriFissi": 2
+          },
+          {
+            "nome": "bookmark",
+            "file": "prodotto-24/vetro/bookmark.svg",
+            "griglia": "24",
+            "byte": 3168,
+            "currentColor": false,
+            "gradiente": true,
+            "coloriFissi": 2
+          },
+          {
+            "nome": "calendar",
+            "file": "prodotto-24/vetro/calendar.svg",
+            "griglia": "24",
+            "byte": 5390,
+            "currentColor": false,
+            "gradiente": true,
+            "coloriFissi": 2
+          },
+          {
+            "nome": "camera",
+            "file": "prodotto-24/vetro/camera.svg",
+            "griglia": "24",
+            "byte": 4177,
+            "currentColor": false,
+            "gradiente": true,
+            "coloriFissi": 2
+          },
+          {
+            "nome": "card",
+            "file": "prodotto-24/vetro/card.svg",
+            "griglia": "24",
+            "byte": 3662,
+            "currentColor": false,
+            "gradiente": true,
+            "coloriFissi": 2
+          },
+          {
+            "nome": "cart",
+            "file": "prodotto-24/vetro/cart.svg",
+            "griglia": "24",
+            "byte": 5229,
+            "currentColor": false,
+            "gradiente": true,
+            "coloriFissi": 2
+          },
+          {
+            "nome": "clock",
+            "file": "prodotto-24/vetro/clock.svg",
+            "griglia": "24",
+            "byte": 2953,
+            "currentColor": false,
+            "gradiente": true,
+            "coloriFissi": 2
+          },
+          {
+            "nome": "cloud",
+            "file": "prodotto-24/vetro/cloud.svg",
+            "griglia": "24",
+            "byte": 3011,
+            "currentColor": false,
+            "gradiente": true,
+            "coloriFissi": 2
+          },
+          {
+            "nome": "download",
+            "file": "prodotto-24/vetro/download.svg",
+            "griglia": "24",
+            "byte": 4608,
+            "currentColor": false,
+            "gradiente": true,
+            "coloriFissi": 2
+          },
+          {
+            "nome": "file",
+            "file": "prodotto-24/vetro/file.svg",
+            "griglia": "24",
+            "byte": 3683,
+            "currentColor": false,
+            "gradiente": true,
+            "coloriFissi": 2
+          },
+          {
+            "nome": "filter",
+            "file": "prodotto-24/vetro/filter.svg",
+            "griglia": "24",
+            "byte": 2727,
+            "currentColor": false,
+            "gradiente": true,
+            "coloriFissi": 2
+          },
+          {
+            "nome": "folder",
+            "file": "prodotto-24/vetro/folder.svg",
+            "griglia": "24",
+            "byte": 3543,
+            "currentColor": false,
+            "gradiente": true,
+            "coloriFissi": 2
+          },
+          {
+            "nome": "heart",
+            "file": "prodotto-24/vetro/heart.svg",
+            "griglia": "24",
+            "byte": 3363,
+            "currentColor": false,
+            "gradiente": true,
+            "coloriFissi": 2
+          },
+          {
+            "nome": "home",
+            "file": "prodotto-24/vetro/home.svg",
+            "griglia": "24",
+            "byte": 3149,
+            "currentColor": false,
+            "gradiente": true,
+            "coloriFissi": 2
+          },
+          {
+            "nome": "image",
+            "file": "prodotto-24/vetro/image.svg",
+            "griglia": "24",
+            "byte": 3201,
+            "currentColor": false,
+            "gradiente": true,
+            "coloriFissi": 2
+          },
+          {
+            "nome": "link",
+            "file": "prodotto-24/vetro/link.svg",
+            "griglia": "24",
+            "byte": 6143,
+            "currentColor": false,
+            "gradiente": true,
+            "coloriFissi": 2
+          },
+          {
+            "nome": "lock",
+            "file": "prodotto-24/vetro/lock.svg",
+            "griglia": "24",
+            "byte": 4937,
+            "currentColor": false,
+            "gradiente": true,
+            "coloriFissi": 2
+          },
+          {
+            "nome": "mail",
+            "file": "prodotto-24/vetro/mail.svg",
+            "griglia": "24",
+            "byte": 3216,
+            "currentColor": false,
+            "gradiente": true,
+            "coloriFissi": 2
+          },
+          {
+            "nome": "message",
+            "file": "prodotto-24/vetro/message.svg",
+            "griglia": "24",
+            "byte": 4241,
+            "currentColor": false,
+            "gradiente": true,
+            "coloriFissi": 2
+          },
+          {
+            "nome": "mic",
+            "file": "prodotto-24/vetro/mic.svg",
+            "griglia": "24",
+            "byte": 6800,
+            "currentColor": false,
+            "gradiente": true,
+            "coloriFissi": 2
+          },
+          {
+            "nome": "music",
+            "file": "prodotto-24/vetro/music.svg",
+            "griglia": "24",
+            "byte": 4584,
+            "currentColor": false,
+            "gradiente": true,
+            "coloriFissi": 2
+          },
+          {
+            "nome": "play",
+            "file": "prodotto-24/vetro/play.svg",
+            "griglia": "24",
+            "byte": 2662,
+            "currentColor": false,
+            "gradiente": true,
+            "coloriFissi": 2
+          },
+          {
+            "nome": "search",
+            "file": "prodotto-24/vetro/search.svg",
+            "griglia": "24",
+            "byte": 4093,
+            "currentColor": false,
+            "gradiente": true,
+            "coloriFissi": 2
+          },
+          {
+            "nome": "settings",
+            "file": "prodotto-24/vetro/settings.svg",
+            "griglia": "24",
+            "byte": 13575,
+            "currentColor": false,
+            "gradiente": true,
+            "coloriFissi": 2
+          },
+          {
+            "nome": "share",
+            "file": "prodotto-24/vetro/share.svg",
+            "griglia": "24",
+            "byte": 6495,
+            "currentColor": false,
+            "gradiente": true,
+            "coloriFissi": 2
+          },
+          {
+            "nome": "shield",
+            "file": "prodotto-24/vetro/shield.svg",
+            "griglia": "24",
+            "byte": 3296,
+            "currentColor": false,
+            "gradiente": true,
+            "coloriFissi": 2
+          },
+          {
+            "nome": "star",
+            "file": "prodotto-24/vetro/star.svg",
+            "griglia": "24",
+            "byte": 3223,
+            "currentColor": false,
+            "gradiente": true,
+            "coloriFissi": 2
+          },
+          {
+            "nome": "upload",
+            "file": "prodotto-24/vetro/upload.svg",
+            "griglia": "24",
+            "byte": 4526,
+            "currentColor": false,
+            "gradiente": true,
+            "coloriFissi": 2
+          },
+          {
+            "nome": "user",
+            "file": "prodotto-24/vetro/user.svg",
+            "griglia": "24",
+            "byte": 3359,
+            "currentColor": false,
+            "gradiente": true,
+            "coloriFissi": 2
+          },
+          {
+            "nome": "wallet",
+            "file": "prodotto-24/vetro/wallet.svg",
+            "griglia": "24",
+            "byte": 3058,
+            "currentColor": false,
+            "gradiente": true,
+            "coloriFissi": 2
+          }
+        ]
+      }
+    },
+    "console-16": {
+      "bagliore": {
+        "file": 30,
+        "icone": [
+          {
+            "nome": "browser",
+            "file": "console-16/bagliore/browser.svg",
+            "griglia": "16",
+            "byte": 859,
+            "currentColor": true,
+            "gradiente": true,
+            "coloriFissi": 0
+          },
+          {
+            "nome": "bug",
+            "file": "console-16/bagliore/bug.svg",
+            "griglia": "16",
+            "byte": 910,
+            "currentColor": true,
+            "gradiente": true,
+            "coloriFissi": 0
+          },
+          {
+            "nome": "check",
+            "file": "console-16/bagliore/check.svg",
+            "griglia": "16",
+            "byte": 780,
+            "currentColor": true,
+            "gradiente": true,
+            "coloriFissi": 0
+          },
+          {
+            "nome": "chevron",
+            "file": "console-16/bagliore/chevron.svg",
+            "griglia": "16",
+            "byte": 791,
+            "currentColor": true,
+            "gradiente": true,
+            "coloriFissi": 0
+          },
+          {
+            "nome": "clock",
+            "file": "console-16/bagliore/clock.svg",
+            "griglia": "16",
+            "byte": 806,
+            "currentColor": true,
+            "gradiente": true,
+            "coloriFissi": 0
+          },
+          {
+            "nome": "close",
+            "file": "console-16/bagliore/close.svg",
+            "griglia": "16",
+            "byte": 804,
+            "currentColor": true,
+            "gradiente": true,
+            "coloriFissi": 0
+          },
+          {
+            "nome": "code",
+            "file": "console-16/bagliore/code.svg",
+            "griglia": "16",
+            "byte": 810,
+            "currentColor": true,
+            "gradiente": true,
+            "coloriFissi": 0
+          },
+          {
+            "nome": "copy",
+            "file": "console-16/bagliore/copy.svg",
+            "griglia": "16",
+            "byte": 903,
+            "currentColor": true,
+            "gradiente": true,
+            "coloriFissi": 0
+          },
+          {
+            "nome": "debug",
+            "file": "console-16/bagliore/debug.svg",
+            "griglia": "16",
+            "byte": 806,
+            "currentColor": true,
+            "gradiente": true,
+            "coloriFissi": 0
+          },
+          {
+            "nome": "env",
+            "file": "console-16/bagliore/env.svg",
+            "griglia": "16",
+            "byte": 852,
+            "currentColor": true,
+            "gradiente": true,
+            "coloriFissi": 0
+          },
+          {
+            "nome": "external",
+            "file": "console-16/bagliore/external.svg",
+            "griglia": "16",
+            "byte": 904,
+            "currentColor": true,
+            "gradiente": true,
+            "coloriFissi": 0
+          },
+          {
+            "nome": "eye",
+            "file": "console-16/bagliore/eye.svg",
+            "griglia": "16",
+            "byte": 848,
+            "currentColor": true,
+            "gradiente": true,
+            "coloriFissi": 0
+          },
+          {
+            "nome": "folder",
+            "file": "console-16/bagliore/folder.svg",
+            "griglia": "16",
+            "byte": 882,
+            "currentColor": true,
+            "gradiente": true,
+            "coloriFissi": 0
+          },
+          {
+            "nome": "info",
+            "file": "console-16/bagliore/info.svg",
+            "griglia": "16",
+            "byte": 815,
+            "currentColor": true,
+            "gradiente": true,
+            "coloriFissi": 0
+          },
+          {
+            "nome": "log",
+            "file": "console-16/bagliore/log.svg",
+            "griglia": "16",
+            "byte": 800,
+            "currentColor": true,
+            "gradiente": true,
+            "coloriFissi": 0
+          },
+          {
+            "nome": "module",
+            "file": "console-16/bagliore/module.svg",
+            "griglia": "16",
+            "byte": 979,
+            "currentColor": true,
+            "gradiente": true,
+            "coloriFissi": 0
+          },
+          {
+            "nome": "plus",
+            "file": "console-16/bagliore/plus.svg",
+            "griglia": "16",
+            "byte": 787,
+            "currentColor": true,
+            "gradiente": true,
+            "coloriFissi": 0
+          },
+          {
+            "nome": "power",
+            "file": "console-16/bagliore/power.svg",
+            "griglia": "16",
+            "byte": 805,
+            "currentColor": true,
+            "gradiente": true,
+            "coloriFissi": 0
+          },
+          {
+            "nome": "refresh",
+            "file": "console-16/bagliore/refresh.svg",
+            "griglia": "16",
+            "byte": 827,
+            "currentColor": true,
+            "gradiente": true,
+            "coloriFissi": 0
+          },
+          {
+            "nome": "run",
+            "file": "console-16/bagliore/run.svg",
+            "griglia": "16",
+            "byte": 834,
+            "currentColor": true,
+            "gradiente": true,
+            "coloriFissi": 0
+          },
+          {
+            "nome": "search",
+            "file": "console-16/bagliore/search.svg",
+            "griglia": "16",
+            "byte": 812,
+            "currentColor": true,
+            "gradiente": true,
+            "coloriFissi": 0
+          },
+          {
+            "nome": "server",
+            "file": "console-16/bagliore/server.svg",
+            "griglia": "16",
+            "byte": 894,
+            "currentColor": true,
+            "gradiente": true,
+            "coloriFissi": 0
+          },
+          {
+            "nome": "settings",
+            "file": "console-16/bagliore/settings.svg",
+            "griglia": "16",
+            "byte": 1007,
+            "currentColor": true,
+            "gradiente": true,
+            "coloriFissi": 0
+          },
+          {
+            "nome": "stop",
+            "file": "console-16/bagliore/stop.svg",
+            "griglia": "16",
+            "byte": 792,
+            "currentColor": true,
+            "gradiente": true,
+            "coloriFissi": 0
+          },
+          {
+            "nome": "test",
+            "file": "console-16/bagliore/test.svg",
+            "griglia": "16",
+            "byte": 867,
+            "currentColor": true,
+            "gradiente": true,
+            "coloriFissi": 0
+          },
+          {
+            "nome": "ticket",
+            "file": "console-16/bagliore/ticket.svg",
+            "griglia": "16",
+            "byte": 926,
+            "currentColor": true,
+            "gradiente": true,
+            "coloriFissi": 0
+          },
+          {
+            "nome": "trace",
+            "file": "console-16/bagliore/trace.svg",
+            "griglia": "16",
+            "byte": 838,
+            "currentColor": true,
+            "gradiente": true,
+            "coloriFissi": 0
+          },
+          {
+            "nome": "trash",
+            "file": "console-16/bagliore/trash.svg",
+            "griglia": "16",
+            "byte": 902,
+            "currentColor": true,
+            "gradiente": true,
+            "coloriFissi": 0
+          },
+          {
+            "nome": "upload",
+            "file": "console-16/bagliore/upload.svg",
+            "griglia": "16",
+            "byte": 884,
+            "currentColor": true,
+            "gradiente": true,
+            "coloriFissi": 0
+          },
+          {
+            "nome": "warning",
+            "file": "console-16/bagliore/warning.svg",
+            "griglia": "16",
+            "byte": 883,
+            "currentColor": true,
+            "gradiente": true,
+            "coloriFissi": 0
+          }
+        ]
+      },
+      "linea": {
+        "file": 31,
+        "icone": [
+          {
+            "nome": "browser",
+            "file": "console-16/linea/browser.svg",
+            "griglia": "16",
+            "byte": 290,
+            "currentColor": true,
+            "gradiente": false,
+            "coloriFissi": 0
+          },
+          {
+            "nome": "bug",
+            "file": "console-16/linea/bug.svg",
+            "griglia": "16",
+            "byte": 357,
+            "currentColor": true,
+            "gradiente": false,
+            "coloriFissi": 0
+          },
+          {
+            "nome": "check",
+            "file": "console-16/linea/check.svg",
+            "griglia": "16",
+            "byte": 219,
+            "currentColor": true,
+            "gradiente": false,
+            "coloriFissi": 0
+          },
+          {
+            "nome": "chevron",
+            "file": "console-16/linea/chevron.svg",
+            "griglia": "16",
+            "byte": 222,
+            "currentColor": true,
+            "gradiente": false,
+            "coloriFissi": 0
+          },
+          {
+            "nome": "clock",
+            "file": "console-16/linea/clock.svg",
+            "griglia": "16",
+            "byte": 245,
+            "currentColor": true,
+            "gradiente": false,
+            "coloriFissi": 0
+          },
+          {
+            "nome": "close",
+            "file": "console-16/linea/close.svg",
+            "griglia": "16",
+            "byte": 243,
+            "currentColor": true,
+            "gradiente": false,
+            "coloriFissi": 0
+          },
+          {
+            "nome": "code",
+            "file": "console-16/linea/code.svg",
+            "griglia": "16",
+            "byte": 253,
+            "currentColor": true,
+            "gradiente": false,
+            "coloriFissi": 0
+          },
+          {
+            "nome": "copy",
+            "file": "console-16/linea/copy.svg",
+            "griglia": "16",
+            "byte": 346,
+            "currentColor": true,
+            "gradiente": false,
+            "coloriFissi": 0
+          },
+          {
+            "nome": "debug",
+            "file": "console-16/linea/debug.svg",
+            "griglia": "16",
+            "byte": 245,
+            "currentColor": true,
+            "gradiente": false,
+            "coloriFissi": 0
+          },
+          {
+            "nome": "env",
+            "file": "console-16/linea/env.svg",
+            "griglia": "16",
+            "byte": 299,
+            "currentColor": true,
+            "gradiente": false,
+            "coloriFissi": 0
+          },
+          {
+            "nome": "external",
+            "file": "console-16/linea/external.svg",
+            "griglia": "16",
+            "byte": 331,
+            "currentColor": true,
+            "gradiente": false,
+            "coloriFissi": 0
+          },
+          {
+            "nome": "eye",
+            "file": "console-16/linea/eye.svg",
+            "griglia": "16",
+            "byte": 295,
+            "currentColor": true,
+            "gradiente": false,
+            "coloriFissi": 0
+          },
+          {
+            "nome": "folder",
+            "file": "console-16/linea/folder.svg",
+            "griglia": "16",
+            "byte": 317,
+            "currentColor": true,
+            "gradiente": false,
+            "coloriFissi": 0
+          },
+          {
+            "nome": "info",
+            "file": "console-16/linea/info.svg",
+            "griglia": "16",
+            "byte": 258,
+            "currentColor": true,
+            "gradiente": false,
+            "coloriFissi": 0
+          },
+          {
+            "nome": "log",
+            "file": "console-16/linea/log.svg",
+            "griglia": "16",
+            "byte": 247,
+            "currentColor": true,
+            "gradiente": false,
+            "coloriFissi": 0
+          },
+          {
+            "nome": "module",
+            "file": "console-16/linea/module.svg",
+            "griglia": "16",
+            "byte": 414,
+            "currentColor": true,
+            "gradiente": false,
+            "coloriFissi": 0
+          },
+          {
+            "nome": "plus",
+            "file": "console-16/linea/plus.svg",
+            "griglia": "16",
+            "byte": 230,
+            "currentColor": true,
+            "gradiente": false,
+            "coloriFissi": 0
+          },
+          {
+            "nome": "power",
+            "file": "console-16/linea/power.svg",
+            "griglia": "16",
+            "byte": 244,
+            "currentColor": true,
+            "gradiente": false,
+            "coloriFissi": 0
+          },
+          {
+            "nome": "queue",
+            "file": "console-16/linea/queue.svg",
+            "griglia": "16",
+            "byte": 295,
+            "currentColor": true,
+            "gradiente": false,
+            "coloriFissi": 0
+          },
+          {
+            "nome": "refresh",
+            "file": "console-16/linea/refresh.svg",
+            "griglia": "16",
+            "byte": 258,
+            "currentColor": true,
+            "gradiente": false,
+            "coloriFissi": 0
+          },
+          {
+            "nome": "run",
+            "file": "console-16/linea/run.svg",
+            "griglia": "16",
+            "byte": 281,
+            "currentColor": true,
+            "gradiente": false,
+            "coloriFissi": 0
+          },
+          {
+            "nome": "search",
+            "file": "console-16/linea/search.svg",
+            "griglia": "16",
+            "byte": 247,
+            "currentColor": true,
+            "gradiente": false,
+            "coloriFissi": 0
+          },
+          {
+            "nome": "server",
+            "file": "console-16/linea/server.svg",
+            "griglia": "16",
+            "byte": 329,
+            "currentColor": true,
+            "gradiente": false,
+            "coloriFissi": 0
+          },
+          {
+            "nome": "settings",
+            "file": "console-16/linea/settings.svg",
+            "griglia": "16",
+            "byte": 434,
+            "currentColor": true,
+            "gradiente": false,
+            "coloriFissi": 0
+          },
+          {
+            "nome": "stop",
+            "file": "console-16/linea/stop.svg",
+            "griglia": "16",
+            "byte": 235,
+            "currentColor": true,
+            "gradiente": false,
+            "coloriFissi": 0
+          },
+          {
+            "nome": "test",
+            "file": "console-16/linea/test.svg",
+            "griglia": "16",
+            "byte": 310,
+            "currentColor": true,
+            "gradiente": false,
+            "coloriFissi": 0
+          },
+          {
+            "nome": "ticket",
+            "file": "console-16/linea/ticket.svg",
+            "griglia": "16",
+            "byte": 361,
+            "currentColor": true,
+            "gradiente": false,
+            "coloriFissi": 0
+          },
+          {
+            "nome": "trace",
+            "file": "console-16/linea/trace.svg",
+            "griglia": "16",
+            "byte": 277,
+            "currentColor": true,
+            "gradiente": false,
+            "coloriFissi": 0
+          },
+          {
+            "nome": "trash",
+            "file": "console-16/linea/trash.svg",
+            "griglia": "16",
+            "byte": 341,
+            "currentColor": true,
+            "gradiente": false,
+            "coloriFissi": 0
+          },
+          {
+            "nome": "upload",
+            "file": "console-16/linea/upload.svg",
+            "griglia": "16",
+            "byte": 319,
+            "currentColor": true,
+            "gradiente": false,
+            "coloriFissi": 0
+          },
+          {
+            "nome": "warning",
+            "file": "console-16/linea/warning.svg",
+            "griglia": "16",
+            "byte": 314,
+            "currentColor": true,
+            "gradiente": false,
+            "coloriFissi": 0
+          }
+        ]
+      },
+      "piastra": {
+        "file": 30,
+        "icone": [
+          {
+            "nome": "browser",
+            "file": "console-16/piastra/browser.svg",
+            "griglia": "16",
+            "byte": 1051,
+            "currentColor": false,
+            "gradiente": true,
+            "coloriFissi": 3
+          },
+          {
+            "nome": "bug",
+            "file": "console-16/piastra/bug.svg",
+            "griglia": "16",
+            "byte": 1102,
+            "currentColor": false,
+            "gradiente": true,
+            "coloriFissi": 3
+          },
+          {
+            "nome": "check",
+            "file": "console-16/piastra/check.svg",
+            "griglia": "16",
+            "byte": 976,
+            "currentColor": false,
+            "gradiente": true,
+            "coloriFissi": 3
+          },
+          {
+            "nome": "chevron",
+            "file": "console-16/piastra/chevron.svg",
+            "griglia": "16",
+            "byte": 985,
+            "currentColor": false,
+            "gradiente": true,
+            "coloriFissi": 3
+          },
+          {
+            "nome": "clock",
+            "file": "console-16/piastra/clock.svg",
+            "griglia": "16",
+            "byte": 1000,
+            "currentColor": false,
+            "gradiente": true,
+            "coloriFissi": 3
+          },
+          {
+            "nome": "close",
+            "file": "console-16/piastra/close.svg",
+            "griglia": "16",
+            "byte": 996,
+            "currentColor": false,
+            "gradiente": true,
+            "coloriFissi": 3
+          },
+          {
+            "nome": "code",
+            "file": "console-16/piastra/code.svg",
+            "griglia": "16",
+            "byte": 1004,
+            "currentColor": false,
+            "gradiente": true,
+            "coloriFissi": 3
+          },
+          {
+            "nome": "copy",
+            "file": "console-16/piastra/copy.svg",
+            "griglia": "16",
+            "byte": 1095,
+            "currentColor": false,
+            "gradiente": true,
+            "coloriFissi": 3
+          },
+          {
+            "nome": "debug",
+            "file": "console-16/piastra/debug.svg",
+            "griglia": "16",
+            "byte": 1000,
+            "currentColor": false,
+            "gradiente": true,
+            "coloriFissi": 3
+          },
+          {
+            "nome": "env",
+            "file": "console-16/piastra/env.svg",
+            "griglia": "16",
+            "byte": 1046,
+            "currentColor": false,
+            "gradiente": true,
+            "coloriFissi": 3
+          },
+          {
+            "nome": "external",
+            "file": "console-16/piastra/external.svg",
+            "griglia": "16",
+            "byte": 1098,
+            "currentColor": false,
+            "gradiente": true,
+            "coloriFissi": 3
+          },
+          {
+            "nome": "eye",
+            "file": "console-16/piastra/eye.svg",
+            "griglia": "16",
+            "byte": 1040,
+            "currentColor": false,
+            "gradiente": true,
+            "coloriFissi": 3
+          },
+          {
+            "nome": "folder",
+            "file": "console-16/piastra/folder.svg",
+            "griglia": "16",
+            "byte": 1078,
+            "currentColor": false,
+            "gradiente": true,
+            "coloriFissi": 3
+          },
+          {
+            "nome": "info",
+            "file": "console-16/piastra/info.svg",
+            "griglia": "16",
+            "byte": 1009,
+            "currentColor": false,
+            "gradiente": true,
+            "coloriFissi": 3
+          },
+          {
+            "nome": "log",
+            "file": "console-16/piastra/log.svg",
+            "griglia": "16",
+            "byte": 994,
+            "currentColor": false,
+            "gradiente": true,
+            "coloriFissi": 3
+          },
+          {
+            "nome": "module",
+            "file": "console-16/piastra/module.svg",
+            "griglia": "16",
+            "byte": 1171,
+            "currentColor": false,
+            "gradiente": true,
+            "coloriFissi": 3
+          },
+          {
+            "nome": "plus",
+            "file": "console-16/piastra/plus.svg",
+            "griglia": "16",
+            "byte": 981,
+            "currentColor": false,
+            "gradiente": true,
+            "coloriFissi": 3
+          },
+          {
+            "nome": "power",
+            "file": "console-16/piastra/power.svg",
+            "griglia": "16",
+            "byte": 999,
+            "currentColor": false,
+            "gradiente": true,
+            "coloriFissi": 2
+          },
+          {
+            "nome": "refresh",
+            "file": "console-16/piastra/refresh.svg",
+            "griglia": "16",
+            "byte": 1019,
+            "currentColor": false,
+            "gradiente": true,
+            "coloriFissi": 3
+          },
+          {
+            "nome": "run",
+            "file": "console-16/piastra/run.svg",
+            "griglia": "16",
+            "byte": 1028,
+            "currentColor": false,
+            "gradiente": true,
+            "coloriFissi": 2
+          },
+          {
+            "nome": "search",
+            "file": "console-16/piastra/search.svg",
+            "griglia": "16",
+            "byte": 1008,
+            "currentColor": false,
+            "gradiente": true,
+            "coloriFissi": 2
+          },
+          {
+            "nome": "server",
+            "file": "console-16/piastra/server.svg",
+            "griglia": "16",
+            "byte": 1088,
+            "currentColor": false,
+            "gradiente": true,
+            "coloriFissi": 3
+          },
+          {
+            "nome": "settings",
+            "file": "console-16/piastra/settings.svg",
+            "griglia": "16",
+            "byte": 1199,
+            "currentColor": false,
+            "gradiente": true,
+            "coloriFissi": 3
+          },
+          {
+            "nome": "stop",
+            "file": "console-16/piastra/stop.svg",
+            "griglia": "16",
+            "byte": 986,
+            "currentColor": false,
+            "gradiente": true,
+            "coloriFissi": 3
+          },
+          {
+            "nome": "test",
+            "file": "console-16/piastra/test.svg",
+            "griglia": "16",
+            "byte": 1059,
+            "currentColor": false,
+            "gradiente": true,
+            "coloriFissi": 3
+          },
+          {
+            "nome": "ticket",
+            "file": "console-16/piastra/ticket.svg",
+            "griglia": "16",
+            "byte": 1120,
+            "currentColor": false,
+            "gradiente": true,
+            "coloriFissi": 3
+          },
+          {
+            "nome": "trace",
+            "file": "console-16/piastra/trace.svg",
+            "griglia": "16",
+            "byte": 1034,
+            "currentColor": false,
+            "gradiente": true,
+            "coloriFissi": 3
+          },
+          {
+            "nome": "trash",
+            "file": "console-16/piastra/trash.svg",
+            "griglia": "16",
+            "byte": 1096,
+            "currentColor": false,
+            "gradiente": true,
+            "coloriFissi": 3
+          },
+          {
+            "nome": "upload",
+            "file": "console-16/piastra/upload.svg",
+            "griglia": "16",
+            "byte": 1080,
+            "currentColor": false,
+            "gradiente": true,
+            "coloriFissi": 3
+          },
+          {
+            "nome": "warning",
+            "file": "console-16/piastra/warning.svg",
+            "griglia": "16",
+            "byte": 1075,
+            "currentColor": false,
+            "gradiente": true,
+            "coloriFissi": 3
+          }
+        ]
+      }
+    }
+  }
+}
