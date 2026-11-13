@@ -29,5 +29,6 @@ poi carica la skill con il tool `skill` e annuncia `Uso <skill> per <scopo>`.
 10. Niente slop: nomi-style-AI (Kairos, Nova, Nexus...), titoli "Comprehensive Guide", errori tipo "Ops! Qualcosa e' andato storto".
 11. Memoria: `memory` search se il messaggio richiama lavoro precedente; `scope` `all` se riguarda un altro progetto (le memorie pre-V3 sono condivise, non attribuite); `memory` add a fine rotta.
 12. Al primo messaggio di un task: leggi le schede in `~/.config/opencode/mind/sessions/` e aggiorna la tua.
+13. Ogni domanda all'utente è multiscelta: tool `question` con opzioni concrete, raccomandata prima — mai prosa con "dimmi tu". Eccezioni: risposta che conosce solo l'utente, run autonoma (default + ledger).
 
 Regole complete, esempi per intent, Design Track, anti-loop, gestione lacune: skill `using-mind` + `routing.md`.
