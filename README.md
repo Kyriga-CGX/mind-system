@@ -251,7 +251,7 @@ La frase "non si puo ridurre senza rompere il routing" ora ha i numeri dietro, n
 
 Durante la misura sono emersi **due difetti del banco**, non del sistema: `caso-18` chiedeva `mind-memory`, che non e una skill (la skill e `mind-recall`), e `caso-05` accettava solo `frontend-design` mentre `nessuna` e una risposta corretta per una modifica minima. Corretti: il 91,7% era il routing **meno due etichette difettose**.
 
-Nel frattempo il tetto è imposto: `tests/context-budget.test.mjs` confronta il catalogo con 26.130 caratteri, e restano **3 caratteri** di margine. Una skill nuova non entra senza che qualcuno alzi la soglia a mano, e alzarla è una decisione scritta.
+Nel frattempo il tetto è imposto: `tests/context-budget.test.mjs` confronta il catalogo con 26.297 caratteri, e restano **10 caratteri** di margine (misurato 26.287 su 69 skill il 2026-11-13). Una skill nuova non entra senza che qualcuno alzi la soglia a mano, e alzarla è una decisione scritta. (Le righe sopra con 26.127 restano la fotografia storica del benchmark di routing, non il budget corrente.)
 
 ## Le 19 pipeline
 
