@@ -1,6 +1,6 @@
 ---
 name: mind-runner
-description: Esecuzione autonoma di un piano/obiettivo complesso, task dopo task, con coda persistente su file, checkpoint, ripresa tra sessioni e gate di verifica finale. Si attiva su richieste tipo "porta a termine l'obiettivo", "esegui tutto il piano", "lavora finché non è finito", "gira in autonomia", "lavora N ore / tutta la notte / fino a domani", o quando un piano di mind-planning va eseguito per intero senza conferma a ogni task.
+description: Esecuzione autonoma di un piano/obiettivo complesso, task dopo task, con coda persistente su file, checkpoint, ripresa tra sessioni e gate di verifica finale. Si attiva su richieste tipo "porta a termine l'obiettivo", "esegui tutto il piano", "lavora finché non è finito", "gira in autonomia", "lavora N ore/notte", o quando un piano di mind-planning va eseguito per intero senza conferma a ogni task.
 ---
 
 # mind-runner — Esecuzione autonoma di un obiettivo
