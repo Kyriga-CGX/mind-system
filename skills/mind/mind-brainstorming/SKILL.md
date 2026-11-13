@@ -20,10 +20,10 @@ Ogni progetto passa da questo processo. Todo list, utility di una funzione, modi
 1. **Esplora il contesto** — file, docs, commit recenti
 2. **Domande di chiarimento** — una alla volta: scopo, vincoli, criteri di successo. Regola scarna (2026-11-13, generale): se la richiesta di implementazione è scarna (mancano obiettivo misurabile, file/area, vincoli, done verificabile), riscrivila in prompt arricchito e fai max 3 domande secche via `question` in una sola tornata; poi procedi con default sicuri dichiarati, mai interrogatorio infinito. In run notturna/autonoma non bloccare: usa default + segnala assunzioni nel ledger, `blocked` solo se manca un dato critico (path, versione di riferimento, credenziale).
 3. **Proponi 2-3 approcci** — con trade-off e raccomandazione motivata
-4. **Presenta il design** — a sezioni scalate per complessità; approvazione utente dopo ogni sezione
+4. **Presenta il design** — a sezioni scalate per complessità; dopo la presentazione, gate con tool `question`: opzioni "Sì, procedi" / "No" (+ risposta libera automatica del tool, non elencarla). Bypass in run autonoma/notturna o task banali (max 2 file, nessuna scelta architetturale): default = procedi + assunzioni nel commit message
 5. **Scrivi il design doc** — in `docs/specs/YYYY-MM-DD-<topic>-design.md`, poi commit
 6. **Self-review dello spec** — placeholder, contraddizioni, ambiguità, scope (vedi sotto)
-7. **Review utente dello spec** — chiedi all'utente di rivedere il file prima di procedere
+7. **Review utente dello spec** — gate con tool `question` (vedi "Review utente" sotto)
 8. **Transizione** — invoca `mind-planning` (o `mind-implementation` se già pianificato)
 
 ## Comprensione dell'idea
@@ -78,8 +78,10 @@ Ogni progetto passa da questo processo. Todo list, utility di una funzione, modi
 
 Fix inline, senza ri-review. Poi passa al gate utente.
 
-**Review utente (gate):**
+**Review utente (gate, tool `question` obbligatorio):**
 > "Spec scritto e committato in `<path>`. Rivedilo e dimmi se vuoi modifiche prima che scriva il piano di implementazione."
+
+Opzioni: "Procedi" / "Non mi piace" / "Cambia…" (+ risposta libera automatica del tool, non elencarla). "Cambia…" = itera: domande di chiarimento, applica, ri-esegui la self-review, riproponi il gate. Bypass in run autonoma/notturna o task banali: default = Procedi + assunzioni nel ledger. Mai bypassare in presenza di rifiuti d'approccio precedenti (barra `## Rifiuti`).
 
 Aspetta la risposta. Se chiede modifiche, applicale e ri-esegui la self-review. Procedi solo dopo l'approvazione.
 
