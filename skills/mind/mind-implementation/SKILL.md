@@ -24,7 +24,7 @@ Durante il lavoro, se noti un problema o un'opportunità NON previsti nel piano:
 
 ## Principi
 
-- **Più subagent, non uno**: dispatch N subagent in parallelo, uno per unità di lavoro indipendente. Mai un singolo subagent per tutto il lavoro
+- **Più subagent, non uno** (in modalità parallela): dispatch N subagent in parallelo, uno per unità di lavoro indipendente. Mai un singolo subagent per tutto il lavoro in parallelo; in modalità sequenziale un task alla volta nella sessione corrente
 - **Contesto isolato**: ogni subagent parte fresco, con SOLO il contesto del proprio task (brief file, non cronologia della chat) + il path assoluto di `~/.config/opencode/mind/barra.md` e `.mind/barra.md`. Il plugin la inietta anche nelle sessioni dei subagent; il path serve perché nei worktree la barra di progetto può mancare (`.mind/` spesso git-ignorato) e il brief deve puntare al checkout principale, non al worktree.
 - **Ledger**: file di stato che sopravvive alla compressione della memoria — registra ogni task, il suo stato, i risultati dei review
 - **TDD**: test fallito PRIMA, poi implementazione, poi test verde
@@ -32,6 +32,7 @@ Durante il lavoro, se noti un problema o un'opportunità NON previsti nel piano:
 
 ## Setup
 
+0. **Modalità di esecuzione** (scelta al gate di handoff di `mind-planning`): parallela (default, un subagent per unità indipendente) o sequenziale ("agente singolo": esegui i task uno alla volta nella sessione corrente, stesso ledger, stessi gate di verifica).
 1. Crea il ledger: `.mind/sdd/<plan-basename>/ledger.md`
 2. Determina le unità di lavoro indipendenti dal piano
 3. Identifica i conflitti tra unità (stessi file, stesse interfacce) — le unità in conflitto NON vanno in parallelo: esegui prima il loro upstream o raggruppale

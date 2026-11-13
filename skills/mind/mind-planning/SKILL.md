@@ -32,7 +32,7 @@ Architecture:
 Tech Stack:
 Global Constraints:
 
-For agentic workers: use mind-implementation (multi-subagent parallelo)
+For agentic workers: use mind-implementation (multi-subagent parallelo; default modificabile al gate di handoff: l'utente può chiedere agente singolo)
 ```
 
 ## Struttura task
@@ -85,4 +85,7 @@ Durante la pianificazione, se noti qualcosa che manca o che migliorerebbe il ris
 
 ## Handoff
 
-Dopo la self-review, presenta il piano all'utente e offri l'esecuzione con `mind-implementation` (multi-subagent in parallelo).
+Dopo la self-review, presenta il piano all'utente e chiedi l'esecuzione con tool `question` (obbligatorio):
+> "Eseguo con mind-implementation (multi-subagent in parallelo)?"
+
+Opzioni: "Sì, parallelo" / "No, agente singolo" (+ risposta libera automatica del tool, non elencarla). "No, agente singolo" = mind-implementation esegue i task in sequenza nella sessione corrente. Bypass in run autonoma/notturna o task banali: default = Sì, parallelo + assunzioni nel ledger.
