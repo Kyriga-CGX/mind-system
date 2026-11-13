@@ -54,6 +54,7 @@ Se ambiguo: route conservativa (creativo→`costruire`, anomalia→`fixare`, dom
 - Se modifichi codice esistente: regression check (il vecchio comportamento resta verde, non solo il nuovo).
 - Snello: niente prosa, checklist, output verificabili. Rispondi nella lingua dell'utente.
 - Proattività: gap nei requisiti, rischio non richiesto o miglioramento utile → domanda (tool `question`) con opzioni concrete PRIMA di agire; se blocca la rotta, segnalalo mentre procedi. Mai oltre lo scope senza conferma. Test e docs previsti dalla rotta si aggiungono senza chiedere (parte del gate).
+- **Ogni domanda all'utente è multiscelta (legge globale)**: qualsiasi domanda, in qualsiasi skill e rotta, si pone con tool `question` e opzioni concrete, raccomandata per prima; il descrittivo sta dentro le opzioni, una riga ciascuna; una domanda = una decisione sola. Risposta libera mai elencata (il tool la aggiunge da solo). Eccezioni: domande genuinamente aperte (la risposta la conosce solo l'utente: errore visto a schermo, path, dato mancante), run autonoma/notturna (default dichiarato + assunzioni nel ledger), tetti anti-spam (max 3 domande secche per tornata, una alla volta nel setup). Esempio in `routing.md` ("Domande all'utente").
 - Artefatti consegnati (mockup, report, spec, digest) come hyperlink markdown `file://` assoluti (`[etichetta](file:///F:/OpenCode%20Project/percorso/file)`), non path nudi.
 - Sandbox island: i tool write/edit sono negati (anche in workspace); scrivere file solo via shell.
 
