@@ -1,6 +1,6 @@
 ---
 name: mind-runner
-description: Esecuzione autonoma di un piano/obiettivo complesso, task dopo task, con coda persistente su file, checkpoint, ripresa tra sessioni e gate di verifica finale. Si attiva su richieste tipo "porta a termine l'obiettivo", "esegui tutto il piano", "lavora finché non è finito", "gira in autonomia", o quando un piano di mind-planning va eseguito per intero senza conferma a ogni task.
+description: Esecuzione autonoma di un piano/obiettivo complesso, task dopo task, con coda persistente su file, checkpoint, ripresa tra sessioni e gate di verifica finale. Si attiva su richieste tipo "porta a termine l'obiettivo", "esegui tutto il piano", "lavora finché non è finito", "gira in autonomia", "lavora N ore / tutta la notte / fino a domani", o quando un piano di mind-planning va eseguito per intero senza conferma a ogni task.
 ---
 
 # mind-runner — Esecuzione autonoma di un obiettivo
@@ -71,6 +71,14 @@ Regola d'oro: il **fallimento** consuma tentativi e può finire in `blocked`; il
 | Deploy/release/merge senza conferma | Fuori dai permessi concessi (solo `commit`+`push`) |
 | Stato tenuto solo in memoria | Non riprendibile dopo la chiusura della sessione |
 | Gate verde "a occhio" | Serve evidenza fresca, non fiducia |
+
+## Trigger temporale "lavora N ore / tutta la notte" (regola generale, 2026-11-13)
+
+Vale per qualunque progetto. N ore = tetto massimo, mai obiettivo da riempire.
+- All'avvio: scomponi in `queue.json` con task atomici (1 task = 1 area/file). Ogni task ha `done` verificabile: test citato o screenshot in `.mind/visual/` o diff citato. Senza done → task `blocked` subito, non eseguirlo a intuito.
+- Budget: N ore / N task, max 4 tentativi poi `blocked` e passa oltre. Vietato "ricontrolla a vuoto per riempire le ore": se coda tutta `done/blocked`, fermati con report.
+- Proattività vincolata 85/15: 85% esegui, 15% proponi. Un miglioramento extra non si implementa a sorpresa: va in `ledger.md` come `PROPONE: cosa / perché / evidenza / costo / rischio`, con screenshot o test a supporto. Implementa solo se non rompe i vincoli del brief.
+- Task finale fisso `T-proposte` (timebox 15%): "3 proposte con evidenza, nessuna implementata". Le proposte promosse diventano task veri al giro dopo.
 
 ## COORDINAMENTO
 

@@ -18,7 +18,7 @@ Ogni progetto passa da questo processo. Todo list, utility di una funzione, modi
 ## Checklist (todo per item, in ordine)
 
 1. **Esplora il contesto** — file, docs, commit recenti
-2. **Domande di chiarimento** — una alla volta: scopo, vincoli, criteri di successo
+2. **Domande di chiarimento** — una alla volta: scopo, vincoli, criteri di successo. Regola scarna (2026-11-13, generale): se la richiesta di implementazione è scarna (mancano obiettivo misurabile, file/area, vincoli, done verificabile), riscrivila in prompt arricchito e fai max 3 domande secche via `question` in una sola tornata; poi procedi con default sicuri dichiarati, mai interrogatorio infinito. In run notturna/autonoma non bloccare: usa default + segnala assunzioni nel ledger, `blocked` solo se manca un dato critico (path, versione di riferimento, credenziale).
 3. **Proponi 2-3 approcci** — con trade-off e raccomandazione motivata
 4. **Presenta il design** — a sezioni scalate per complessità; approvazione utente dopo ogni sezione
 5. **Scrivi il design doc** — in `docs/specs/YYYY-MM-DD-<topic>-design.md`, poi commit

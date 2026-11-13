@@ -133,7 +133,7 @@ Regola handoff: ogni skill passa il suo **risultato** come input alla successiva
 
 - Default: max 3 subagent paralleli, max 10 iterazioni loop, stop a 3 fail consecutivi.
 - Parallelo solo se file disgiunti (stesso file = serializza); mappa i file prima del dispatch.
-- Runner autonomo (`mind-runner`): coda su file + checkpoint + ripresa tra sessioni; halt obbligatorio ai limiti sopra.
+- Runner autonomo (`mind-runner`): coda su file + checkpoint + ripresa tra sessioni; halt obbligatorio ai limiti sopra. Trigger "lavora N ore / tutta la notte" → scomponi in queue.json con done verificabile, budget N ore / N task, proattività vincolata 85/15 con proposte in ledger.md (mai implementate a sorpresa).
 - MCP solo on-demand (es. `context7-mcp` per docs), mai all'avvio.
 
 ## Memoria: search → recall → salva
@@ -148,6 +148,7 @@ SE VUOTA/CORROTTA: procedi con default + segnala, mai bloccare.
 
 - **Task UI+BE**: rotta del dominio predominante; il gate copre l'intero delta.
 - **Dubbio sul tipo**: route conservativa (creativo→costruire, anomalia→fixare, domanda→decidere); se sbagliata, rifalla.
+- **Domanda scarna di implementazione**: riscrivi in prompt arricchito (obiettivo, file/area, vincoli, done) + max 3 domande secche in una tornata via `question` → `mind-brainstorming` → `mind-planning`. In run autonoma/notturna non bloccare: default dichiarati + assunzioni nel ledger.
 - **Skill in dubbio**: scegli quella più vicina al gate (verifica), richiama l'altra se serve.
 - **Sorgente vs artefatto**: il codice c'è → `mind-explore`; il codice NON c'è (binario, APK, app Electron, firmware, WASM, EVM, archivio, cattura) → `mind-reverse` (gate `mind-auth-gate` SEMPRE, prima di ogni analisi). Più feature o più sessioni → `mind-reverse-pipeline`. Obiettivo = vulnerabilità, non comprensione → `mind-breach`/`mind-breach-pipeline`.
 - **Novità esterne vs ricerca vs integrazione**: scoprire cosa esiste fuori e tenerne un registro datato con il difetto che coprirebbe → `mind-scout` (tre scout, un indice, nessuna adozione); rispondere a "quale libreria scelgo e perché" con benchmark → `mind-research`; monitorare le novità dei programmi dello stack dell'utente → `mind-stack-watch`; integrare e registrare ciò che si è deciso di adottare → `mind-system-sync`. Confine netto: scout trova e propone, sync integra, forge crea col gate.
