@@ -60,6 +60,8 @@ Sistemi, tipografia, motion, accessibilità, reference visive.
 | Motion (docs), GSAP, `css-tricks` | motion | API e pattern di animazione, con esempi eseguibili | 60 gg |
 | Godly, Awwwards, Land-book, Mobbin, Refero | gallerie | solo per vedere cosa esiste; sono la fonte più slop-prone | 15 gg |
 | `~/.agents/skills/stop-slop/references/naming.md` | interno | la blacklist dei nomi e dei tell: precede ogni fonte esterna | già nel sistema |
+| `Leonxlnx/taste-skill` (repo + changelog) | repo unico, MIT | un skill con library e script di design; il sito e indietro (2.1.5) rispetto al repo (2.5.1), la fonte e il repo | 30 gg |
+| `open-design.ai/skills` | catalogo | verifica licenza, commit e data delle skill; non e la fonte primaria, ma dice dove guardare | 30 gg |
 
 Regola per le gallerie: da lì si prende **una decisione** (una griglia, un contrasto, un ritmo), mai un layout da imitare. Se riconosci il sito da uno screenshot, non hai progettato.
 
@@ -73,4 +75,4 @@ Scartare: "design trends 2026" senza esempi datati, template marketplace, ispira
 |---|---|---|---|
 | orchestrazione | 10 | 2026-11-08 (5 schede) | 2026-12-08 |
 | strumenti | 8 | 2026-11-08 (5 schede) | 2026-12-08 |
-| design | 8 | 2026-11-08 (6 schede) | 2027-02-06 |
+| design | 10 | 2026-11-17 (4 schede) | 2027-05-16 |

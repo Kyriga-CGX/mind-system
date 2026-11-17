@@ -8,6 +8,10 @@ Unico file che l'orchestratore e `mind-forge` leggono. Una riga per chiave, dett
 
 | chiave | verdetto | pri | difetto (file:riga) | verifica | scade |
 |---|---|---|---|---|---|
+| `design/open-photo-archive` | affina(`mind-image`) | **1** | `mind-image/SKILL.md:53` | 2026-11-17 | 2026-12-17 |
+| `design/browser-consistency-gate` | affina(`mind-verification`) | 2 | `mind-verification/SKILL.md:69` | 2026-11-17 | 2026-12-17 |
+| `design/composition-deal` | osserva | 3 | `frontend-design/SKILL.md:33` | 2026-11-17 | 2027-05-16 |
+| `design/ui-motion-budget` | affina(`motion`) | 3 | `motion/verify.md:14` | 2026-11-17 | 2027-05-16 |
 | `orchestrazione/trigger-eval` | affina(`mind-eval`) | **1** | `tools/eval-run.mjs:366` | 2026-11-08 | 2026-12-08 |
 | `orchestrazione/eval-coherence` | affina(`mind-eval`) | **1** | `evals/routing-cases.json:18` | 2026-11-08 | 2026-12-08 |
 | `orchestrazione/prefix-cache-stability` | affina(`using-mind`) | **1** | `plugins/mind.js:651` | 2026-11-09 | 2026-12-09 |
@@ -54,8 +58,11 @@ Trovati leggendo il codice mentre verificavo le fonti. Restano qui perché sono 
 | 2026-11-08 (2° giro) | strumenti | 5 | 3 | 1 | `strumenti/bge-m3` (embedder per `mind-memory`) |
 | 2026-11-09 (3° giro) | orchestrazione | 10 | 3 | 0 | `orchestrazione/prefix-cache-stability` (riordino del prefisso in `plugins/mind.js`) |
 | 2026-11-09 (4° giro) | strumenti | 7 | 2 | 2 (+1 misura non eseguita) | nessuna (nessun bersaglio eseguibile su questo host) |
+| 2026-11-17 | design | 2 | 4 | 0 | `design/open-photo-archive` (archivio foto CC per `mind-image`) |
 
 ## Cosa fare adesso
+
+Novità del giro 2026-11-17 (design): **`design/open-photo-archive`** è passata al gate ed è stata forgiata — `mind-image/tools/photo-archive.mjs` + `references/archivio-foto.md` + FASE 1 aggiornata. Le altre tre schede restano in attesa (`browser-consistency-gate`, `composition-deal`, `ui-motion-budget`).
 
 Novità del 4° giro: nessuna proposta nuova al gate. I due bersagli di misura restano non eseguibili qui; `strumenti/bge-m3-gguf` (605 MiB Q8_0, MIT) e `strumenti/llguidance` (MIT) sono le due vie per renderli eseguibili, entrambe in `osserva`. Se arriva un host con llama.cpp, la prima misura è bge-m3 Q8_0 su CPU con `--embeddings --pooling cls`, 20 query × 3 reps, `timings.prompt_ms`, configurazione scritta accanto al numero.
 
