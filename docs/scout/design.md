@@ -74,3 +74,65 @@ Bersaglio: **la regola di freschezza è scritta e non misurata.** `design-system
 - **m3.material.io**: si renderizza solo con JS, fetch vuoto, nessuna data visibile → non verificabile.
 - **Material 3 / Spectrum / Primer**: non respinti, solo non verificati per budget; entrano con la stessa scheda (pacchetto, versione, licenza, data).
 - **Gallerie e "design trends 2026"**: non letti per scelta — un trend non è falsificabile, ed è la fonte che il difetto chiede di smettere di usare.
+
+---
+
+# Scout — design, giro del 2026-11-17
+
+Agente: `scout-design`. 2 fonti nuove (`Leonxlnx/taste-skill`, `Dammyjay93/interface-design`), 4 schede. Budget: 8 fetch, 4 usati.
+
+Bersaglio: **Taste Skill e' una skill di landing/company, non un pezzo di orchestrazione: si prendono i gradini che mancano, non la skill intera.** `frontend-design/SKILL.md:33` ideata il layout con "ASCII wireframes", `mind-image/SKILL.md:53` si ferma al materiale del progetto, `mind-verification/SKILL.md:69` controlla che le prove esistano e non la resa.
+
+---
+
+### design/open-photo-archive — la foto del mondo del cliente, con licenza e credito
+- **fonte**: https://github.com/Leonxlnx/taste-skill · repo `Leonxlnx/taste-skill` · v2.5.1 (README e SKILL.md; il sito dichiara 2.1.5, e indietro) · consultata 2026-11-17 · `scripts/assets.mjs` e `scripts/photos.mjs` · MIT
+- **cosa**: cerca fotografie d'archivio in Openverse, Wikimedia Commons, Art Institute of Chicago e Met, scarica in locale e scrive titolo, autore, licenza e fonte in un file di crediti; filtra solo licenze commerciali (CC0, pubblico dominio, CC BY, CC BY-SA). Niente hotlink.
+- **difetto che copre**: `mind-image/SKILL.md:53` — il gradino 1 "materiale reale" si ferma a "esiste una foto, uno screenshot, un documento, un asset del progetto": non dice **dove cercare** la foto del mondo del cliente quando il progetto non ce l'ha.
+- **verdetto**: affina(`mind-image`)
+- **proposta**: `mind-image/tools/photo-archive.mjs` + `references/archivio-foto.md` (fonti, licenze, formato del credito, divieto di presentare uno stand-in come il prodotto del cliente). Il gradino 1 diventa "materiale del progetto, altrimenti archivio aperto con licenza".
+- **costo / rischio**: uno script Node con chiamate HTTP; ricerca lenta e qualita variabile, le licenze vanno filtrate una per una. Non copre i soggetti geometrici (resta `mind-mark`/procedurale) ne la generazione (resta `mind-image`).
+- **falsificabile se**: per un brief reale (una landing di un locale) due ricerche non restituiscono immagini utilizzabili con licenza leggibile — allora il gradino resta il modello generativo e lo script e un peso.
+- **stato**: forgiata 2026-11-17 - `tools/photo-archive.mjs` + `references/archivio-foto.md` + FASE 1 di `mind-image`; 25/25 test verdi
+- **verifica**: 2026-11-17 · **scade**: 2026-12-17
+
+### design/composition-deal — composizioni studiate, non inventate a mano
+- **fonte**: https://github.com/Leonxlnx/taste-skill · v2.5.1 · consultata 2026-11-17 · `scripts/draw.mjs` + `library/` (20 direzioni, 58 hero, 185 sezioni, 56 palette, 44 type system, 202 siti studiati) · MIT
+- **cosa**: un repertorio di composizioni distillato da 247 siti curati + 100 Awwwards Sites of the Day, distribuito a caso con storico delle distribuzioni per non ripetere.
+- **difetto che copre**: `frontend-design/SKILL.md:33` — il layout si ideata con "one-sentence prose descriptions and ASCII wireframes to ideate and compare": nessun repertorio, ogni pagina riparte da zero.
+- **verdetto**: osserva
+- **proposta**: niente per ora. Se si prova, una libreria ridotta (composizioni con seed) in `frontend-design/references/`, mai lo script intero.
+- **costo / rischio**: medio-alto. Rischio vero: il travaso di look — la barra chiede "la scelta che un template non farebbe", e un catalogo di composizioni e materna del template.
+- **falsificabile se**: dopo 3 pagine le composizioni distribuite non differiscono tra loro, o lo stesso layout e riconoscibile — allora lo strumento produce il default che doveva evitare.
+- **stato**: in attesa di gate
+- **verifica**: 2026-11-17 · **scade**: 2027-05-16
+
+### design/browser-consistency-gate — misurare la pagina, non solo le prove
+- **fonte**: https://github.com/Leonxlnx/taste-skill · v2.5.1 · consultata 2026-11-17 · `scripts/consistency.mjs` + `scripts/gate.mjs` (render a 1440/1024/820/768/390, FAIL/WARN, gate con hook Stop) · MIT
+- **cosa**: apre la pagina in un browser reale a piu larghezze, misura titoli, margini, immagini, movimento, tap target e stampa FAIL/WARN; il gate blocca la consegna finche resta un FAIL.
+- **difetto che copre**: `mind-verification/SKILL.md:69` — `visual-check.mjs` controlla che le prove esistano e siano complete, non la resa; nessuno misura la pagina.
+- **verdetto**: affina(`mind-verification`)
+- **proposta**: `mind-verification/tools/page-check.mjs` con un elenco chiuso di controlli (overflow a 320, contrasto, titoli, tap target 44 px, immagini rotte). Il gate Stop **non** rientra: e gia coperto da `orchestrazione/stop-hook-gate`.
+- **costo / rischio**: alto (Node 22 + Chrome, profili browser, tempo per pagina). Rischio: duplicare Lust e il browser tool invece di completarli.
+- **falsificabile se**: su 2 pagine gia dichiarate PASS lo script non trova nulla di nuovo — allora duplica l'enforcement esistente.
+- **stato**: in attesa di gate
+- **verifica**: 2026-11-17 · **scade**: 2026-12-17
+
+### design/ui-motion-budget — il budget delle azioni ripetute
+- **fonte**: https://github.com/Dammyjay93/interface-design · commit `2f9be32` · verificato da open-design.ai il 2026-09-14 · consultata 2026-11-17 · MIT
+- **cosa**: tre regole numeriche per UI di prodotto: motion sotto i 300 ms; nessuna animazione sopra 100 azioni al giorno; entrate da `scale(0.95)` con opacity 0, mai da 0. Piu "una sola strategia di profondita" (bordi XOR ombre XOR superficie).
+- **difetto che copre**: `motion/verify.md:14` — la tabella durate dichiara come fonte `scripts/timing.js`, cioe noi stessi, e non esiste un budget per le azioni ripetute; `design-system/patterns.md` non fissa una sola strategia di profondita.
+- **verdetto**: affina(`motion`)
+- **proposta**: 4 righe in `motion/verify.md` (budget azioni ripetute, soglia 300 ms con fonte, `scale(0.95)`) e una riga in `design-system/patterns.md` (una strategia di profondita a scelta, non mescolata).
+- **costo / rischio**: basso, 5 righe in 2 file. Rischio: la tabella durate resta senza fonte esterna verificata (cfr. `design/carbon-motion-durations`, osserva).
+- **falsificabile se**: misurando 2 UI esistenti, il budget 100 azioni/giorno non separa le azioni animate da quelle che non dovrebbero muoversi — la regola e rumore.
+- **stato**: in attesa di gate
+- **verifica**: 2026-11-17 · **scade**: 2027-05-16
+
+---
+
+## Scartate nel giro 2026-11-17
+
+- **La skill `design-taste-frontend` intera**: confligge con le nostre regole (no caption sotto le immagini, una sezione per schermata, hover obbligatorio, violetto vietato) e duplica `frontend-design` + `design-system` + `motion` + `mind-image`.
+- **Il catalogo `interface-design` e la sua installazione**: le 8 regole valgono 5 righe, non una skill in piu.
+- **Il gate Stop di Taste Skill come hook**: `orchestrazione/stop-hook-gate` copre gia `using-mind/SKILL.md:49`.
