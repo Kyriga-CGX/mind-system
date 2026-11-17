@@ -50,7 +50,7 @@ Percorri la scala e fermati al gradino piu basso che basta, scrivendo perche:
 
 | Gradino | Quando basta | Costo |
 |---|---|---|
-| 1. Materiale reale | esiste una foto, uno screenshot, un documento, un asset del progetto | zero |
+| 1. Materiale reale | esiste una foto, uno screenshot, un documento, un asset del progetto; se non esiste, una fotografia d'archivio con licenza (`tools/photo-archive.mjs`, `references/archivio-foto.md`) | zero |
 | 2. Costruzione procedurale | il soggetto e geometrico, un pattern, un diagramma, una texture calcolabile, un'icona | deterministico, riproducibile |
 | 3. Compositing | serve un'immagine con elementi veri (prodotto su fondo, mockup, collage) | medio, controllabile |
 | 4. Modello generativo | serve materia o atmosfera che non puoi costruire: pelle, tessuto, paesaggio, luce | costo per immagine, non deterministico |
@@ -58,6 +58,7 @@ Percorri la scala e fermati al gradino piu basso che basta, scrivendo perche:
 - [ ] Se la macchina ha un modello generativo per immagini, verificalo prima di tutto il resto: `node tools/model-fit.mjs` (`references/modello-locale.md`). Presente -> si usa e si dichiara il costo; assente -> gate con quattro numeri misurati (GB su disco, VRAM di picco, secondi per immagine, cartella) e la scelta e dell'utente.
 
 - [ ] Elenca cio che esiste gia nel progetto (`public/`, `assets/`, `docs/`) prima di generare.
+- [ ] Se il materiale del progetto non basta e serve una fotografia del mondo reale, cerca prima nell'archivio aperto: `node tools/photo-archive.mjs "<soggetto>" --out assets/archivio` (`references/archivio-foto.md`). Restituisce solo licenze CC0/pubblico dominio/CC BY/CC BY-SA con credito in `credits.json`; nessuna foto utilizzabile -> exit 2 e il gradino 1 si chiude, non si genera al suo posto.
 - [ ] Raccogli 3-5 riferimenti reali con la ragione di ciascuno: composizione, luce, materia. Non "stile".
 - [ ] Scrivi i divieti: cosa non deve comparire (concorrente, simbolo di categoria, volto riconoscibile, testo).
 - [ ] Se serve il gradino 4 e non c'e ne modello locale ne chiave API: dichiaralo e proponi il gradino 2 o 3, non fingere.
