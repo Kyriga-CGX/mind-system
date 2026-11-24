@@ -65,6 +65,9 @@ Uso: si percorre tutta la lista una volta, si segna PASS/FAIL per voce, e si cor
 - **H3 · Touch** - bersagli almeno 44px (48dp se il target include Android), spaziatura minima 8px tra bersagli adiacenti, `touch-action` corretto, nessun evidenziazione del tap rimossa senza sostituto (soglie e dimensioni componenti in `sizing.md`). *Verifica:* misura il lato dei bersagli e prova con il dito, non con il mouse.
 - **H4 · Formati** - date, numeri e valute con `Intl`, mai composti a mano. *Verifica:* cerca nel codice le date composte a mano (concatenazioni, `split` su stringhe di data).
 
+- **H5 - Liste oltre 7 voci raggruppate** - oltre 7 voci, gruppi con header (max 5 gruppi); nessuna voce aggiunta in fondo senza categoria; plugin in sezione propria in fondo. *Verifica:* conta le voci; per ogni voce chiedi dove la cercheresti; una nuova voce o entra in un gruppo o il gruppo nuovo e dichiarato.
+- **H6 - Importanza dichiarata** - dentro ogni gruppo le voci sono ordinate per frequenza + criticita, non per cronologia; Sperimentale/Info/Programma ultimi nel core. *Verifica:* la voce piu usata del gruppo e prima; l ultima aggiunta non e automaticamente ultima.
+
 ## Come si chiude
 
 1. Segna PASS/FAIL per ogni voce toccata dal lavoro; per le voci fuori ambito scrivi "non applicabile" e perche'.
