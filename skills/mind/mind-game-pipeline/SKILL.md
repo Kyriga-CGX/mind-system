@@ -120,6 +120,8 @@ Owner: `game-art-director`. Produce `04-direzione.md` + `ASSETS.md`.
 - Asset 3D: generati da script (`tools/blender/gen_*.py`) e validati prima dell'import; il `.fbx` e' un artefatto, lo script e' la fonte (→ `blender.md`).
 - Prima di modellare: cerca in CC0 con `tools/polyhaven/ph.mjs` (Poly Haven, md5 verificato e riga di ledger automatica). L'ordine e' CC0 -> interno -> AI -> comprato (→ `asset-provenienza.md`).
 - 12 check anti-slop compilati (→ `anti-slop-giochi.md`).
+- Hero-first: UN asset eroe approvato a scala di gioco prima del set; famiglie dal seed,
+  manifest con approvazioni, QA deterministico (→ `famiglie-asset.md`).
 
 **Gate G4 (utente)**: direzione approvata prima di produrre un asset; nessun asset con "uso commerciale: da verificare"; i 12 check passano o le deviazioni sono motivate dal brief.
 
@@ -153,6 +155,8 @@ Owner: `feel-engineer` + `game-art-director`; giudica `playtest-critic`. Produce
 
 Owner: `feel-engineer`. Produce `07-contenuto.md`.
 - Template di livello/incontro data-only: aggiungere contenuto non richiede codice.
+- Livelli: grafo stanze + reachability con chiavi + beat di ritmo come dati; blockout
+  prima del vestito, dress solo dopo i check (→ `livello-design.md`).
 - Quest giocabile minima se il gioco ha NPC/luoghi: obiettivo HUD + dialoghi + marker
   + inventario + salvataggio (→ `mind-game-design/references/quest-base.md`).
 - Tool di authoring se servono; documentati.
