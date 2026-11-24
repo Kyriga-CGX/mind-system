@@ -50,7 +50,7 @@ Leggi la richiesta, estrai l'intent utente, i vincoli e i criteri di done. Leggi
 **Gate**: brief completo (niente placeholder).
 
 ### Stage 2 — Design + Mockup
-Se c'è UI: `frontend-design` (direzione estetica + design-references) → `design-md` (DESIGN.md solo se manca) → `design-system` (enforce). Produce `02-mockup.md`.
+Se c'è UI: `frontend-design` (direzione estetica + design-references) → `design-md` (DESIGN.md solo se manca) → `design-system` (enforce). Produce `02-mockup.md` (mockup navigabile come da `mind-design-pipeline` Stage 5: flusso chiave cliccabile con dati finti dichiarati).
 **Gate di approvazione (obbligatorio)**: presenta il mockup all'utente e chiedi conferma esplicita PRIMA di scrivere codice. Se l'utente chiede modifiche → itera e ri-approva. Registra l'esito in `02-feedback.md`.
 Se NON c'è UI → `02-mockup.md` = "skip" e prosegui.
 
