@@ -43,7 +43,7 @@ Cartella di lavoro: `.mind/design/<progetto-o-feature>/` (slug kebab-case).
 | `03-concepts.md` | 2-3 direzioni distinte con auto-check anti-slop e comparazione (da `mind-design-explore`) |
 | `03-scelta.md` | direzione scelta dall'utente, motivo, cosa si scarta e perché |
 | `04-design.md` | DESIGN.md scritto o aggiornato + esito validazione |
-| `05-mockup.md` | mockup hi-fi della schermata chiave: path del file, screenshot, note di autocritica |
+| `05-mockup.md` | mockup navigabile del flusso chiave: mappa pagina -> file, screenshot chiave, cosa è finto, note di autocritica |
 | `05-feedback.md` | esito approvazione mockup, iterazioni incluse |
 | `06-components.md` | inventario componenti, mapping ai token, pattern P1-P3 con criterio binario e motivazione |
 | `06-controls.md` | superfici native N1-N8: per ognuna STILIZZATA o NATIVA PER SCELTA con motivo, tecnica/gradino, versione, licenza, data `verified` |
@@ -83,8 +83,8 @@ Se manca `DESIGN.md` → `design-system/create.md` (survey, scansione codebase, 
 **Gate**: frontmatter con `colors`/`typography`/`rounded`/`spacing`, rationale specifica del soggetto, direzione estetica scritta, validazione ok (o "validazione rimandata" se lo script non esiste).
 
 `04-design.md` deve contenere anche le **generazioni**: tre righe per ogni giro di design (cosa non funzionava · cosa misura la nuova versione · cosa ha rotto), più la lista dei fix di superficie. Senza registro, il risultato sembra nato già così — che è esattamente come sembra un template. Il metodo e il caso misurato che l'ha generato: `design-system/skin.md`.
-### Stage 5 — Mockup della schermata chiave (GATE UTENTE)
-Costruisci UN mockup statico ad alta fedeltà della schermata più importante, con contenuto REALE e token del DESIGN.md. Screenshot → LEGGILO → autocritica (togli un accessorio prima di consegnare). Scrivi `05-mockup.md`.
+### Stage 5 — Mockup navigabile del flusso chiave (GATE UTENTE)
+Costruisci un mockup navigabile ad alta fedeltà del flusso chiave (default max 3-5 pagine/tab collegati: una schermata chiave hi-fi + resto a fedeltà navigabile), con token del DESIGN.md. Navigazione finta ma percorribile: tab, pagine, stati ed effetti si cliccano; funzioni/BE simulati con dati FINTI dichiarati in `05-mockup.md` (cosa è finto e cosa è reale). Contenuto reale dove esiste, mai lorem ipsum. Screenshot della schermata chiave → LEGGILO → autocritica (togli un accessorio prima di consegnare); per le altre pagine basta viewport di contesto. Scrivi `05-mockup.md` (mappa del flusso: pagina -> file -> cosa dimostra -> cosa è finto).
 Verifica i criteri di `## Barra` uno per uno prima di presentare, ognuno con la sua evidenza.
 
 **Gate di approvazione (obbligatorio)**: presenta il mockup all'utente e itera finché non è approvato; esito in `05-feedback.md`. NESSUN codice di produzione prima di questa approvazione.
