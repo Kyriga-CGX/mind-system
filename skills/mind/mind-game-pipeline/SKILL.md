@@ -77,8 +77,11 @@ Owner: `game-director`. Produce `00-brief.md`.
 - Criterio di successo osservabile (es. "3 tester su 5 rifanno il primo livello senza chiedere").
 - Adapter: motore, versione, render/UI/input, tool MCP/CLI (→ `mind-game-design/references/engine-adapters.md`).
 - Scope: una meccanica, un tipo di livello, 10-20 minuti; lista di taglio (→ `scope-e-taglio.md`).
+- **Keyframe**: 1-2 immagini del look target + scelta utente registrata, palette campionata
+  dal keyframe (→ `mind-game-design/references/riferimento-prima.md`, `metodo-tidelight.md`).
+  Senza keyframe scelto non si modella nulla.
 
-**Gate G0**: la frase contiene un verbo; i divieti sono 3 e verificabili; il criterio di successo si puo' osservare; l'adapter e' registrato. Se manca uno, non si passa.
+**Gate G0**: la frase contiene un verbo; i divieti sono 3 e verificabili; il criterio di successo si puo' osservare; l'adapter e' registrato; il keyframe e scelto con palette bloccata. Se manca uno, non si passa.
 
 ### Stage 1 — Tre verbi, una scelta
 
@@ -117,6 +120,8 @@ Owner: `game-art-director`. Produce `04-direzione.md` + `ASSETS.md`.
 - Asset 3D: generati da script (`tools/blender/gen_*.py`) e validati prima dell'import; il `.fbx` e' un artefatto, lo script e' la fonte (→ `blender.md`).
 - Prima di modellare: cerca in CC0 con `tools/polyhaven/ph.mjs` (Poly Haven, md5 verificato e riga di ledger automatica). L'ordine e' CC0 -> interno -> AI -> comprato (→ `asset-provenienza.md`).
 - 12 check anti-slop compilati (→ `anti-slop-giochi.md`).
+- Hero-first: UN asset eroe approvato a scala di gioco prima del set; famiglie dal seed,
+  manifest con approvazioni, QA deterministico (→ `famiglie-asset.md`).
 
 **Gate G4 (utente)**: direzione approvata prima di produrre un asset; nessun asset con "uso commerciale: da verificare"; i 12 check passano o le deviazioni sono motivate dal brief.
 
@@ -150,6 +155,10 @@ Owner: `feel-engineer` + `game-art-director`; giudica `playtest-critic`. Produce
 
 Owner: `feel-engineer`. Produce `07-contenuto.md`.
 - Template di livello/incontro data-only: aggiungere contenuto non richiede codice.
+- Livelli: grafo stanze + reachability con chiavi + beat di ritmo come dati; blockout
+  prima del vestito, dress solo dopo i check (→ `livello-design.md`).
+- Quest giocabile minima se il gioco ha NPC/luoghi: obiettivo HUD + dialoghi + marker
+  + inventario + salvataggio (→ `mind-game-design/references/quest-base.md`).
 - Tool di authoring se servono; documentati.
 - Localizzazione: chiavi esterne, nessuna stringa hardcoded.
 - Performance con il contenuto completo, non solo con la scena di prova.

@@ -25,7 +25,7 @@ Per un asset **generato da script** (Blender, ImageMagick, un generatore di icon
 
 ## Prima di modellare: CC0
 
-L'ordine di scelta di un asset e': **CC0 esistente -> prodotto internamente -> generato da AI -> comprato**. Modellare da zero ciò che è già CC0 è tempo speso due volte, e ogni asset che entra deve avere una riga nel ledger.
+L'ordine di scelta di un asset e': **CC0 esistente (Poly Haven, Sketchfab filtrato CC0/CC-BY) -> prodotto internamente -> generato da AI -> comprato**. Modellare da zero ciò che è già CC0 è tempo speso due volte, e ogni asset che entra deve avere una riga nel ledger.
 
 Poly Haven (CC0, nessuna attribuzione richiesta) si scarica con il tool della skill:
 
@@ -46,6 +46,7 @@ Texture e HDRI usano lo stesso comando con `--type textures` / `--type hdris` e 
 | Generato da script (Blender) | versione dello strumento, licenza degli add-on, path dello script; l'output di Blender e' tuo, il GPL non si propaga al file esportato (`blender.md`) |
 | Generato da AI (3D) | modello e **versione dei pesi**, licenza del modello, seed, immagine o prompt di input; l'asset passa dal QA come qualsiasi altro (`generative-3d.md`) |
 | CC0 (es. Kenney) | che la pagina dell'asset sia davvero CC0, non solo la home del sito |
+| Sketchfab | licenza PER MODELLO: solo CC0/CC-BY (con attribuzione); NC/assente = scarta; token in env, mai in chat (→ `sourcing-sketchfab.md`) |
 | CC-BY | attribuzione esatta, anche nella build |
 | Asset Store | EULA per-seat, restrizioni su redistribuzione, cosa succede se il team cresce |
 | itch.io / OpenGameArt | la licenza e' **per asset**, non per sito: controlla la singola pagina |
