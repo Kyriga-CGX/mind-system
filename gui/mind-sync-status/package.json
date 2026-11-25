@@ -1,0 +1,15 @@
+{
+  "$schema": "https://json.schemastore.org/package.json",
+  "name": "mind-sync-status",
+  "version": "0.1.0",
+  "description": "Plugin OpenCode (server + GUI Desktop) per lo stato di allineamento mind-system: pill, dialog con conferma esplicita, toast post-sync. Mai sync alla cieca.",
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts",
+    "./rpc": "./src/rpc.ts",
+    "./gui-experimental": "./dist/gui-experimental.cjs"
+  },
+  "dependencies": {
+    "@opencode/plugin": "latest"
+  }
+}
