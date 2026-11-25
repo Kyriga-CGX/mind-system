@@ -125,9 +125,9 @@ function Code(props: { children: string }) {
 }
 
 const PUNTA1 =
-  '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="none"><path d="M8 2 A6 6 0 0 1 14 8" stroke="#2e7d46" stroke-width="1.8" stroke-linecap="round"/></svg>'
+  '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="none"><g><animateTransform attributeName="transform" type="rotate" from="0 8 8" to="360 8 8" dur="6s" repeatCount="indefinite"/><path d="M8 2 A6 6 0 0 1 14 8" stroke="#2e7d46" stroke-width="1.8" stroke-linecap="round"/></g></svg>'
 const PUNTA2 =
-  '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="none"><path d="M8 2 A6 6 0 0 1 14 8" stroke="#9a6a14" stroke-width="1.8" stroke-linecap="round"/><path d="M8 14 A6 6 0 0 1 2 8" stroke="#9a6a14" stroke-width="1.8" stroke-linecap="round"/></svg>'
+  '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="none"><g><animate attributeName="opacity" values="1;.55;1" dur="1.6s" repeatCount="indefinite"/><animateTransform attributeName="transform" type="rotate" from="0 8 8" to="360 8 8" dur="2.4s" repeatCount="indefinite"/><path d="M8 2 A6 6 0 0 1 14 8" stroke="#9a6a14" stroke-width="1.8" stroke-linecap="round"/><path d="M8 14 A6 6 0 0 1 2 8" stroke="#9a6a14" stroke-width="1.8" stroke-linecap="round"/></g></svg>'
 
 export default Plugin.define({
   icons: { punta1: PUNTA1, punta2: PUNTA2 },
