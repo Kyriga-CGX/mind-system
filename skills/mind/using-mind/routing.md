@@ -98,11 +98,11 @@ DESIGN-TRACK:
 
 ```
 GAME-TRACK (mind-game-pipeline, stato in .mind/games/<slug>/):
-  0. brief e divieti   → game-director: verbo, 3 divieti, criterio osservabile, adapter
-  1. tre verbi         → game-director: 3 carte + test di morte → GATE utente (scelta)
-  2. prova di feel 60s → feel-engineer + playtest-critic: grigio, una scena, clip → GATE replay desire
+  0. brief e scope     → game-director: 1P/1 arma/1 micro-area, 3 divieti, adapter, BACKLOG-POST-SLICE
+  1. core loop / spec  → game-director (+ feel-engineer): Hook-First (3 carte) o Combat-First (Triangolo + Combat Spec) → GATE utente
+  2. prova di feel 60s → feel-engineer + critic: grigio, parametri in .tres/.json, clip 30-60s (tester opzionali) → GATE G2
   3. loop e numeri     → game-director + feel-engineer: dati con range e motivo
-  4. direzione         → game-art-director: GAME.md + ASSETS.md → GATE utente (approvazione)
+  4. direzione         → game-art-director: Keyframe + GAME.md + ASSETS.md → GATE utente (approvazione)
   5. UI/UX             → game-ui-designer + art: flusso, HUD, schermate, stati, input, a11y → GATE utente (wireframe)
   6. vertical slice    → feel-engineer + art + critic: 5 min, inizio-fine → GATE estraneo
   7. contenuto/tooling → feel-engineer: data-only, localizzazione, a11y

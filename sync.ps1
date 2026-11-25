@@ -214,6 +214,7 @@ function Add-Single {
 
 Write-Host '=== Plugins (auto-load top-level) ==='
 Add-Tree (Join-Path $RepoRoot 'plugins') (Join-Path $ConfigRoot 'plugins') 'code'
+Add-Tree (Join-Path $RepoRoot 'gui\mind-sync-status') (Join-Path $ConfigRoot 'plugins\mind-sync-status') 'code'
 
 Write-Host '=== Skill mind ==='
 $mindDest = Join-Path $ConfigRoot 'mind\skills'

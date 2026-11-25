@@ -3,7 +3,7 @@
 
   // Plugin npm del sistema. I plugin locali in ~/.config/opencode/plugins/
   // sono auto-caricati.
-  "plugins": ["@tarquinen/opencode-dcp@3.2.0"],
+  "plugins": ["@tarquinen/opencode-dcp@3.2.0", "./plugins/mind-sync-status"],
 
   // mind/skills non e' una cartella auto-scoperta da OpenCode V2: va dichiarata.
   // ~/.agents/skills invece lo e', quindi non serve elencarla.

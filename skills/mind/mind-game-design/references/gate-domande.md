@@ -9,12 +9,12 @@ sulle domande bloccanti; le non-bloccanti vanno nel ledger come assunzioni dichi
 
 **Brief (Stage 0)** — bloccanti se mancano:
 - Hardware target + fps minimo? (decide LOD, ombre, GI)
-- Riferimento visivo (keyframe/foto/gioco)? → se assente: si genera (vedi `riferimento-prima.md`).
-- Scope: 1 meccanica / N minuti / cosa e FUORI? (lista di taglio iniziale)
+- Profilo di design: `Hook-First` (concept a singolo input) oppure `Combat-First` (Action-RPG / combat tattico)?
+- Scope Lock: 1P locale / 1 archetipo-arma / 1 micro-area / 5-15 min (tutto il resto in `BACKLOG-POST-SLICE.md`)?
 - Audio: serve? (se si: chi lo fa, con cosa)
 
 **Direzione (Stage 4)** — bloccanti:
-- 3 riferimenti (2 fuori dai videogiochi)? Palette a ruoli? 1 solo effetto firma?
+- Keyframe visivo (1-2 immagini target, vedi `riferimento-prima.md`) + 3 riferimenti (2 fuori dai videogiochi)? Palette a ruoli? 1 solo effetto firma?
 - Approvazione utente registrata prima di produrre asset?
 
 **Contenuto (Stage 7)** — bloccanti:

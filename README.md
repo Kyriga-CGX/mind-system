@@ -10,7 +10,7 @@ Non è una raccolta di prompt. È un livello operativo con tre proprietà che si
 
 ## Architettura
 
-Quattro plugin, un modulo di supporto, tre file di stato.
+Cinque plugin, un modulo di supporto, tre file di stato.
 
 ```mermaid
 flowchart TD

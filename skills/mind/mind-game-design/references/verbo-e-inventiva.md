@@ -1,8 +1,43 @@
-# Verbo e invenzione
+# Verbo, invenzione e profilo Combat-First
 
-Un modello linguistico, lasciato libero, produce la **mediana**: il platformer con il doppio salto, il roguelike con le stanze, lo shooter con la copertura. Non e' un difetto di creativita': e' il comportamento statistico di un sistema addestrato su cio' che esiste gia'. L'invenzione si ottiene togliendo, non aggiungendo.
+Un modello linguistico, lasciato libero, produce la **mediana**: il platformer con il doppio salto, il roguelike con le stanze, lo shooter con la copertura. Non e' un difetto di creativita': e' il comportamento statistico di un sistema addestrato su cio' che esiste gia'.
 
-## Il mazzo dei vincoli
+## Doppio profilo di F1 / Stage 1
+
+Scegli il profilo in base al progetto prima di scrivere `01-verbi.md` o `01-combat-spec.md`:
+
+| Profilo | Quando usarlo | Output richiesto |
+|---|---|---|
+| **`Hook-First`** | Concept inediti a singolo input dominante | 3 carte-verbo con vincolo + test di morte (`01-verbi.md`) |
+| **`Combat-First`** | Action-RPG, Souls-like, Brawler tattici (rif. *No Rest for the Wicked*) | **Triangolo Tattico** + **Combat Spec numerica** pre-motore (`01-combat-spec.md`) |
+
+Nel profilo **`Combat-First`** e' vietato introdurre meccaniche da minigioco o gimmick fuori tono per "rendere originale" il pitch: la profondita' nasce da **leggibilita' dei tell**, **gestione delle risorse** e **conseguenza fisica del colpo**.
+
+---
+
+## Profilo Combat-First: Triangolo Tattico e Combat Spec
+
+### 1. Il Triangolo Tattico
+
+Definisci il ciclo decisionale base di ogni scontro in 3 fasi:
+- **Leggere**: lettura del *tell* visivo/sonoro del nemico (windup, postura, distanza).
+- **Sbilanciare / Schivare**: risposta ad alto rischio/costo (parry, dodge con i-frames, interruzione postura).
+- **Punire**: finestra di danno o esecuzione su stagger, gestendo l'avidita' (non puoi cancellare il recovery).
+
+### 2. Combat Spec numerica (pre-motore)
+
+Compila la tabella **prima** di aprire il motore; ogni valore va esportato in `Resource` (`.tres`) o `.json`:
+
+- **Action Economy:** Stamina max, rigenerazione/s, ritardo di rigenerazione dopo azione, costo schivata/parata/attacco leggero/pesante, Focus guadagnato per colpo/parry, costo abilita' Focus.
+- **Frame Data (a 60 fps o in ms):** Startup, Active, Recovery per ogni mossa del kit base (1 arma = combo 3 colpi + pesante + schivata + parata/parry).
+- **Feel & Tolleranza:** Hitstop (ms) su colpo normale / critico / parry; Input Buffering (ms); finestre di invulnerabilita' (i-frames in ms/frame).
+- **Postura / Stagger:** soglia postura per 2 archetipi nemici base, decadimento postura, durata finestra di esecuzione.
+
+---
+
+## Profilo Hook-First: il mazzo dei vincoli
+
+Per concept inediti a singolo input, l'invenzione si ottiene togliendo, non aggiungendo.
 
 Estrai **3 assi + 1 divieto** e scrivi tre carte. Non scegliere gli assi che ti piacciono: estrai.
 

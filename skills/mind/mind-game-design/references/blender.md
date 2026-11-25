@@ -64,6 +64,19 @@ Regola: se l'asset è composto da parti **descrivibili a parole** (pannelli, cin
 4. **Render e GUARDA**: `render_preview()` -> PNG -> lo leggo. Se non regge a 560x420 non regge nel gioco.
 5. **Gate**: `validate_asset.py` (10 check) + import in Unity + screenshot in scena.
 
+## Convenzioni Godot 4 (`.glb` nativo)
+
+Per Godot 4 preferisci **`.glb` (`glTF 2.0`)** rispetto a `.fbx`: import nativo senza perdita di materiali/scheletri e supporto ai suffissi automatici di Godot.
+
+- **Export Blender:** `bpy.ops.export_scene.gltf(filepath=..., export_format='GLB', export_yup=True, export_apply=True, export_animations=True)`.
+- **Suffissi automatici Godot 4 sui nomi dei nodi/mesh in Blender:**
+  - `-col`: genera automaticamente `StaticBody3D` + `CollisionShape3D` trimesh (ottimo per terreni/architetture statiche).
+  - `-convcol`: collisione convessa (piu' veloce per prop e rocce).
+  - `-colonly` / `-convcolonly`: solo collisione, mesh invisibile (perfetto per collider semplificati di scale/muri).
+  - `-noimp`: esclude helper/luci/camere di debug dall'import in Godot.
+- **Texture PBR (ORM Packing):** impacchetta **R = Ambient Occlusion, G = Roughness, B = Metallic** in un'unica texture per `StandardMaterial3D` (meno VRAM, meno sampler GPU).
+- **Texel Density:** fissa una densita' unica (es. `512 px/m` per prop/architettura, `1024 px/m` per eroe/armi) cosi' nessuna mesh sembra sfocata accanto a un'altra.
+
 ## Convenzioni Unity (fisse, non negoziabili per asset)
 
 - 1 unità Blender = 1 metro. Un cubo `size=1` è un cubo da un metro.

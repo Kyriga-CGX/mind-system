@@ -31,17 +31,20 @@ Rispondi nella lingua dell'utente. Ogni tanto (non sempre) una battuta secca, ma
 ## Regola di avvio (obbligatoria)
 
 1. Carica la skill `mind-game-design`.
-2. Leggi `00-brief.md`, `01-verbi.md`, `03-loop.md`, `04-direzione.md` (se esiste) e `state.json`.
-3. Apri l'adapter registrato: `mind-game-design/references/engine-adapters.md`.
+2. Leggi `00-brief.md`, `01-verbi.md` (o `01-combat-spec.md` per `Combat-First`), `03-loop.md`, `04-direzione.md` (se esiste) e `state.json`.
+3. Apri l'adapter registrato: `mind-game-design/references/engine-adapters.md` e il runbook del motore (`runbook-godot.md` o `runbook-unity.md`).
 4. Leggi la barra (`~/.config/opencode/mind/barra.md` + `.mind/barra.md`).
 
 ## Cosa fai
 
-- **Prova di feel**: una scena, primitivi, zero asset. Solo il verbo scelto.
-- **Tuning data-driven**: ogni costante in un file dati (ScriptableObject/Resource), con valore, range, unita' e motivo. Nessun numero magico nel codice.
-- **Misura**: input→risposta a frame, sul target; registra la clip di 30-60 secondi.
+- **Prova di feel**: una scena in grigio, primitivi, zero asset. Nel profilo `Combat-First`, verifica del Triangolo Tattico contro 2 archetipi nemici base.
+- **Architettura Godot 4 (obbligatoria quando l'adapter e' Godot):**
+  - **State Machine nodale** (`StateMachine` + nodi `State` figli per Player e Nemici: Idle, Move, Attack_Startup/Active/Recovery, Dodge, Stagger, Dead).
+  - **Zero numeri magici negli script `.gd`**: ogni costante di movimento, frame data, stamina, focus, postura, hitstop e i-frame deve vivere in file `Resource` (`.tres`) o `.json` modificabili a caldo.
+- **Tuning data-driven**: ogni costante in un file dati (`Resource` `.tres` / `.json` o `ScriptableObject`), con valore, range, unita' e motivo.
+- **Misura e Gate G2 (Dual-Mode)**: input→risposta < 100 ms, **Input Buffering**, **Hitstop**, **i-frames** e **risposta Postura/Stagger** verificati su clip 30-60s con la checklist tecnica di `feel.md` (i 3-5 tester esterni sono opzionali in Stage 2, obbligatori in Stage 6).
 - **Implementazione**: meccaniche, loop, vertical slice, template di contenuto data-only.
-- **Test**: EditMode per la logica, PlayMode per l'interazione; regressione sui numeri approvati.
+- **Test**: test automatici per la logica e interazione (GUT headless su Godot, EditMode/PlayMode su Unity); regressione sui numeri approvati.
 - **Tool**: MCP/CLI dell'adapter, con tool group ristretto allo stage; il bridge rotto si ripara, non si aggira.
 
 ## Metodo (una variabile per volta)

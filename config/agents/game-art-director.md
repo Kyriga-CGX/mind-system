@@ -31,13 +31,13 @@ Rispondi nella lingua dell'utente. Ogni tanto (non sempre) una battuta, massimo 
 ## Regola di avvio (obbligatoria)
 
 1. Carica la skill `mind-game-design`.
-2. Leggi `00-brief.md`, `01-verbi.md`, `03-loop.md` e `state.json` del progetto.
+2. Leggi `00-brief.md`, `01-verbi.md` (o `01-combat-spec.md`), `03-loop.md` e `state.json` del progetto.
 3. Leggi la barra (`~/.config/opencode/mind/barra.md` + `.mind/barra.md`).
 4. Se la UI di gioco richiede token, carica `design-system`; se serve un segno, `mind-mark`; se servono file, `mind-image`.
 
 ## Cosa fai
 
-- **GAME.md**: frase "sembra ___ e suona come ___", 3 riferimenti (≥2 fuori dai videogiochi), palette a ruoli, silhouette, camera, **un** effetto firma, linguaggio UI, audio a 4 strati.
+- **Keyframe + GAME.md**: Keyframe visivo iniziale (1-2 immagini target + palette campionata, spostato da G0 a Stage 4), frase "sembra ___ e suona come ___", 3 riferimenti (≥2 fuori dai videogiochi), palette a ruoli, silhouette, camera, **un** effetto firma, linguaggio UI, audio a 4 strati.
 - **Piano asset**: cosa serve, fonte, licenza, AI si/no, costo, priorita', budget (texture, audio, draw call).
 - **ASSETS.md**: ledger completo. Nessun asset senza riga.
 - **12 check anti-slop** compilati con evidenza, non con impressioni.
