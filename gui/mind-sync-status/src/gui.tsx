@@ -124,7 +124,13 @@ function Code(props: { children: string }) {
   )
 }
 
+const PUNTA1 =
+  '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="none"><path d="M8 2 A6 6 0 0 1 14 8" stroke="#2e7d46" stroke-width="1.8" stroke-linecap="round"/></svg>'
+const PUNTA2 =
+  '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="none"><path d="M8 2 A6 6 0 0 1 14 8" stroke="#9a6a14" stroke-width="1.8" stroke-linecap="round"/><path d="M8 14 A6 6 0 0 1 2 8" stroke="#9a6a14" stroke-width="1.8" stroke-linecap="round"/></svg>'
+
 export default Plugin.define({
+  icons: { punta1: PUNTA1, punta2: PUNTA2 },
   setup(ctx) {
     const ui = ctx.ui
     const [snap, setSnap] = createSignal<SyncSnapshot | null>(null)
@@ -270,13 +276,14 @@ export default Plugin.define({
       ))
     }
 
+    const upd = snap() !== null && needsUpdate(snap() as SyncSnapshot)
     ctx.add(TitlebarItem, (): TitlebarItem => ({
       id: "mind-sync",
       label: pillLabel(snap(), verifying()),
       title: "Stato sync orchestratore",
-      // "refresh" esiste nel catalogo AppIconName (@opencode/plugin 2.4.1);
-      // niente icona custom: la pill resta testo + spinner (busy).
-      icon: "refresh",
+      // Due Punte (da Time Machine, scelta utente 2026-11-25): un arco = ok,
+      // due archi = da aggiornare. Icona custom dichiarata sopra.
+      icon: upd ? ctx.icons.punta2 : ctx.icons.punta1,
       busy: verifying(),
       run: () => void openStatus(),
     }))
