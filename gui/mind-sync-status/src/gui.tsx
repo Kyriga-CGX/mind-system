@@ -1,80 +1,40 @@
 import { Plugin, TitlebarItem } from "@opencode/plugin/gui"
-import { Rpc } from "@opencode/plugin/rpc"
+import type { Rpc } from "@opencode/plugin/rpc"
 import { createSignal, For, Show, type JSX } from "solid-js"
+// Contratto reale di T1 (stesso pacchetto, `src/rpc.ts`). La GUI consuma
+// solo questo shape:
+//   status({ remote? }) → { installed, installedOn, head, proposals[], behindOrigin, checkedAt }
+//   sync()              → { commit, at, backup } | { error } (stub fino a T4)
+import { syncStatusDefinition } from "./rpc.js"
 
-// ── Contratto RPC ─────────────────────────────────────────────
-// Gemello locale del contratto di T1 (`src/rpc.ts`, non ancora committato
-// al momento di T3). Shape identico alla spec approvata
-// `docs/specs/2026-11-25-mind-sync-button-design.md`:
-//   status({ remote? }) → { installed, installedOn, head, proposals[], behindOrigin }
-//   sync()              → { commit, date, backup }
-// Quando T1 atterra, sostituire con `import { MindSyncStatus } from "./rpc.js"`
-// e cancellare questo blocco: la GUI consuma solo quello shape.
-// Nota tipi: gli schema sono i JSON Schema letterali dell'esempio ufficiale
-// (https://opencode.ai/docs/build/plugins/rpc); l'asserzione a
-// `PortableDefinition` colma solo il branding nominale di effect, a runtime
-// l'oggetto è identico. I metodi restano `unknown` in TS e vengono
-// ristretti da `narrowSnapshot`/`narrowResult`.
-const twin = {
-  id: "mind-sync-status",
-  methods: {
-    status: {
-      input: {
-        type: "object",
-        properties: { remote: { type: "boolean" } },
-        additionalProperties: false,
-      },
-      output: {
-        type: "object",
-        properties: {
-          installed: { type: ["string", "null"] },
-          installedOn: { type: ["string", "null"] },
-          head: { type: "string" },
-          proposals: { type: "array", items: { type: "string" } },
-          behindOrigin: { type: ["number", "null"] },
-        },
-        required: ["head", "proposals"],
-        additionalProperties: false,
-      },
-    },
-    sync: {
-      input: { type: "object", additionalProperties: false },
-      output: {
-        type: "object",
-        properties: {
-          commit: { type: "string" },
-          date: { type: "string" },
-          backup: { type: "string" },
-        },
-        required: ["commit", "date", "backup"],
-        additionalProperties: false,
-      },
-    },
-  },
-} as const
-
-export const MindSyncStatus: Rpc.PortableDefinition = Rpc.define(
-  twin as unknown as Parameters<typeof Rpc.define>[0],
-) as unknown as Rpc.PortableDefinition
+// Gli schema sono JSON Schema letterali (esempio ufficiale
+// https://opencode.ai/docs/build/plugins/rpc); l'asserzione colma solo il
+// branding nominale di effect, a runtime l'oggetto è identico. I metodi
+// restano `unknown` in TS e vengono ristretti da narrowSnapshot/narrowResult.
+const MindSyncStatus = syncStatusDefinition as unknown as Rpc.PortableDefinition
 
 export interface SyncSnapshot {
   installed: string | null
   installedOn: string | null
-  head: string
+  head: string | null
   proposals: string[]
-  behindOrigin: number | null
+  behindOrigin: boolean
+  checkedAt: string
 }
 
 export interface SyncResult {
   commit: string
-  date: string
+  at: string
   backup: string
 }
 
-/** Restringe la risposta JSON Schema (`unknown` in TS) allo shape di spec. */
+/** sync() è stub fino a T4: il server risponde `{ error }` invece del risultato. */
+export class SyncPending extends Error {}
+
+/** Restringe la risposta JSON Schema (`unknown` in TS) allo shape di T1. */
 export function narrowSnapshot(raw: unknown): SyncSnapshot {
   const o = raw as Record<string, unknown>
-  if (typeof o !== "object" || o === null || typeof o.head !== "string") {
+  if (typeof o !== "object" || o === null) {
     throw new Error("risposta status() non valida")
   }
   const proposals = Array.isArray(o.proposals)
@@ -83,31 +43,30 @@ export function narrowSnapshot(raw: unknown): SyncSnapshot {
   return {
     installed: typeof o.installed === "string" ? o.installed : null,
     installedOn: typeof o.installedOn === "string" ? o.installedOn : null,
-    head: o.head,
+    head: typeof o.head === "string" ? o.head : null,
     proposals,
-    behindOrigin: typeof o.behindOrigin === "number" ? o.behindOrigin : null,
+    behindOrigin: o.behindOrigin === true,
+    checkedAt: typeof o.checkedAt === "string" ? o.checkedAt : "",
   }
 }
 
 export function narrowResult(raw: unknown): SyncResult {
   const o = raw as Record<string, unknown>
-  if (
-    typeof o !== "object" ||
-    o === null ||
-    typeof o.commit !== "string" ||
-    typeof o.date !== "string" ||
-    typeof o.backup !== "string"
-  ) {
+  if (typeof o !== "object" || o === null) {
     throw new Error("risposta sync() non valida")
   }
-  return { commit: o.commit, date: o.date, backup: o.backup }
+  if (typeof o.error === "string") throw new SyncPending(o.error)
+  if (typeof o.commit !== "string" || typeof o.at !== "string" || typeof o.backup !== "string") {
+    throw new Error("risposta sync() non valida")
+  }
+  return { commit: o.commit, at: o.at, backup: o.backup }
 }
 
 /** Matrice stati pill (spec § Testing): allineato → OK, tutto il resto → UPDATE. */
 export function needsUpdate(s: SyncSnapshot): boolean {
   if (s.installed === null || s.installed !== s.head) return true
   if (s.proposals.length > 0) return true
-  return (s.behindOrigin ?? 0) > 0
+  return s.behindOrigin
 }
 
 export function pillLabel(s: SyncSnapshot | null, verifying: boolean): string {
@@ -120,6 +79,7 @@ export function shortHash(full: string): string {
 }
 
 export function fmtErr(err: unknown): string {
+  if (err instanceof SyncPending) return "non ancora implementato"
   if (typeof err === "object" && err !== null && "message" in err) {
     const m = (err as { message?: unknown }).message
     if (typeof m === "string" && m.length > 0) return m
@@ -235,12 +195,16 @@ export default Plugin.define({
         ctx.toast.show({
           variant: "success",
           title: "Orchestratore aggiornato.",
-          description: `${shortHash(r.commit)} installato il ${r.date} · backup ${r.backup}`,
+          description: `${shortHash(r.commit)} installato il ${r.at} · backup ${r.backup}`,
         })
         await refresh(false)
       } catch (err) {
         working.dismiss()
-        ctx.toast.show({ variant: "error", title: "Sincronizzazione fallita.", description: fmtErr(err) })
+        if (err instanceof SyncPending) {
+          ctx.toast.show({ variant: "default", title: "Sincronizzazione non ancora disponibile.", description: err.message })
+        } else {
+          ctx.toast.show({ variant: "error", title: "Sincronizzazione fallita.", description: fmtErr(err) })
+        }
       }
     }
 
@@ -294,11 +258,8 @@ export default Plugin.define({
               </Show>
             </Row>
             <Row label="GitHub">
-              <Show
-                when={current !== null && current.behindOrigin !== null}
-                fallback={failure ?? "non verificato"}
-              >
-                {(current?.behindOrigin ?? 0) === 0 ? "allineato" : `${current?.behindOrigin} commit da origin`}
+              <Show when={current !== null} fallback={failure ?? "non verificato"}>
+                {current?.behindOrigin === true ? "dietro origin" : "allineato"}
               </Show>
             </Row>
           </div>
