@@ -117,6 +117,7 @@ function Code(props: { children: string }) {
     <code
       style={{
         background: "#f3f0e7",
+        color: "#2a2721",
         padding: "0 5px",
         "border-radius": "4px",
         "font-size": "10.5px",
