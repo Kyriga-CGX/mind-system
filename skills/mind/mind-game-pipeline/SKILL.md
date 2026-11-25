@@ -52,8 +52,9 @@ Cartella: `.mind/games/<slug>/` (slug kebab-case, derivato dal verbo o dal mondo
 | File | Contenuto | Owner |
 |---|---|---|
 | `state.json` | intent, stage, gate superati, tentativi, decisioni, domande aperte, budget | orchestratore |
-| `00-brief.md` | fantasia, piattaforma, durata, scope, divieti, criterio di successo, adapter | game-director |
-| `01-verbi.md` | 3 carte + test di morte + scelta + motivi di esclusione | game-director |
+| `00-brief.md` | fantasia, piattaforma, durata, scope (1P/1 arma/1 micro-area), divieti, criterio di successo, adapter | game-director |
+| `BACKLOG-POST-SLICE.md` | feature rinviate (multiplayer, classi, fazioni, economia avanzata) — vietato fino a G6 | game-director |
+| `01-verbi.md` / `01-combat-spec.md` | `Hook-First`: 3 carte + test di morte; `Combat-First`: Triangolo Tattico + Combat Spec | game-director + feel-engineer |
 | `02-prova.md` | build grigia, parametri, misura input→risposta, clip, playtest | feel-engineer + playtest-critic |
 | `03-loop.md` | quattro livelli, sconfitta, rischio/ricompensa, tabella tuning, metriche | game-director + feel-engineer |
 | `04-direzione.md` | GAME.md: frase, riferimenti, palette, silhouette, camera, firma, linguaggio visivo UI, audio | game-art-director |
@@ -76,15 +77,15 @@ Owner: `game-director`. Produce `00-brief.md`.
 - **3 divieti** espliciti (cosa il gioco non fara').
 - Criterio di successo osservabile.
 - Adapter: motore, versione, render/UI/input, tool MCP/CLI (→ `mind-game-design/references/engine-adapters.md`).
-- **Scope Lock della Slice:** Rigorosamente **1P locale (Single Player)**, 1 archetipo/arma, 1 micro-area, 5-15 minuti. Eventuali feature multiplayer, classi multiple o hub complessi vanno in `BACKLOG-POST-SLICE.md` e sono vietati fino al superamento di G6.
+- **Scope Lock della Slice:** Rigorosamente **1P locale (Single Player)**, 1 archetipo/arma, 1 micro-area, 5-15 minuti. Eventuali feature multiplayer, classi multiple, fazioni ed economia avanzata vanno in `BACKLOG-POST-SLICE.md` e sono vietati fino al superamento di G6.
 
-**Gate G0**: la frase contiene l'esperienza core; i divieti sono 3 e verificabili; lo scope della slice e' bloccato su 1P/1 arma; l'adapter e' registrato. *(Nota: il Keyframe visivo si sposta all'inizio dello Stage 4 per non bloccare il greybox).*
+**Gate G0**: la frase contiene l'esperienza core; i divieti sono 3 e verificabili; lo scope della slice e' bloccato su 1P/1 arma/1 micro-area; l'adapter e' registrato. *(Nota: il Keyframe visivo e la palette si spostano all'inizio dello Stage 4 per non bloccare il greybox dello Stage 2).*
 
-### Stage 1 — Core Loop e Combat Spec
+### Stage 1 — Core Loop e Combat Spec (Hook-First / Combat-First)
 
-Owner: `game-director` + `feel-engineer`, decisione dell'utente. Produce `01-verbi.md` (o `01-combat-spec.md`).
-- **Se Hook-First:** 3 carte-verbo + test di morte (→ `verbo-e-inventiva.md`).
-- **Se Combat-First:** Triangolo tattico + tabella numerica iniziale (velocita', range, frame di attacco/schivata, stamina, postura, hitstop, input buffer) gia' strutturata per essere esportata in file dati (`.tres` / `.json`).
+Owner: `game-director` + `feel-engineer`, decisione dell'utente. Produce `01-verbi.md` (Hook-First) oppure `01-combat-spec.md` (Combat-First).
+- **Profilo `Hook-First` (concept inediti a singolo input):** 3 carte-verbo + test di morte (→ `verbo-e-inventiva.md`).
+- **Profilo `Combat-First` (Action-RPG / Souls-like):** sostituisce le carte-verbo gimmick con il **Triangolo Tattico** (es. *Leggere → Sbilanciare → Punire*) e richiede una **Combat Spec numerica** prima di aprire il motore (Action Economy, Stamina, Focus, Frame Data: Startup/Active/Recovery, Hitstop, Input Buffering, i-frames, Postura/Stagger) gia' strutturata per essere esportata in file `Resource` (`.tres`) o `.json`.
 
 **Gate G1 (utente)**: meccanica core approvata e spec numerica pronta per il motore, senza gimmick fuori tono.
 
@@ -92,13 +93,13 @@ Owner: `game-director` + `feel-engineer`, decisione dell'utente. Produce `01-ver
 
 Owner: `feel-engineer`; osserva `playtest-critic`. Produce `02-prova.md` + clip.
 - Una scena in grigio (greybox), primitivi, nessun asset, nessun audio di produzione.
-- Tutti i parametri esposti in file dati esterni al codice (`@export` / `.tres` / `.json`).
-- Misura input→risposta a frame (target < 100 ms), verifica di **Input Buffering** e **Hitstop** (→ `feel.md`).
+- Tutti i parametri esposti in file dati esterni al codice (`Resource` `.tres` / `.json` modificabili a caldo, o `ScriptableObject`); zero numeri magici negli script.
+- Misura input→risposta a frame (target < 100 ms), verifica di **Input Buffering**, **Hitstop**, **i-frames** e **risposta Postura/Stagger** (→ `feel.md`).
 - **Verifica G2 (Dual-Mode):**
-  - *Modalita' Solo/Dev:* checklist tecnica di feel superata + clip di 30-60s registrata dove il loop tattico (es. schivata/parata → rottura postura → esecuzione) funziona contro 2 archetipi nemici base.
+  - *Modalita' Solo/Dev (obbligatoria):* checklist tecnica di feel verificata dal developer su clip di 30-60s (input→risposta < 100ms, input buffering, hitstop, risposta postura) contro 2 archetipi nemici base.
   - *Modalita' Esterna (opzionale allo Stage 2, obbligatoria allo Stage 6):* 3-5 tester a freddo.
 
-**Gate G2**: feel reattivo e verificato su clip (o 3/5 tester), **oppure** una sola ipotesi di correzione numerica nei dati e nuova prova (max 3 prove).
+**Gate G2**: checklist tecnica di feel superata su clip 30-60s (e 3/5 tester se eseguiti in Stage 2), **oppure** una sola ipotesi di correzione numerica nei dati e nuova prova (max 3 prove).
 
 ### Stage 3 — Loop e numeri
 

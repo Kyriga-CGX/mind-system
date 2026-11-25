@@ -29,7 +29,19 @@ Sono punti di partenza, non verita': si tarano sul target, misurando.
 | Screenshake | 0,05-0,20 s, ampiezza bassa | Permanente = illeggibile |
 | Finestra di input per combo | 0,15-0,30 s | Stretta = frustrante; larga = automatica |
 
-Regola: **una variabile per volta**, con la stessa build e lo stesso test. Se cambi due numeri, non sai quale ha funzionato.
+### Parametri `Combat-First` (Action-RPG / Souls-like)
+
+| Parametro | Range tipico (60 fps) | Cosa cambia se sbagliato |
+|---|---|---|
+| Startup attacco leggero | 6-12 frame (100-200 ms) | Troppo corto = zero impegno; lungo = legnoso |
+| Active frames arma | 3-6 frame (50-100 ms) | Troppo corto = manca i bersagli; lungo = hitbox sporca |
+| Recovery (non cancellabile) | 12-22 frame (200-360 ms) | Troppo corto = button mashing; lungo = punitivo |
+| Input Buffering combat | 120-200 ms (7-12 frame) | Assente = comandi mangiati dopo schivata/attacco |
+| Finestra i-frames schivata | 10-16 frame (165-265 ms) | Troppo stretta = RNG percepita; larga = invulnerabilita' gratis |
+| Hitstop (colpo / parry) | 40-70 ms / 90-140 ms | Assente = colpi di carta; eccessivo = lag percepito |
+| Finestra Stagger / Esecuzione | 1,2-2,0 s | Troppo corta = non fai in tempo a punire |
+
+Regola: **una variabile per volta**, con la stessa build e lo stesso test. Se cambi due numeri, non sai quale ha funzionato. Tutti i valori vivono in `Resource` (`.tres`), `.json` o `ScriptableObject`, mai hardcoded negli script.
 
 ## Gerarchia del feedback
 
@@ -94,6 +106,16 @@ Se il terziario arriva prima del primario, il giocatore non capisce cosa e' succ
 | "Mi nausea" | camera rigida o shake continuo | smorza follow, elimina shake ambientale |
 | "Sembra lento" | latenza input o animazione che anticipa | misura la catena, accorcia le animazioni di windup |
 
+## Checklist tecnica di feel (Developer — Stage 2, clip 30-60s)
+
+In modalita' **Solo/Dev** (Stage 2 / F2), i 3-5 tester a freddo sono opzionali (restano obbligatori allo Stage 6). Il gate G2 richiede la verifica tecnica su una **clip di 30-60 secondi** contro 2 archetipi nemici base:
+
+- [ ] **Latenza input→risposta < 100 ms** (≤ 6 frame a 60 fps) misurata su input secco (attacco, schivata, parata).
+- [ ] **Input Buffering attivo:** premere attacco o schivata negli ultimi 120-200 ms del recovery precedente esegue l'azione al frame 1 utile senza perdere il comando.
+- [ ] **Hitstop e feedback primario:** l'impatto e il parry fermano l'azione per 40-140 ms con micro-knockback e flash leggibile, senza coprire il tell del nemico successivo.
+- [ ] **Risposta Postura/Stagger & i-frames:** la schivata attraversa l'hitbox nemica solo nella finestra i-frames; i colpi scaricano la barra postura fino allo stagger con finestra di punizione chiara.
+- [ ] **Zero numeri magici:** tutti i parametri provati nella clip vengono caricati da file dati esterni (`.tres` / `.json` / `ScriptableObject`).
+
 ## Output
 
-`02-prova.md` con: build/scena, parametri e range, misura input→risposta, clip, cosa si e' provato, cosa resta aperto. La prova non e' "sembra meglio": e' "il valore era X, ora e' Y, misurato in Z frame".
+`02-prova.md` con: build/scena, parametri e range, misura input→risposta, checklist tecnica G2 compilata, clip 30-60s, cosa si e' provato, cosa resta aperto. La prova non e' "sembra meglio": e' "il valore era X, ora e' Y, misurato in Z frame".

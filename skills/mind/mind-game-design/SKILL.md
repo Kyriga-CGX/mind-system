@@ -20,7 +20,7 @@ Un gioco non e' un tema, un genere o una lista di feature. E' **un verbo che il 
 
 | # | Legge | Conseguenza operativa |
 |---|-------|----------------------|
-| 1 | **Il core loop comanda sullo scope.** | Se il progetto parte da un verbo inedito, il genere e' un output (F1-Hook). Se parte da un riferimento sistemico/combat (es. Action-RPG), si fissa subito il **triangolo tattico** (F1-Combat) senza reinventare le basi. |
+| 1 | **Il core loop comanda sullo scope.** | Doppio profilo: `Hook-First` (concept inediti a singolo input: il genere e' un output) oppure `Combat-First` (Action-RPG/Souls-like: si fissa subito il **Triangolo Tattico** e la Combat Spec numerica senza gimmick da minigioco). |
 | 2 | **Niente arte prima che il verbo regga.** | Stage di prova in grigio: primitivi, una scena, nessun asset. |
 | 3 | **La divertibilita' e' un'ipotesi falsificabile.** | Clip registrata + comportamento osservato + una domanda binaria. Mai un voto. |
 | 4 | **I numeri stanno nei dati.** | Ogni costante ha valore, range, unita' e motivo in un file di tuning. Zero numeri magici nel codice. |
@@ -50,20 +50,22 @@ Un gioco non e' un tema, un genere o una lista di feature. E' **un verbo che il 
 
 ### F0 — Contesto e vincoli (senza vincoli non c'e' invenzione)
 
-- [ ] Plataforma, durata sessione, target (chi gioca e in che contesto), budget di scope.
+- [ ] Piattaforma, durata sessione, target (chi gioca e in che contesto), scope bloccato per la slice (**1P locale**, 1 archetipo/arma, 1 micro-area; multiplayer/classi/fazioni/economia avanzata in `BACKLOG-POST-SLICE.md`, vietato fino a G6).
 - [ ] Motore e adapter scelti e registrati (→ `references/engine-adapters.md`).
 - [ ] **Divieti**: 3 cose che questo gioco non fara' (niente crafting, niente open world, niente dialoghi).
 - [ ] Criterio di successo osservabile (es. "3 tester su 5 rifanno il livello senza chiederglielo").
+- [ ] Niente Keyframe visivo ne' palette in F0: si spostano all'inizio di F4 per non bloccare il greybox.
 
 Senza un divieto il modello produce la mediana del training set. Il divieto e' il generatore.
 
-### F1 — Core Loop: Carte-Verbo (Hook) o Triangolo Tattico (Combat-First)
+### F1 — Core Loop: `Hook-First` (Carte-Verbo) o `Combat-First` (Triangolo Tattico + Combat Spec)
 
-- [ ] **Modalita' Hook (concept inediti):** Genera 3 carte-verbo con un input dominante e un vincolo (→ `references/verbo-e-inventiva.md`).
-- [ ] **Modalita' Combat-First (Action-RPG / Souls-like / Brawler):** Niente gimmick o minigiochi. Definisci il **Triangolo Tattico** (es. *Leggere → Sbilanciare → Punire*) e produce direttamente la **Combat Spec** pre-motore:
-  - **Action Economy:** Stamina, risorse (Focus/Mana), costo dell'avidita' (animazioni non cancellabili).
-  - **Frame Data & Feel:** Startup, Active, Recovery (in ms/frame), Hitstop, Input Buffer (ms), finestre di invulnerabilita' (i-frames).
-  - **Reazione Nemica:** Barra Postura (Poise/Stagger), *tell* visivi leggibili prima del colpo, finestre di punizione.
+- [ ] **Profilo `Hook-First` (concept inediti a singolo input):** Genera 3 carte-verbo con un input dominante e un vincolo (→ `references/verbo-e-inventiva.md`).
+- [ ] **Profilo `Combat-First` (Action-RPG / Souls-like):** Niente gimmick o minigiochi. Sostituisci le carte-verbo con il **Triangolo Tattico** (es. *Leggere → Sbilanciare → Punire*) e produci la **Combat Spec numerica** prima di aprire il motore:
+  - **Action Economy:** Stamina, Focus/Mana, costo dell'avidita' (animazioni non cancellabili).
+  - **Frame Data & Feel:** Startup, Active, Recovery (in ms/frame), Hitstop, Input Buffering (ms), i-frames.
+  - **Reazione Nemica:** Postura/Stagger, *tell* visivi leggibili prima del colpo, finestre di punizione.
+  - **Esportazione dati:** Parametri gia' pronti per `Resource` (`.tres`) o `.json` (zero numeri magici).
 - [ ] Ogni carta Hook: `input → verbo → risposta del mondo → tensione → cosa la rende non-mediana`.
 - [ ] Applica i test di morte alle Hook: skin, mediana, swap, seconda sessione.
 - [ ] Sceglie l'utente. Una sola opzione sopravvive; le scartate restano con il motivo di esclusione.
@@ -88,9 +90,9 @@ Test di morte:    skin <passa/fallisce> | mediana <passa/fallisce> | swap <passa
 - [ ] Taratura con numeri espliciti (→ `references/feel.md`), una variabile per volta.
 - [ ] Misura input→risposta a frame (target percepito < 100 ms).
 - [ ] Registra una clip di 30-60 secondi come evidenza.
-- [ ] Playtest a freddo con 3-5 persone (→ `references/playtest.md`).
+- [ ] Playtest a freddo con 3-5 persone (opzionale in F2/Stage 2; **obbligatorio** alla vertical slice in F5/Stage 6) (→ `references/playtest.md`).
 
-Gate: **almeno 3 su 5 rifanno l'azione senza che venga chiesto**, oppure una sola ipotesi di correzione dichiarata e una nuova prova. Massimo 3 prove. In modalita' Solo/Dev (Combat-First) vale la verifica tecnica + clip contro 2 archetipi; i tester esterni restano obbligatori alla slice.
+Gate: in **Solo/Dev** vale la checklist tecnica di feel verificata dal developer sulla clip 30-60s (input→risposta < 100ms, input buffering, hitstop, risposta postura/stagger) contro 2 archetipi nemici base; **con tester esterni**, almeno 3 su 5 rifanno l'azione senza che venga chiesto. Massimo 3 prove con una sola ipotesi di correzione per volta.
 
 ### F3 — Loop e numeri
 

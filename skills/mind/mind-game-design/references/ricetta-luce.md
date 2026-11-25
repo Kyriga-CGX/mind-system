@@ -22,5 +22,15 @@ non verita: si tara con la checklist in fondo.
   abbassa nell'ordine Fog → Ambient → Exposure.
 - Bruciato (sole >2.0 / albedo >0.9 / Linear): albedo pastel 0.65-0.85, sole 1.2, AgX/ACES.
 
+## Ricetta Contrasto Tattico / Combat Leggibile (Godot 4 Forward+)
+
+Valida per **qualsiasi tema** (fantasy, sci-fi, stilizzato, realistico) in cui l'ombra o l'atmosfera non devono mai nascondere i *tell* dei nemici:
+
+- **Tonemap:** `AgX` (gestisce meglio le alte luci di fuoco, neon o magia senza bruciare i colori rispetto a Linear/Reinhard).
+- **Contrasto controllato:** `DirectionalLight3D` angolata (`35-50°`) + `Ambient` di contrasto a energia bassa (`0.25-0.45`) per non schiacciare le ombre in nero assoluto (`#000000`).
+- **Rim Light / Fresnel su Player e Nemici:** aggiungi un fresnel sottile nello shader dei personaggi (`rim_power 3.0-4.0`, intensita' `0.2-0.35`) cosi' la silhouette e il windup dell'arma si staccano sempre dallo sfondo, indipendentemente dalla palette.
+- **Volumetric Fog leggero:** `Density 0.01-0.025`, `Detail Spread 2.0`, `GI Inject 0.25` + `OmniLight3D` sui punti focali (torce, terminali, portali) per guidare il percorso senza frecce HUD.
+- **SSAO / SDFGI:** preferisci `SSAO` medio + `LightmapGI` baked per interni/strutture statiche (costo GPU quasi zero rispetto a SDFGI dinamico).
+
 Fonti: ricerca 12-topic 2026-11-24 (Godot Docs environment/lights; hexaquo; Kelvin 3000-4200K
 sole + 6500-9000K fill; bugnet tonemap washing).

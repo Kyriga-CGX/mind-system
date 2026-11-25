@@ -17,11 +17,12 @@ Il giocatore <verbo>, e il mondo <risposta>. La tensione e' <trade-off>.
 - Adapter: <unity|godot> <versione> — render <...>, UI <...>, input <...>
 - Tool: <MCP/CLI scelto>
 
-## Scope
-- Meccaniche: 1
-- Tipi di livello: 1
-- Contenuto: <10-20 min>
-- Lista di taglio: <in ordine>
+## Scope (bloccato per Vertical Slice)
+- Giocatori: **1P locale (Single Player)**
+- Archetipi / Armi: **1**
+- Micro-area: **1**
+- Contenuto: 5-15 min
+- Feature rinviate: vedi `BACKLOG-POST-SLICE.md` (vietato fino a G6)
 
 ## Divieti (3)
 1. <...>
@@ -29,13 +30,25 @@ Il giocatore <verbo>, e il mondo <risposta>. La tensione e' <trade-off>.
 3. <...>
 
 ## Criterio di successo (osservabile)
-<es. 3 tester su 5 rifanno il primo livello senza chiedere>
+<es. clip 30-60s con checklist G2 superata; 3 tester su 5 completano la slice in G6>
 
 ## Rischi dichiarati
 - <ipotesi piu' fragile>
 ```
 
-## 01-verbi.md
+## BACKLOG-POST-SLICE.md
+
+```markdown
+# Backlog Post-Slice (VIETATO fino al superamento di G6)
+
+Ogni feature di espansione identificata in Stage 0 va parcheggiata qui e non puo' entrare in codice o dati prima di G6:
+- Multiplayer / Co-op
+- Classi / Armi aggiuntive oltre la prima
+- Fazioni / Reputazione
+- Economia avanzata / Crafting / Hub esteso
+```
+
+## 01-verbi.md (profilo Hook-First)
 
 ```markdown
 # Carte-verbo
@@ -60,6 +73,38 @@ Rischio:
 Carta scelta: <n>
 Motivo: <...>
 Esclusi: <n> perche' <...>; <n> perche' <...>
+```
+
+## 01-combat-spec.md (profilo Combat-First)
+
+```markdown
+# Combat Spec — <nome>
+
+## Triangolo Tattico
+1. Leggere: <tell visivo/sonoro nemico>
+2. Sbilanciare / Schivare: <parry, dodge con i-frames, rottura postura>
+3. Punire: <finestra di danno / esecuzione, costo dell'avidita'>
+
+## Action Economy (esportata in .tres / .json)
+| Risorsa / Azione | Valore | Range | Unita' | Motivo |
+|---|---|---|---|---|
+| Stamina max / regen | ... | ... | pt / pt/s | ... |
+| Costo attacco / schivata / parata | ... | ... | pt | ... |
+| Focus max / guadagno per colpo | ... | ... | pt | ... |
+
+## Frame Data & Feel (60 fps)
+| Mossa | Startup | Active | Recovery | Hitstop | Input Buffer | i-frames |
+|---|---|---|---|---|---|---|
+| Attacco leggero 1 | ... | ... | ... | ... | ... | - |
+| Attacco pesante | ... | ... | ... | ... | ... | - |
+| Schivata | ... | ... | ... | - | ... | ... |
+| Parata / Parry | ... | ... | ... | ... | ... | - |
+
+## Postura / Stagger (2 archetipi base)
+| Archetipo | Soglia Postura | Decadimento/s | Finestra Punizione | Tell principale |
+|---|---|---|---|---|
+| Base (leggero) | ... | ... | ... | ... |
+| Pesante / Scudo | ... | ... | ... | ... |
 ```
 
 ## 02-prova.md
