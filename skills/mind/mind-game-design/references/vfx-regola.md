@@ -19,6 +19,14 @@ spaziale; creature riconoscibili (gabbiani, farfalle) → mesh animate su path, 
 - Polline/lucciole: `amount 40, lifetime 6, preprocess 6`, alpha 0→0.7→0, Fixed FPS 30.
 - Magia/firma (<10% effetti): Effekseer `.efkefc` via Emitter3D (l'artista itera fuori Godot).
 
+## Ricette Combat VFX (leggibilita' prima dell'estetica)
+
+Regola base: un VFX di combattimento non deve **mai** coprire la silhouette del nemico o il suo *tell* (caricamento).
+
+- **Scie arma (Sword Trails):** ribbon mesh procedurale tra `weapon_base` e `weapon_tip` attiva **solo** nei frame `AttackActive`, con fade rapido (`80-150 ms`) per mostrare l'arco reale dell'hitbox senza lasciare nuvole opache.
+- **Hit-spark & Parry flash:** `GPUParticles3D one_shot` direzionale lungo la normale di impatto (`amount 8-16, lifetime 0.15-0.25 s`, zero fumo denso), sincronizzato con hitstop e micro hit-flash del materiale.
+- **Telegraph AoE a terra:** `Decal` o shader su piano con bordo netto + riempimento radiale/lineare sincronizzato al `windup_ms` del nemico, cosi' il giocatore legge al millimetro *dove* e *quando* avviene l'impatto.
+
 ## Licenze pronte
 Kenney Particle/Smoke Pack CC0; Effekseer CC-0 + runtime MIT; shader godotshaders CC0
 (solo codice); GodotLearning Stylized Water CC0 4.7.

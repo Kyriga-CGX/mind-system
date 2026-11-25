@@ -187,13 +187,13 @@ $ownedRoots = New-Object System.Collections.ArrayList
 $skippedRoots = New-Object System.Collections.ArrayList
 
 function Add-Tree {
-    param([string]$Source, [string]$DestRoot, [string]$Kind, [switch]$Owned)
+    param([string]$Source, [string]$DestRoot, [string]$Kind, [switch]$Owned, [string[]]$Exclude = @())
     if (-not (Test-Path -LiteralPath $Source)) {
         Write-Warning "Sorgente mancante, skip: $Source"
         return
     }
     if ($Owned) { [void]$ownedRoots.Add($DestRoot) }
-    Get-ChildItem -LiteralPath $Source -Recurse -File -Force | ForEach-Object {
+    Get-ChildItem -LiteralPath $Source -Recurse -File -Force -Exclude $Exclude | ForEach-Object {
         $rel = $_.FullName.Substring($Source.Length).TrimStart('\', '/')
         [void]$plan.Add([pscustomobject]@{
             Source = $_.FullName
@@ -214,7 +214,7 @@ function Add-Single {
 
 Write-Host '=== Plugins (auto-load top-level) ==='
 Add-Tree (Join-Path $RepoRoot 'plugins') (Join-Path $ConfigRoot 'plugins') 'code'
-Add-Tree (Join-Path $RepoRoot 'gui\mind-sync-status') (Join-Path $ConfigRoot 'plugins\mind-sync-status') 'code'
+Add-Tree (Join-Path $RepoRoot 'gui\mind-sync-status') (Join-Path $ConfigRoot 'plugins\mind-sync-status') 'code' -Exclude 'node_modules'
 
 Write-Host '=== Skill mind ==='
 $mindDest = Join-Path $ConfigRoot 'mind\skills'

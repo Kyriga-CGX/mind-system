@@ -19,6 +19,7 @@ export interface SyncSnapshot {
   head: string | null
   proposals: string[]
   behindOrigin: boolean
+  githubAhead: boolean
   checkedAt: string
 }
 
@@ -46,6 +47,7 @@ export function narrowSnapshot(raw: unknown): SyncSnapshot {
     head: typeof o.head === "string" ? o.head : null,
     proposals,
     behindOrigin: o.behindOrigin === true,
+    githubAhead: o.githubAhead === true,
     checkedAt: typeof o.checkedAt === "string" ? o.checkedAt : "",
   }
 }
@@ -66,6 +68,7 @@ export function narrowResult(raw: unknown): SyncResult {
 export function needsUpdate(s: SyncSnapshot): boolean {
   if (s.installed === null || s.installed !== s.head) return true
   if (s.proposals.length > 0) return true
+  if (s.githubAhead) return true
   return s.behindOrigin
 }
 
@@ -82,7 +85,11 @@ export function fmtErr(err: unknown): string {
   if (err instanceof SyncPending) return "non ancora implementato"
   if (typeof err === "object" && err !== null && "message" in err) {
     const m = (err as { message?: unknown }).message
-    if (typeof m === "string" && m.length > 0) return m
+    // Nome del costruttore incluso: dice SE l'errore viene dal transport RPC,
+    // dall'handler o dal sistema (fondamentale per il debug dal toast).
+    const name = (err as { name?: unknown }).name
+    const prefix = typeof name === "string" && name.length > 0 && name !== "Error" ? name + ": " : ""
+    if (typeof m === "string" && m.length > 0) return prefix + m
   }
   return String(err)
 }
@@ -114,6 +121,7 @@ function Code(props: { children: string }) {
     <code
       style={{
         background: "#f3f0e7",
+        color: "#2a2721",
         padding: "0 5px",
         "border-radius": "4px",
         "font-size": "10.5px",
@@ -125,9 +133,9 @@ function Code(props: { children: string }) {
 }
 
 const PUNTA1 =
-  '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="none"><path d="M8 2 A6 6 0 0 1 14 8" stroke="#2e7d46" stroke-width="1.8" stroke-linecap="round"/></svg>'
+  '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="none"><g><animateTransform attributeName="transform" type="rotate" from="0 8 8" to="360 8 8" dur="6s" repeatCount="indefinite"/><path d="M8 2 A6 6 0 0 1 14 8" stroke="#2e7d46" stroke-width="1.8" stroke-linecap="round"/></g></svg>'
 const PUNTA2 =
-  '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="none"><path d="M8 2 A6 6 0 0 1 14 8" stroke="#9a6a14" stroke-width="1.8" stroke-linecap="round"/><path d="M8 14 A6 6 0 0 1 2 8" stroke="#9a6a14" stroke-width="1.8" stroke-linecap="round"/></svg>'
+  '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="none"><g><animate attributeName="opacity" values="1;.55;1" dur="1.6s" repeatCount="indefinite"/><animateTransform attributeName="transform" type="rotate" from="0 8 8" to="360 8 8" dur="2.4s" repeatCount="indefinite"/><path d="M8 2 A6 6 0 0 1 14 8" stroke="#9a6a14" stroke-width="1.8" stroke-linecap="round"/><path d="M8 14 A6 6 0 0 1 2 8" stroke="#9a6a14" stroke-width="1.8" stroke-linecap="round"/></g></svg>'
 
 export default Plugin.define({
   icons: { punta1: PUNTA1, punta2: PUNTA2 },
@@ -265,7 +273,11 @@ export default Plugin.define({
             </Row>
             <Row label="GitHub">
               <Show when={current !== null} fallback={failure ?? "non verificato"}>
-                {current?.behindOrigin === true ? "dietro origin" : "allineato"}
+                {current?.behindOrigin === true
+                  ? "dietro origin"
+                  : current?.githubAhead === true
+                    ? "GitHub avanti (sonda)"
+                    : "allineato"}
               </Show>
             </Row>
           </div>
@@ -290,5 +302,23 @@ export default Plugin.define({
 
     // Check locale all'apertura finestra: zero rete (stesso costo dell'avviso odierno).
     void refresh(false)
+
+    // Timer silenziosi (mai busy, mai dialog): re-check locale ogni 5 min
+    // (nuovi commit dopo l'apertura) + sonda GitHub ogni 15 min
+    // (ls-remote, niente fetch — approvata dall'utente). Cleanup al dispose.
+    const quiet = async (probe: boolean) => {
+      try {
+        const raw = await ctx.client.rpc(MindSyncStatus).status(probe ? { probe: true } : {})
+        setSnap(narrowSnapshot(raw))
+      } catch {
+        // resta l'ultimo stato noto, mai un errore a video da solo
+      }
+    }
+    const localTimer = setInterval(() => void quiet(false), 5 * 60 * 1000)
+    const probeTimer = setInterval(() => void quiet(true), 15 * 60 * 1000)
+    return () => {
+      clearInterval(localTimer)
+      clearInterval(probeTimer)
+    }
   },
 })
