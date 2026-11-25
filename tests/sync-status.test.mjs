@@ -1,8 +1,9 @@
-// Contratto RPC + stato locale del plugin `mind-sync-status`.
+// Contratto RPC + stato locale + sync reale del plugin `mind-sync-status`.
 // Stile di version-notice.test.mjs: repo fake in tmp, niente rete.
 // Regole verificate: shape di status(), installato-vs-HEAD, proposte .new,
 // NESSUN fetch con remote:false, fetch solo con remote:true,
-// sync() resta stub { error: 'not-implemented' } (lo implementa T4).
+// sync() reale: pull --ff-only + sync.ps1 solo se behindOrigin (T5a),
+// fetch mai quando allineato, errori sempre come { error } mai throw.
 import fs from 'fs';
 import path from 'path';
 import os from 'os';
@@ -118,10 +119,90 @@ s = statusMod.getStatus({ remote: true }, spyDeps);
 assert.strictEqual(s.behindOrigin, true, 'origin ferma a due commit mentre HEAD avanza: behindOrigin true');
 assert.strictEqual(s.head, thirdHead);
 
-// 8) sync() resta stub: niente pull, niente scritture, solo not-implemented
-const syncOut = await captured.handlers.sync({}, { signal: new AbortController().signal, error: (t, m) => ({ type: t, message: m }) });
-assert.deepStrictEqual(syncOut, { error: 'not-implemented' });
-assert.deepStrictEqual(await statusMod.runSync(), { error: 'not-implemented' });
+// 8) sync() reale (T5a): repo fake isolato, origin simulato via update-ref
+// (come al punto 7: solo file, zero rete). pull e script iniettati: il pull
+// replica `git pull --ff-only` (avanza solo in fast-forward, mai force),
+// lo script replica sync.ps1 (backup accanto + manifest riscritto).
+const cfg2 = path.join(root, 'cfg2');
+const repo2 = path.join(root, 'repo2');
+fs.mkdirSync(path.join(cfg2, 'mind'), { recursive: true });
+const git2 = (...args) => spawnSync('git', ['-C', repo2, ...args], { encoding: 'utf8' });
+spawnSync('git', ['init', repo2], { encoding: 'utf8' });
+git2('-c', 'user.email=t@t', '-c', 'user.name=t', 'commit', '--allow-empty', '-m', 'uno');
+const base2 = git2('rev-parse', 'HEAD').stdout.trim();
+git2('-c', 'user.email=t@t', '-c', 'user.name=t', 'commit', '--allow-empty', '-m', 'due');
+const tip2 = git2('rev-parse', 'HEAD').stdout.trim();
+git2('reset', '--hard', base2); // HEAD indietro: origin e' avanti
+git2('update-ref', 'refs/remotes/origin/main', tip2); // simula il fetch: origin avanti
+const writeManifest2 = (commit) => {
+  fs.writeFileSync(path.join(cfg2, 'mind', 'installed.json'), JSON.stringify({
+    version: 2, at: new Date().toISOString(), stamp: 'x', repo: repo2, commit, files: {}
+  }, null, 2));
+};
+writeManifest2(base2);
+
+const fetches2 = [];
+const pulls2 = [];
+const spyFetch2 = (r) => { fetches2.push(r); };
+const ffPull2 = (r) => {
+  pulls2.push(r);
+  const origin = spawnSync('git', ['-C', r, 'rev-parse', 'refs/remotes/origin/main'], { encoding: 'utf8' }).stdout.trim();
+  if (spawnSync('git', ['-C', r, 'merge-base', '--is-ancestor', 'HEAD', origin]).status !== 0) {
+    throw new Error('not-fast-forward');
+  }
+  const m = spawnSync('git', ['-C', r, 'merge', '--ff-only', origin], { encoding: 'utf8' });
+  if (m.status !== 0) throw new Error('merge --ff-only fallito');
+};
+// Replica sync.ps1: backup accanto al file sovrascritto + manifest riscritto
+// con commit = HEAD post-pull, at ISO e stamp del giro backup.
+const STAMP2 = '20261125-120000';
+const fakeScript2 = (r, c) => {
+  const head = spawnSync('git', ['-C', r, 'rev-parse', 'HEAD'], { encoding: 'utf8' }).stdout.trim();
+  const dummy = path.join(c, 'mind', 'dummy.txt');
+  if (!fs.existsSync(dummy)) fs.writeFileSync(dummy, 'vecchio\n');
+  fs.copyFileSync(dummy, `${dummy}.${STAMP2}.bak`);
+  fs.writeFileSync(dummy, 'nuovo\n');
+  fs.writeFileSync(path.join(c, 'mind', 'installed.json'), JSON.stringify({
+    version: 2, at: new Date().toISOString(), stamp: STAMP2, repo: r, commit: head, files: {}
+  }, null, 2));
+};
+const syncDeps2 = { configDir: cfg2, repo: repo2, runFetch: spyFetch2, runPull: ffPull2, runScript: fakeScript2 };
+
+// 8a) behindOrigin -> fetch una volta, pull avanza, script gira, backup esiste
+let out = await statusMod.runSync(syncDeps2);
+assert.strictEqual(out.commit, tip2, 'dopo il pull il commit deve essere la punta di origin');
+assert.ok(/^\d{4}-\d{2}-\d{2}$/.test(out.at), 'at e' + ' la data del manifest, non l\'ora: ' + out.at);
+assert.strictEqual(out.backup, STAMP2);
+assert.ok(fs.existsSync(path.join(cfg2, 'mind', `dummy.txt.${STAMP2}.bak`)),
+  'il backup del giro deve esistere accanto al file');
+assert.deepStrictEqual(fetches2, [repo2], 'il fetch avviene una volta sola, sul repo giusto');
+assert.deepStrictEqual(pulls2, [repo2], 'il pull avviene una volta sola, sul repo giusto');
+assert.strictEqual(git2('rev-parse', 'HEAD').stdout.trim(), tip2, 'HEAD deve essere avanzato dal pull');
+
+// 8b) repo gia' allineato -> commit invariato, NESSUN fetch e NESSUN pull
+out = await statusMod.runSync(syncDeps2);
+assert.strictEqual(out.commit, tip2, 'allineato: il commit resta la punta');
+assert.deepStrictEqual(fetches2, [repo2], 'NESSUN fetch quando gia\' allineato');
+assert.deepStrictEqual(pulls2, [repo2], 'NESSUN pull quando gia\' allineato');
+
+// 8c) pull fallito -> { error }, mai throw
+git2('reset', '--hard', base2); // torna dietro origin
+out = await statusMod.runSync({ ...syncDeps2, runPull: () => { throw new Error('rete giu'); } });
+assert.ok(out && typeof out.error === 'string', 'il pull fallito risponde { error }: ' + JSON.stringify(out));
+
+// 8d) script fallito -> { error }, mai throw (il pull era riuscito)
+out = await statusMod.runSync({ ...syncDeps2, runScript: () => { throw new Error('ps1 ko'); } });
+assert.ok(out && typeof out.error === 'string', 'lo script fallito risponde { error }: ' + JSON.stringify(out));
+assert.strictEqual(git2('rev-parse', 'HEAD').stdout.trim(), tip2, 'il pull precede lo script');
+
+// 8e) mai eccezioni verso RPC: senza manifest l'handler sync risponde { error }
+const cfg3 = path.join(root, 'cfg3');
+fs.mkdirSync(path.join(cfg3, 'mind'), { recursive: true });
+process.env.OPENCODE_CONFIG_DIR = cfg3;
+const noRepo = await captured.handlers.sync({}, { signal: new AbortController().signal, error: (t, m) => ({ type: t, message: m }) });
+assert.ok(noRepo && typeof noRepo.error === 'string', 'senza repo la sync risponde { error }: ' + JSON.stringify(noRepo));
+assert.deepStrictEqual(await statusMod.runSync({ configDir: cfg3, repo: null }), { error: 'no-repo' });
+process.env.OPENCODE_CONFIG_DIR = cfg;
 
 // 9) senza manifest: niente rete, niente invenzioni
 fs.rmSync(path.join(cfg, 'mind', 'installed.json'));
@@ -131,4 +212,4 @@ assert.strictEqual(s.installedOn, null);
 assert.strictEqual(s.head, null);
 assert.strictEqual(s.behindOrigin, false);
 
-console.log('TEST OK: shape status, installato-vs-HEAD, .new, nessun fetch senza remote:true, sync stub');
+console.log('TEST OK: shape status, installato-vs-HEAD, .new, nessun fetch senza remote:true, sync reale con backup, errori come { error }');

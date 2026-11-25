@@ -31,6 +31,23 @@ export interface SyncStatus {
   checkedAt: string;
 }
 
+export interface SyncDeps extends StatusDeps {
+  /** Pull fast-forward, iniettabile per i test (default: git pull --ff-only reale). */
+  runPull?: (repo: string) => unknown;
+  /** Esecuzione di sync.ps1, iniettabile per i test (default: powershell reale). */
+  runScript?: (repo: string, configDir: string) => unknown;
+}
+
+export interface SyncOk {
+  commit: string;
+  at: string;
+  backup: string;
+}
+
+export interface SyncError {
+  error: string;
+}
+
 // --- Lettura ref come file, senza processi (da plugins/mind-update.js) ---
 
 const gitDirOf = (repo: string): string | null => {
@@ -143,7 +160,7 @@ const defaultConfigDir = (): string => {
   return envDir ? path.resolve(envDir) : path.join(os.homedir(), '.config', 'opencode');
 };
 
-const readManifest = (configDir: string): { commit?: unknown; at?: unknown; repo?: unknown } | null => {
+const readManifest = (configDir: string): { commit?: unknown; at?: unknown; repo?: unknown; stamp?: unknown } | null => {
   try {
     const raw = fs.readFileSync(path.join(configDir, 'mind', 'installed.json'), 'utf8');
     const data = JSON.parse(raw) as unknown;
@@ -198,6 +215,87 @@ export const getStatus = (input: StatusInput, deps: StatusDeps = {}): SyncStatus
   };
 };
 
-/** Stub: lo implementa l'integrazione (T4). Esiste per fissare il contratto:
- * mai sync alla cieca, solo su conferma esplicita dalla dialog. */
-export const runSync = async (): Promise<{ error: string }> => ({ error: 'not-implemented' });
+/** Pull esplicito verso origin: solo fast-forward, mai force, mai merge.
+ *  Fallisce (mai Half-state) se la storia e' divergente: il chiamante riceve
+ *  `{ error: 'pull-failed' }` e niente viene sovrascritto a meta'. */
+const defaultPull = (repo: string): void => {
+  const res = spawnSync('git', ['pull', '--ff-only'], {
+    cwd: repo,
+    stdio: 'ignore',
+    windowsHide: true,
+    timeout: 60000,
+  });
+  if (res.error) throw res.error;
+  if (res.status !== 0) throw new Error('git pull --ff-only fallito');
+};
+
+/** Esegue sync.ps1 del repo con gli stessi parametri del sync manuale
+ *  (default: backup accanto ai file sovrascritti, KeepBackups 3).
+ *  Niente rete qui: il pull sopra e' l'unico punto che la tocca, e solo
+ *  quando il check locale ha visto origin avanti. Nessuna scrittura fuori
+ *  dal flusso di sync.ps1: ConfigRoot e' l'unica destinazione. */
+const defaultScript = (repo: string, configDir: string): void => {
+  const args = [
+    '-NoProfile', '-ExecutionPolicy', 'Bypass', '-File',
+    path.join(repo, 'sync.ps1'), '-ConfigRoot', configDir,
+  ];
+  let res = spawnSync('pwsh', args, { stdio: 'ignore', windowsHide: true, timeout: 120000 });
+  const spawnCode = (e: unknown): string | null =>
+    e && typeof e === 'object' && 'code' in e && typeof (e as { code: unknown }).code === 'string'
+      ? (e as { code: string }).code
+      : null;
+  if (res.error && spawnCode(res.error) === 'ENOENT') {
+    res = spawnSync('powershell', args, { stdio: 'ignore', windowsHide: true, timeout: 120000 });
+  }
+  if (res.error) throw res.error;
+  if (res.status !== 0) throw new Error('sync.ps1 fallito');
+};
+
+/** Sync reale (T5a): gira SOLO su chiamata esplicita dalla dialog (l'handler
+ *  RPC `sync` non ha altri chiamanti), mai all'avvio e mai in background.
+ *  Se il check locale vede origin avanti: fetch + `git pull --ff-only`;
+ *  altrimenti zero rete. Poi sync.ps1 del repo (con backup) e ritorno
+ *  `{ commit, at, backup }` letti dal manifest riscritto. Qualunque
+ *  fallimento diventa `{ error }`: mai throw verso RPC. */
+export const runSync = async (deps: SyncDeps = {}): Promise<SyncOk | SyncError> => {
+  try {
+    const cfg = deps.configDir ?? defaultConfigDir();
+    const manifest = readManifest(cfg);
+    const repo = deps.repo !== undefined ? deps.repo : (manifest && typeof manifest.repo === 'string' ? manifest.repo : null);
+    if (!repo) return { error: 'no-repo' };
+
+    // Check locale, zero rete: il fetch parte solo se il ref locale di
+    // origin e' gia' avanti (mai sync alla cieca sulla rete).
+    const local = getStatus({}, { configDir: cfg, repo });
+    if (local.behindOrigin) {
+      try {
+        (deps.runFetch ?? defaultFetch)(repo);
+      } catch {
+        // best-effort come in getStatus: decide il pull, che fallisce da
+        // solo se non puo' avanzare in fast-forward.
+      }
+      try {
+        (deps.runPull ?? defaultPull)(repo);
+      } catch {
+        return { error: 'pull-failed' };
+      }
+    }
+
+    try {
+      (deps.runScript ?? defaultScript)(repo, cfg);
+    } catch {
+      return { error: 'sync-failed' };
+    }
+
+    // sync.ps1 ha riscritto il manifest: commit/at del giro e stamp, che
+    // identifica il set di backup `<file>.<stamp>.bak` (cfr. -Restore).
+    const after = readManifest(cfg);
+    const commit = after && typeof after.commit === 'string' ? after.commit : null;
+    const stamp = after && typeof after.stamp === 'string' ? after.stamp : null;
+    const at = installedOn(after);
+    if (!commit || !stamp || !at) return { error: 'sync-failed' };
+    return { commit, at, backup: stamp };
+  } catch {
+    return { error: 'sync-failed' };
+  }
+};

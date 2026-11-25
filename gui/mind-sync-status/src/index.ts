@@ -12,7 +12,7 @@ export const plugin = Plugin.define({
     await ctx.rpc.register(syncStatusDefinition, {
       // Check locale (zero rete) di default; fetch solo con remote:true.
       status: async (input) => getStatus(input ?? {}),
-      // Stub T1: { error: 'not-implemented' } finche' T4 non lo implementa.
+      // sync() reale (T5a): pull --ff-only + sync.ps1, solo su conferma dalla dialog.
       sync: async () => runSync(),
     });
   },

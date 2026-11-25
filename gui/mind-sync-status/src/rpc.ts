@@ -56,7 +56,7 @@ const syncOutputSchema = {
     commit: { type: 'string' },
     at: { type: 'string' },
     backup: { type: 'string' },
-    // Stub di T1: finche' sync() non e' implementato (T4) risponde cosi'.
+    // sync() risponde { commit, at, backup } oppure { error } (mai throw).
     error: { type: 'string' },
   },
   additionalProperties: false,
