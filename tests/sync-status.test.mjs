@@ -2,6 +2,7 @@
 // Stile di version-notice.test.mjs: repo fake in tmp, niente rete.
 // Regole verificate: shape di status(), installato-vs-HEAD, proposte .new,
 // NESSUN fetch con remote:false, fetch solo con remote:true,
+// probe:true -> ls-remote leggero (niente fetch, niente oggetti) per githubAhead,
 // sync() reale: pull --ff-only + sync.ps1 solo se behindOrigin (T5a),
 // fetch mai quando allineato, errori sempre come { error } mai throw.
 import fs from 'fs';
@@ -79,7 +80,7 @@ const calls = [];
 const spyDeps = { ...deps, runFetch: (r) => { calls.push(r); } };
 let s = await captured.handlers.status({}, { signal: new AbortController().signal, error: (t, m) => ({ type: t, message: m }) });
 assert.deepStrictEqual(Object.keys(s).sort(),
-  ['behindOrigin', 'checkedAt', 'head', 'installed', 'installedOn', 'proposals']);
+  ['behindOrigin', 'checkedAt', 'githubAhead', 'head', 'installed', 'installedOn', 'proposals']);
 assert.strictEqual(s.installed, firstHead);
 assert.strictEqual(s.head, firstHead);
 assert.ok(/^\d{4}-\d{2}-\d{2}$/.test(s.installedOn), 'installedOn e' + " la data del manifest, non l'ora: " + s.installedOn);
@@ -212,4 +213,37 @@ assert.strictEqual(s.installedOn, null);
 assert.strictEqual(s.head, null);
 assert.strictEqual(s.behindOrigin, false);
 
-console.log('TEST OK: shape status, installato-vs-HEAD, .new, nessun fetch senza remote:true, sync reale con backup, errori come { error }');
+// 10) probe:true -> ls-remote leggero contro bare locale (zero rete vera):
+// githubAhead senza fetch (niente FETCH_HEAD) e senza toccare i ref locali.
+const bare = path.join(root, 'bare.git');
+spawnSync('git', ['init', '--bare', bare], { encoding: 'utf8' });
+const gitR = (...args) => spawnSync('git', ['-C', fakeRepo, ...args], { encoding: 'utf8' });
+gitR('remote', 'add', 'origin', bare);
+gitR('-c', 'user.email=t@t', '-c', 'user.name=t', 'push', 'origin', 'HEAD:refs/heads/main');
+let p = statusMod.getStatus({ probe: true }, spyDeps);
+assert.strictEqual(p.githubAhead, false, 'bare allineato a HEAD: githubAhead false');
+// un secondo clone fa avanzare bare/main: GitHub avanti, ref locali fermi
+const clone2 = path.join(root, 'clone2');
+spawnSync('git', ['clone', bare, clone2], { encoding: 'utf8' });
+const gitC = (...args) => spawnSync('git', ['-C', clone2, ...args], { encoding: 'utf8' });
+// il bare nasce con HEAD non nato: il clone va basato su origin/main,
+// altrimenti il commit crea una radice scollegata e il push viene rifiutato
+assert.strictEqual(gitC('checkout', '-b', 'main', 'origin/main').status, 0);
+gitC('-c', 'user.email=t@t', '-c', 'user.name=t', 'commit', '--allow-empty', '-m', 'avanti');
+assert.strictEqual(
+  gitC('-c', 'user.email=t@t', '-c', 'user.name=t', 'push', 'origin', 'HEAD:refs/heads/main').status,
+  0, 'il push del clone deve avanzare bare/main');
+const probes = [];
+const spyProbe = { ...spyDeps, runLsRemote: (r) => { probes.push(r); return 'f'.repeat(40); } };
+p = statusMod.getStatus({ probe: true }, spyProbe);
+assert.strictEqual(p.githubAhead, true, 'sha remota diversa da HEAD: githubAhead true');
+assert.deepStrictEqual(probes, [fakeRepo], 'la probe chiama ls-remote una volta sola, sul repo giusto');
+assert.ok(!fs.existsSync(path.join(fakeRepo, '.git', 'FETCH_HEAD')), 'la probe non deve fare fetch');
+// probe reale contro bare avanzato: niente fetch, niente oggetti scaricati
+p = statusMod.getStatus({ probe: true }, spyDeps);
+assert.strictEqual(p.githubAhead, true, 'bare avanti su main: githubAhead true senza fetch');
+// probe:false non tocca mai la rete leggera
+statusMod.getStatus({}, spyProbe);
+assert.deepStrictEqual(probes, [fakeRepo], 'senza probe: nessun ls-remote');
+
+console.log('TEST OK: shape status, installato-vs-HEAD, .new, nessun fetch senza remote:true, probe ls-remote per githubAhead, sync reale con backup, errori come { error }');

@@ -19,6 +19,7 @@ export interface SyncSnapshot {
   head: string | null
   proposals: string[]
   behindOrigin: boolean
+  githubAhead: boolean
   checkedAt: string
 }
 
@@ -46,6 +47,7 @@ export function narrowSnapshot(raw: unknown): SyncSnapshot {
     head: typeof o.head === "string" ? o.head : null,
     proposals,
     behindOrigin: o.behindOrigin === true,
+    githubAhead: o.githubAhead === true,
     checkedAt: typeof o.checkedAt === "string" ? o.checkedAt : "",
   }
 }
@@ -66,6 +68,7 @@ export function narrowResult(raw: unknown): SyncResult {
 export function needsUpdate(s: SyncSnapshot): boolean {
   if (s.installed === null || s.installed !== s.head) return true
   if (s.proposals.length > 0) return true
+  if (s.githubAhead) return true
   return s.behindOrigin
 }
 
@@ -265,7 +268,11 @@ export default Plugin.define({
             </Row>
             <Row label="GitHub">
               <Show when={current !== null} fallback={failure ?? "non verificato"}>
-                {current?.behindOrigin === true ? "dietro origin" : "allineato"}
+                {current?.behindOrigin === true
+                  ? "dietro origin"
+                  : current?.githubAhead === true
+                    ? "GitHub avanti (sonda)"
+                    : "allineato"}
               </Show>
             </Row>
           </div>
@@ -290,5 +297,23 @@ export default Plugin.define({
 
     // Check locale all'apertura finestra: zero rete (stesso costo dell'avviso odierno).
     void refresh(false)
+
+    // Timer silenziosi (mai busy, mai dialog): re-check locale ogni 5 min
+    // (nuovi commit dopo l'apertura) + sonda GitHub ogni 15 min
+    // (ls-remote, niente fetch — approvata dall'utente). Cleanup al dispose.
+    const quiet = async (probe: boolean) => {
+      try {
+        const raw = await ctx.client.rpc(MindSyncStatus).status(probe ? { probe: true } : {})
+        setSnap(narrowSnapshot(raw))
+      } catch {
+        // resta l'ultimo stato noto, mai un errore a video da solo
+      }
+    }
+    const localTimer = setInterval(() => void quiet(false), 5 * 60 * 1000)
+    const probeTimer = setInterval(() => void quiet(true), 15 * 60 * 1000)
+    return () => {
+      clearInterval(localTimer)
+      clearInterval(probeTimer)
+    }
   },
 })

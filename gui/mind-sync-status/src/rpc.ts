@@ -3,6 +3,7 @@
 // (server, GUI, test). Le JSON Schema restano portabili per rpc.register.
 export interface StatusInput {
   remote?: boolean;
+  probe?: boolean;
 }
 
 export interface SyncStatus {
@@ -11,6 +12,7 @@ export interface SyncStatus {
   head: string | null;
   proposals: string[];
   behindOrigin: boolean;
+  githubAhead: boolean;
   checkedAt: string;
 }
 
@@ -26,7 +28,7 @@ export interface SyncNotImplemented {
 
 const statusInputSchema = {
   type: 'object',
-  properties: { remote: { type: 'boolean' } },
+  properties: { remote: { type: 'boolean' }, probe: { type: 'boolean' } },
   additionalProperties: false,
 } as const;
 
@@ -38,9 +40,10 @@ const statusOutputSchema = {
     head: { type: ['string', 'null'] },
     proposals: { type: 'array', items: { type: 'string' } },
     behindOrigin: { type: 'boolean' },
+    githubAhead: { type: 'boolean' },
     checkedAt: { type: 'string' },
   },
-  required: ['installed', 'installedOn', 'head', 'proposals', 'behindOrigin', 'checkedAt'],
+  required: ['installed', 'installedOn', 'head', 'proposals', 'behindOrigin', 'githubAhead', 'checkedAt'],
   additionalProperties: false,
 } as const;
 

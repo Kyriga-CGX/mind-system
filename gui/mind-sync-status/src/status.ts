@@ -3,7 +3,9 @@
 // Zero rete per default: origin si legge dal ref locale, aggiornato solo da
 // un pull/fetch esplicito dell'utente (rifiuto 2026-11-01 in barra: la scelta
 // e' dell'utente). La rete si tocca solo con { remote: true } (click sulla
-// pill nella GUI), mai all'avvio e mai in background.
+// pill nella GUI: fetch pieno) o { probe: true } (timer GUI ogni 15 min,
+// approvato dall'utente: solo `git ls-remote`, niente fetch/oggetti), mai
+// all'avvio.
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
@@ -11,6 +13,8 @@ import { spawnSync } from 'node:child_process';
 
 export interface StatusInput {
   remote?: boolean;
+  /** Sonda leggera: `git ls-remote` (niente fetch, niente oggetti), mai fetch. */
+  probe?: boolean;
 }
 
 export interface StatusDeps {
@@ -20,6 +24,8 @@ export interface StatusDeps {
   repo?: string | null;
   /** Fetch verso origin, iniettabile per i test (default: git fetch reale). */
   runFetch?: (repo: string) => unknown;
+  /** Ls-remote verso origin, iniettabile per i test (default: git ls-remote reale). */
+  runLsRemote?: (repo: string) => string | null;
 }
 
 export interface SyncStatus {
@@ -28,6 +34,8 @@ export interface SyncStatus {
   head: string | null;
   proposals: string[];
   behindOrigin: boolean;
+  /** GitHub avanti rispetto a HEAD (solo con probe:true, senza fetch). */
+  githubAhead: boolean;
   checkedAt: string;
 }
 
@@ -185,6 +193,27 @@ const defaultFetch = (repo: string): void => {
   }
 };
 
+/** Sonda leggera verso origin: `git ls-remote` (solo annunci dei ref,
+ *  niente oggetti, niente aggiornamento dei ref locali). Best-effort come
+ *  il fetch: un fallimento vale "non so", mai un blocco. */
+const defaultLsRemote = (repo: string): string | null => {
+  for (const branch of ['main', 'master']) {
+    try {
+      const res = spawnSync('git', ['ls-remote', 'origin', branch], {
+        cwd: repo,
+        encoding: 'utf8',
+        windowsHide: true,
+        timeout: 15000,
+      });
+      const line = (res.stdout || '').split('\n').find((l) => /^[0-9a-f]{40}\t/.test(l));
+      if (line) return line.slice(0, 40);
+    } catch {
+      // si prova il branch successivo, poi null
+    }
+  }
+  return null;
+};
+
 /** Stato di allineamento repo <-> installato. Senza `remote` non tocca
  * la rete: confronto locale manifest-vs-HEAD + scan .new. */
 export const getStatus = (input: StatusInput, deps: StatusDeps = {}): SyncStatus => {
@@ -204,6 +233,19 @@ export const getStatus = (input: StatusInput, deps: StatusDeps = {}): SyncStatus
     }
   }
 
+  // La sonda leggera (ls-remote, niente fetch/oggetti) scatta solo con
+  // probe:true (timer GUI ogni 15 min, approvato dall'utente): dice se
+  // GitHub e' avanti senza scaricare niente e senza muovere i ref locali.
+  let githubAhead = false;
+  if (input.probe && repo) {
+    try {
+      const sha = (deps.runLsRemote ?? defaultLsRemote)(repo);
+      githubAhead = Boolean(sha && head && sha !== head.sha);
+    } catch {
+      // vedi defaultLsRemote: mai bloccare lo status
+    }
+  }
+
   const origin = repo ? originHead(repo) : null;
   return {
     installed,
@@ -211,6 +253,7 @@ export const getStatus = (input: StatusInput, deps: StatusDeps = {}): SyncStatus
     head: head ? head.sha : null,
     proposals: pendingProposals(cfg),
     behindOrigin: Boolean(head && origin && origin.sha !== head.sha),
+    githubAhead,
     checkedAt: new Date().toISOString(),
   };
 };
