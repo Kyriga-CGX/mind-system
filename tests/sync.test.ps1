@@ -156,6 +156,9 @@ try {
     # --- 8) nessun crash con sorgente mancante (root repo diversa) ---
     & $sync -ConfigRoot $cfg -AgentsSkillsRoot $agents -WhatIf | Out-Null
     Check $true '-WhatIf non scrive e non fallisce'
+
+    # --- 9) node_modules mai distribuiti (il bundle e' prebuildato) ---
+    Check (-not (Test-Path (Join-Path $cfg 'plugins\mind-sync-status\node_modules'))) 'node_modules esclusi dalla distribuzione'
 }
 catch {
     $fail++

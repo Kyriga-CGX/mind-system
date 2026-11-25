@@ -85,7 +85,11 @@ export function fmtErr(err: unknown): string {
   if (err instanceof SyncPending) return "non ancora implementato"
   if (typeof err === "object" && err !== null && "message" in err) {
     const m = (err as { message?: unknown }).message
-    if (typeof m === "string" && m.length > 0) return m
+    // Nome del costruttore incluso: dice SE l'errore viene dal transport RPC,
+    // dall'handler o dal sistema (fondamentale per il debug dal toast).
+    const name = (err as { name?: unknown }).name
+    const prefix = typeof name === "string" && name.length > 0 && name !== "Error" ? name + ": " : ""
+    if (typeof m === "string" && m.length > 0) return prefix + m
   }
   return String(err)
 }
