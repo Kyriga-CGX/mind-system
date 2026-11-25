@@ -20,7 +20,7 @@ Un gioco non e' un tema, un genere o una lista di feature. E' **un verbo che il 
 
 | # | Legge | Conseguenza operativa |
 |---|-------|----------------------|
-| 1 | **Il genere e' un output, non un input.** | Nessun concept parte da "facciamo un platformer/roguelike". Parte da verbo + vincolo. |
+| 1 | **Il core loop comanda sullo scope.** | Se il progetto parte da un verbo inedito, il genere e' un output (F1-Hook). Se parte da un riferimento sistemico/combat (es. Action-RPG), si fissa subito il **triangolo tattico** (F1-Combat) senza reinventare le basi. |
 | 2 | **Niente arte prima che il verbo regga.** | Stage di prova in grigio: primitivi, una scena, nessun asset. |
 | 3 | **La divertibilita' e' un'ipotesi falsificabile.** | Clip registrata + comportamento osservato + una domanda binaria. Mai un voto. |
 | 4 | **I numeri stanno nei dati.** | Ogni costante ha valore, range, unita' e motivo in un file di tuning. Zero numeri magici nel codice. |
@@ -57,12 +57,16 @@ Un gioco non e' un tema, un genere o una lista di feature. E' **un verbo che il 
 
 Senza un divieto il modello produce la mediana del training set. Il divieto e' il generatore.
 
-### F1 — Tre verbi, una scelta
+### F1 — Core Loop: Carte-Verbo (Hook) o Triangolo Tattico (Combat-First)
 
-- [ ] Genera 3 carte-verbo con il mazzo di vincoli (→ `references/verbo-e-inventiva.md`).
-- [ ] Ogni carta: `input → verbo → risposta del mondo → tensione → cosa la rende non-mediana`.
-- [ ] Applica i test di morte: skin, mediana, swap, seconda sessione.
-- [ ] Sceglie l'utente. Una sola carta sopravvive; le altre due restano con il motivo di esclusione.
+- [ ] **Modalita' Hook (concept inediti):** Genera 3 carte-verbo con un input dominante e un vincolo (→ `references/verbo-e-inventiva.md`).
+- [ ] **Modalita' Combat-First (Action-RPG / Souls-like / Brawler):** Niente gimmick o minigiochi. Definisci il **Triangolo Tattico** (es. *Leggere → Sbilanciare → Punire*) e produce direttamente la **Combat Spec** pre-motore:
+  - **Action Economy:** Stamina, risorse (Focus/Mana), costo dell'avidita' (animazioni non cancellabili).
+  - **Frame Data & Feel:** Startup, Active, Recovery (in ms/frame), Hitstop, Input Buffer (ms), finestre di invulnerabilita' (i-frames).
+  - **Reazione Nemica:** Barra Postura (Poise/Stagger), *tell* visivi leggibili prima del colpo, finestre di punizione.
+- [ ] Ogni carta Hook: `input → verbo → risposta del mondo → tensione → cosa la rende non-mediana`.
+- [ ] Applica i test di morte alle Hook: skin, mediana, swap, seconda sessione.
+- [ ] Sceglie l'utente. Una sola opzione sopravvive; le scartate restano con il motivo di esclusione.
 
 Template della carta:
 
@@ -86,7 +90,7 @@ Test di morte:    skin <passa/fallisce> | mediana <passa/fallisce> | swap <passa
 - [ ] Registra una clip di 30-60 secondi come evidenza.
 - [ ] Playtest a freddo con 3-5 persone (→ `references/playtest.md`).
 
-Gate: **almeno 3 su 5 rifanno l'azione senza che venga chiesto**, oppure una sola ipotesi di correzione dichiarata e una nuova prova. Massimo 3 prove.
+Gate: **almeno 3 su 5 rifanno l'azione senza che venga chiesto**, oppure una sola ipotesi di correzione dichiarata e una nuova prova. Massimo 3 prove. In modalita' Solo/Dev (Combat-First) vale la verifica tecnica + clip contro 2 archetipi; i tester esterni restano obbligatori alla slice.
 
 ### F3 — Loop e numeri
 
@@ -143,7 +147,7 @@ Dettaglio, esempi PASS/FAIL e tells AI in `references/anti-slop-giochi.md`.
 
 | # | Check | FAIL se |
 |---|-------|---------|
-| 1 | Verbo prima del genere | Il pitch e' "un <genere> con <tema>" |
+| 1 | Verbo prima del genere | Il pitch e' "un <genere> con <tema>" senza triangolo tattico ne' carta-verbo |
 | 2 | Look non di default | Primitivi, skybox, font o luci del motore in una build consegnata |
 | 3 | Juice con causa | Shake/particelle/suono su ogni evento, senza gerarchia |
 | 4 | Loop prima del contenuto | Livelli o asset prodotti prima della prova di feel |
@@ -175,7 +179,7 @@ Rischio aperto: <l'ipotesi piu' fragile>
 
 | Anti-pattern | Correzione |
 |---|---|
-| "Facciamo un platformer" | F1: verbo + vincolo, il genere arriva dopo |
+| "Facciamo un platformer" senza spec | F1-Hook: verbo + vincolo, il genere arriva dopo; F1-Combat: triangolo tattico + Combat Spec dal riferimento |
 | Progettare il mondo prima del verbo | F2 in grigio, una scena |
 | Chiamare "juice" l'effetto decorativo | La risposta deve nascere dal verbo, non aggiunta dopo |
 | Bilanciare a sensazione | File dati + range + metrica target |
@@ -203,4 +207,4 @@ Rischio aperto: <l'ipotesi piu' fragile>
 
 ## Gate
 
-Nessun concept e' "pronto" senza: (1) una carta-verbo con vincolo, (2) una prova di feel registrata, (3) un contratto di una pagina con numeri e divieti. Se manca uno dei tre, la fase non e' chiusa.
+Nessun concept e' "pronto" senza: (1) una carta-verbo con vincolo (Hook) oppure triangolo tattico + Combat Spec (Combat-First), (2) una prova di feel registrata, (3) un contratto di una pagina con numeri e divieti. Se manca uno dei tre, la fase non e' chiusa.
