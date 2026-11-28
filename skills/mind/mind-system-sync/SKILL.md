@@ -18,6 +18,7 @@ Il sistema mind è un artefatto con un ciclo di vita: esistono fonti esterne (re
 | 5 | REGISTRAZIONE OBBLIGATORIA: nessun pezzo integrato senza voce in `using-mind/SKILL.md` + `using-mind/routing.md`. Una skill non instradata è nata morta. |
 | 6 | DOCS NELLO STESSO GIRO: README, conteggi skill/pipeline e diagrammi si aggiornano nella stessa sessione del sync, non "dopo". |
 | 7 | UNA FONTE ALLA VOLTA: un upstream per ciclo (un repo, una cartella, un artefatto), con verifica prima di passare al successivo. |
+| 8 | OGNI MODIFICA AL SISTEMA SI ANNUNCIA: file announce + patchnote (formato autore), tag announce/<flusso>/V<versione>, push tag, --dry-run, --post, JSON in done/. Senza announce il ciclo e aperto. |
 
 ## Quando si attiva
 
@@ -73,9 +74,17 @@ Il sistema mind è un artefatto con un ciclo di vita: esistono fonti esterne (re
 - [ ] Commit/push del nuovo pezzo → `mind-git`.
 - [ ] Salva la lezione in `mind-memory`.
 
+### FASE 7 - RILASCIO CON ANNUNCIO (modifiche al sistema)
+- [ ] Lavora SOLO nel repo source (mind-system/skills/mind/): mai nella copia installata (persa al sync).
+- [ ] Branch feature + PR: main e protetto, niente push diretto. Merge via PR dopo i check.
+- [ ] Announce: announces/<flusso>-<versione>.md + announces/<flusso>-<versione>.patchnote.md in formato autore (@orchestrazione iniziale, sezioni In breve/Cosa cambia/Come provarlo, footer Per segnalazioni: con nemvy.cloud-gx.net/support). I file restano locali (announces/ e git-ignorato).
+- [ ] Tag announce/<flusso>/V<versione> (flusso [a-z0-9-]+, versione X.Y.Z[-suffisso]) e push del tag: hook pre-push valida e accoda il JSON in pending/.
+- [ ] Dry-run dello script announce, poi --post (solo con ok esplicito), poi sposta il JSON da pending/ a done/.
+- [ ] Verifica: PR merged, tag remoto presente, coda pending/ vuota.
+
 ## Gate
 
-Nessun sync è completo senza: (1) preflight con backup + dry-run diff, (2) vendoring dei contenuti esterni, (3) registrazione nel routing, (4) README/conteggi/diagrammi aggiornati, (5) verifica post-sync a divergenze zero. Se manca uno di questi, il ciclo è **aperto**, non chiuso.
+Nessun sync è completo senza: (1) preflight con backup + dry-run diff, (2) vendoring dei contenuti esterni, (3) registrazione nel routing, (4) README/conteggi/diagrammi aggiornati, (5) verifica post-sync a divergenze zero. Se manca uno di questi, il ciclo è **aperto**, non chiuso. Per modifiche al sistema: (6) announce postato e coda pending/ vuota.
 
 ## Anti-pattern
 
@@ -87,6 +96,8 @@ Nessun sync è completo senza: (1) preflight con backup + dry-run diff, (2) vend
 | Creare una seconda skill quasi identica a una esistente | Anti-duplicazione → `mind-eval` |
 | Copiare `opencode.jsonc` dal repo | Riconciliazione manuale (Legge 3) |
 | Tracciare il sync solo a voce | Stato su file: `.mind/sync/<data>-<fonte>.md` |
+| Modificare la copia installata invece del repo source | Lavora in mind-system/skills/mind/, la copia installata e derivata |
+| Modifica al sistema senza announce | FASE 7: file + tag + post + done, altrimenti ciclo aperto |
 
 ## Red flags
 
@@ -107,6 +118,7 @@ Nessun sync è completo senza: (1) preflight con backup + dry-run diff, (2) vend
 | → mind-release | Changelog/release del sistema |
 | → mind-git | Commit/push del nuovo pezzo |
 | → mind-memory | Salvare le lezioni del sync (fonte, data, decisione) |
+| → announce (tag + script discord-announce.mjs) | Ogni modifica al sistema si annuncia: file autore + tag + --dry-run/--post + done/ |
 
 ## NB
 

@@ -162,6 +162,7 @@ SE VUOTA/CORROTTA: procedi con default + segnala, mai bloccare.
 - **Mesh e asset 3D**: CC0 prima (`mind-game-design/tools/polyhaven/ph.mjs`), poi script parametrici (`tools/blender/gen_*.py`), poi image→3D locale (`trellis.cpp`, Vulkan, `D:\trellis-studio`) **solo per oggetti unici non descrivibili a parole** → `mind-game-design/references/generative-3d.md`. Ogni asset generato passa da `qa_check.py` e scrive la riga di provenienza.
 - **Gioco vs web/app**: un videogioco end-to-end (verbo → feel → slice → build) → `mind-game-pipeline` (stato in `.mind/games/<slug>/`); intervento su concept/feel/loop/direzione/playtest → `mind-game-design`; UI web/app → `mind-pipeline`/`mind-mobile-pipeline`; asset raster o segno → `mind-image`/`mind-mark`; bug di codice → `mind-debugging`. La pipeline è engine-agnostic: il motore è un adapter registrato (Unity o Godot).
 - **Barra (`barra.md`)**: lettura garantita dal plugin a ogni richiesta (`MIND_BARRA`), scrittura a carico della rotta. Criteri di "fatto bene" + rifiuti d'approccio. Senza barra un rifiuto non lascia traccia e la sessione successiva riparte dall'assunzione sbagliata.
+- **Modifica orchestrazione** (skill/routing del sistema): SOLO repo source mind-system (mai copia installata), branch+PR (main protetto), announce obbligatorio (file+patchnote+tag+post+done) → mind-system-sync FASE 7 → GATE=verification.
 
 ## Re-routing mid-sessione (enforcement 2026-10-16)
 
