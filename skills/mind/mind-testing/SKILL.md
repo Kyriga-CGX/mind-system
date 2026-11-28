@@ -46,11 +46,11 @@ Cosa NON testare:
 - **Arrangiamento chiaro:** `Arrange` → `Act` → `Assert` nettamente separati, anche con commenti se serve.
 - **Casi edge obbligatori da considerare:** vuoto, null/undefined, limite (min/max), errore/eccezione, duplicati, concorrenza/ordine.
 
-### FASE 3 — TDD (SOLO se richiesto dal task)
+### FASE 3 — METODO (tdd default | bdd | atdd | after, SOLO se richiesto dal task)
 
 | Step | Azione | Verifica |
 |---|---|---|
-| 1 | Scrivi il test ROSSO per il comportamento richiesto | Il test fallisce |
+| 1 | Scrivi il test ROSSO (tdd/bdd/atdd) o il criterio di accettazione in Given/When/Then (bdd) | Il test fallisce |
 | 2 | Verifica che fallisca PER IL MOTIVO GIUSTO (non per errore di setup) | Il messaggio di errore descrive il comportamento mancante |
 | 3 | Implementa il MINIMO per far passare il test | — |
 | 4 | Test VERDE | Il test passa |
