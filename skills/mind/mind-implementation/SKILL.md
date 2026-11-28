@@ -1,11 +1,11 @@
 ---
 name: mind-implementation
-description: Da usare per implementare qualsiasi feature, bugfix o piano. Combina test-driven development con dispatch di PIÙ subagent in parallelo (uno per unità di lavoro indipendente). Si attiva quando il design è approvato e il piano è pronto.
+description: Da usare per implementare qualsiasi feature, bugfix o piano. Combina sviluppo guidato dai test (metodo selezionabile: tdd default | bdd | atdd | after) con dispatch di PIÙ subagent in parallelo (uno per unità di lavoro indipendente). Si attiva quando il design è approvato e il piano è pronto.
 ---
 
 # Implementazione mind
 
-Implementa il piano con TDD e subagent in parallelo: scomponi in unità indipendenti, dispatcane una per subagent, verifica l'integrazione.
+Implementa il piano con metodo selezionabile (default tdd) e subagent in parallelo: scomponi in unità indipendenti, dispatcane una per subagent, verifica l'integrazione.
 
 ## Pre-requisiti
 
@@ -27,12 +27,12 @@ Durante il lavoro, se noti un problema o un'opportunità NON previsti nel piano:
 - **Più subagent, non uno** (in modalità parallela): dispatch N subagent in parallelo, uno per unità di lavoro indipendente. Mai un singolo subagent per tutto il lavoro in parallelo; in modalità sequenziale un task alla volta nella sessione corrente
 - **Contesto isolato**: ogni subagent parte fresco, con SOLO il contesto del proprio task (brief file, non cronologia della chat) + il path assoluto di `~/.config/opencode/mind/barra.md` e `.mind/barra.md`. Il plugin la inietta anche nelle sessioni dei subagent; il path serve perché nei worktree la barra di progetto può mancare (`.mind/` spesso git-ignorato) e il brief deve puntare al checkout principale, non al worktree.
 - **Ledger**: file di stato che sopravvive alla compressione della memoria — registra ogni task, il suo stato, i risultati dei review
-- **TDD**: test fallito PRIMA, poi implementazione, poi test verde
+- **Metodo (default tdd)**: scelto allhandoff di mind-planning (tool question, una sola), registrato nel ledger. tdd=test fallito PRIMA poi codice; bdd=scenario Given/When/Then -> test rosso -> codice; atdd=test di accettazione dal piano -> rosso -> codice; after=codice -> test di regressione subito dopo
 - **Nessun DONE senza aver guardato**: `mind-verification/reference/visual-gate.md`: ogni modifica FE lascia le prove in `.mind/visual/<feature>/`; senza evidenza letta non si dichiara `DONE`. Il subagent produce e LEGGE ritaglio + viewport e scrive una riga `atteso -> visto` per requisito del brief. La classificazione non è discrezionale: la decide il diff (`git diff --name-only`). Un refactor che non deve cambiare resa produce la prova "identico a prima" (coppia prima/dopo o baseline)
 
 ## Setup
 
-0. **Modalità di esecuzione** (scelta al gate di handoff di `mind-planning`): parallela (default, un subagent per unità indipendente) o sequenziale ("agente singolo": esegui i task uno alla volta nella sessione corrente, stesso ledger, stessi gate di verifica).
+0. **Modalità di esecuzione** (scelta al gate di handoff di `mind-planning`): parallela (default, un subagent per unità indipendente) o sequenziale ("agente singolo": esegui i task uno alla volta nella sessione corrente, stesso ledger, stessi gate di verifica). Metodo: una domanda question allhandoff (tdd default | bdd | atdd | after), scritto nel ledger; i brief dei subagent riportano il metodo.
 1. Crea il ledger: `.mind/sdd/<plan-basename>/ledger.md`
 2. Determina le unità di lavoro indipendenti dal piano
 3. Identifica i conflitti tra unità (stessi file, stesse interfacce) — le unità in conflitto NON vanno in parallelo: esegui prima il loro upstream o raggruppale
@@ -86,7 +86,7 @@ Scegli il modello per ogni dispatch:
 - Escalation fix-loop: un tier sopra il modello attuale
 - Specifica SEMPRE il modello esplicitamente nel dispatch
 
-## Regola di ferro TDD
+## Regola di ferro (per metodo)
 
 Per ogni step di implementazione, nell'ordine:
 1. Scrivi il test che fallisce (o usa il test dal piano)

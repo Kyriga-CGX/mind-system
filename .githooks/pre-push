@@ -1,0 +1,210 @@
+#!/usr/bin/env node
+// scripts/git-hook-pre-push.mjs
+// Pre-push hook: validates refs/tags/announce/<flusso>/<versione> with ZERO
+// network and queues a JSON request for the announce flow.
+// - Reacts only to refs/tags/announce/<flusso>/<versione>.
+// - flusso: [a-z0-9-]+ ; versione: X.Y.Z[-suffix], leading v/V tolerated.
+// - Local-only validation: a CHANGELOG.md section for the version OR an
+//   announces/<flusso>-<versione>.md file, plus webhook KEY NAMES in .env.
+// - Never reads or prints secret values (only key names).
+// - Valid + new -> writes {tag,flusso,versione,data,repo} to the queue dir.
+// - Already queued (pending/ or done/) -> exit 0 silently.
+// - Invalid -> exit 1 with reason on stderr.
+// - Non-announce refs -> exit 0, queue untouched.
+import fs from 'node:fs';
+import path from 'node:path';
+import { execFileSync } from 'node:child_process';
+import { pathToFileURL } from 'node:url';
+
+export const VERSION_RE = /^\d+\.\d+\.\d+(-[0-9A-Za-z.-]+)?$/;
+export const FLUSSO_RE = /^[a-z0-9-]+$/;
+export const ANNOUNCE_PREFIX = 'refs/tags/announce/';
+export const ZERO_SHA = '0000000000000000000000000000000000000000';
+export const WEBHOOK_KEYS = ['DISCORD_WEBHOOK_ANNOUNCE', 'DISCORD_WEBHOOK_PATCHNOTES'];
+export const DEFAULT_QUEUE_DIR = 'C:/Users/Kyrig/.config/opencode/mind/discord-pending/';
+
+export function queueDir() {
+  return process.env.DISCORD_QUEUE_DIR || DEFAULT_QUEUE_DIR;
+}
+
+export function normalizeVersion(raw) {
+  if (typeof raw !== 'string') return null;
+  const v = raw.trim().replace(/^[vV]/, '');
+  return VERSION_RE.test(v) ? v : null;
+}
+
+// Parses one announce ref. Returns {tag,flusso,versione} or null when the ref
+// is not an announce tag at all. Throws on announce-shaped refs with invalid
+// flusso/versione so the caller blocks the push.
+export function parseAnnounceRef(ref) {
+  const r = String(ref || '').trim();
+  if (!r.startsWith(ANNOUNCE_PREFIX)) return null;
+  const rest = r.slice(ANNOUNCE_PREFIX.length);
+  const parts = rest.split('/');
+  if (parts.length !== 2 || !parts[0] || !parts[1]) return null;
+  const flusso = parts[0];
+  const rawVersion = parts[1];
+  const versione = normalizeVersion(rawVersion);
+  if (!FLUSSO_RE.test(flusso) || !versione) {
+    throw new Error(
+      'tag announce malformato: ' + r +
+      ' (atteso announce/<flusso>/<versione>, flusso [a-z0-9-]+, versione X.Y.Z[-suffisso], v tollerata)'
+    );
+  }
+  return { tag: 'announce/' + flusso + '/' + rawVersion.trim(), flusso, versione };
+}
+
+export function parsePrePushLines(text) {
+  const rows = [];
+  for (const line of String(text || '').split(/\r?\n/)) {
+    const t = line.trim();
+    if (!t) continue;
+    const parts = t.split(/\s+/);
+    if (parts.length < 4) continue;
+    rows.push({ localSHA: parts[0], remoteSHA: parts[1], localRef: parts[2], remoteRef: parts[3] });
+  }
+  return rows;
+}
+
+// Selects pushed (non-deleted) announce tag rows. Malformed announce refs
+// throw (push must be blocked); anything else is ignored.
+export function selectAnnounceRows(rows) {
+  const out = [];
+  for (const row of rows) {
+    if (row.localSHA === ZERO_SHA) continue; // deletion: never queues
+    const parsed = parseAnnounceRef(row.localRef);
+    if (parsed) out.push({ ...row, ...parsed });
+  }
+  return out;
+}
+
+export function repoRoot(cwd) {
+  const out = execFileSync('git', ['rev-parse', '--show-toplevel'], {
+    cwd: cwd || process.cwd(),
+    encoding: 'utf8',
+    stdio: ['ignore', 'pipe', 'pipe'],
+  });
+  return out.trim();
+}
+function escapeRegExp(s) {
+  return s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
+export function hasChangelogSection(root, versione) {
+  const p = path.join(root, 'CHANGELOG.md');
+  let text;
+  try {
+    text = fs.readFileSync(p, 'utf8');
+  } catch {
+    return false;
+  }
+  const re = new RegExp('^##\\s+\\[?v?' + escapeRegExp(versione) + '\\]?\\b', 'm');
+  return re.test(text);
+}
+
+export function hasAnnounceFile(root, flusso, versione) {
+  return fs.existsSync(path.join(root, 'announces', flusso + '-' + versione + '.md'));
+}
+
+// Checks only key NAMES in .env (never values). Returns missing key names.
+export function missingEnvKeys(root) {
+  const p = path.join(root, '.env');
+  let text;
+  try {
+    text = fs.readFileSync(p, 'utf8');
+  } catch {
+    return [...WEBHOOK_KEYS];
+  }
+  const missing = [];
+  for (const key of WEBHOOK_KEYS) {
+    const re = new RegExp('^\\s*(?:export\\s+)?' + key + '\\s*=', 'm');
+    if (!re.test(text)) missing.push(key);
+  }
+  return missing;
+}
+
+export function queueFileName(flusso, versione) {
+  return flusso + '-' + versione + '.json';
+}
+
+export function alreadyQueued(dir, fileName) {
+  return fs.existsSync(path.join(dir, fileName)) || fs.existsSync(path.join(dir, 'done', fileName));
+}
+
+export function enqueue(dir, payload, fileName) {
+  fs.mkdirSync(dir, { recursive: true });
+  fs.mkdirSync(path.join(dir, 'done'), { recursive: true });
+  if (alreadyQueued(dir, fileName)) return false;
+  fs.writeFileSync(path.join(dir, fileName), JSON.stringify(payload, null, 2) + '\n', 'utf8');
+  return true;
+}
+
+export function validateAnnounce(root, item) {
+  const { tag, flusso, versione } = item;
+  if (!hasChangelogSection(root, versione) && !hasAnnounceFile(root, flusso, versione)) {
+    return (
+      'tag ' + tag + ' senza prova locale: manca la sezione [' + versione + '] in CHANGELOG.md' +
+      ' e manca announces/' + flusso + '-' + versione + '.md'
+    );
+  }
+  const missing = missingEnvKeys(root);
+  if (missing.length > 0) {
+    return 'tag ' + tag + ': .env senza chiavi webhook: ' + missing.join(', ') + ' (solo nomi, mai valori)';
+  }
+  return null;
+}
+
+function readStdin() {
+  try {
+    return fs.readFileSync(0, 'utf8');
+  } catch {
+    return '';
+  }
+}
+
+export function main() {
+  let root;
+  try {
+    root = repoRoot(process.cwd());
+  } catch {
+    process.stderr.write('pre-push announce: impossibile trovare la root del repo (git rev-parse fallito)\n');
+    return 1;
+  }
+  const rows = parsePrePushLines(readStdin());
+  let selected;
+  try {
+    selected = selectAnnounceRows(rows);
+  } catch (err) {
+    process.stderr.write('pre-push announce: ' + err.message + '\n');
+    return 1;
+  }
+  if (selected.length === 0) return 0; // ref non-announce: exit 0, coda intatta
+  const dir = queueDir();
+  const repo = path.basename(root);
+  const data = new Date().toISOString();
+  for (const item of selected) {
+    const reason = validateAnnounce(root, item);
+    if (reason) {
+      process.stderr.write('pre-push announce: ' + reason + '\n');
+      return 1;
+    }
+    enqueue(
+      dir,
+      { tag: item.tag, flusso: item.flusso, versione: item.versione, data, repo },
+      queueFileName(item.flusso, item.versione)
+    );
+  }
+  return 0;
+}
+
+const invokedAsHook = (() => {
+  try {
+    return !!process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href;
+  } catch {
+    return false;
+  }
+})();
+
+if (invokedAsHook) {
+  process.exit(main());
+}

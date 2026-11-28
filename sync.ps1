@@ -193,8 +193,15 @@ function Add-Tree {
         return
     }
     if ($Owned) { [void]$ownedRoots.Add($DestRoot) }
-    Get-ChildItem -LiteralPath $Source -Recurse -File -Force -Exclude $Exclude | ForEach-Object {
+    # NOTA: -Exclude di Get-ChildItem NON ferma la discesa nelle directory
+    # (PowerShell 5.1): si filtrano i segmenti di path a mano, uno per uno.
+    $rx = $null
+    if ($Exclude.Count -gt 0) {
+        $rx = '^(' + (($Exclude | ForEach-Object { [regex]::Escape($_) }) -join '|') + ')$'
+    }
+    Get-ChildItem -LiteralPath $Source -Recurse -File -Force | ForEach-Object {
         $rel = $_.FullName.Substring($Source.Length).TrimStart('\', '/')
+        if ($rx -and ($rel -split '[\\/]' | Where-Object { $_ -match $rx })) { return }
         [void]$plan.Add([pscustomobject]@{
             Source = $_.FullName
             Dest   = (Join-Path $DestRoot $rel)

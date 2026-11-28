@@ -8,7 +8,7 @@ Formato rigido, parsabile anche da modelli piccoli (Qwen/DeepSeek):
 ```
 INTENT=costruire     → STAGE=brainstorming,spec → planning → implementation → GATE=verification
 INTENT=design-ui     → STAGE=design-track(direzione,tokens,motion?,mark?,qa) → GATE=verification
-INTENT=fixare        → STAGE=debugging(root-cause) → implementation(TDD) → GATE=verification
+INTENT=fixare        → STAGE=debugging(root-cause) → implementation(metodo=tdd|bdd|atdd|after,default=tdd) → GATE=verification
                      | hardware fisico → mind-hardware (identifica,connetti,azioni con gate fisico) → GATE=verification
 INTENT=esplorare     → STAGE=explore(digest) → docs? → memory-save → GATE=none (read-only)
                        | artefatto senza sorgente → mind-reverse (gate auth SEMPRE) → GATE=verification
@@ -42,7 +42,7 @@ design-ui:  Design Track (vedi sotto) → mind-verification
             direzioni visive distinte da far scegliere → mind-design-explore (2-3 direzioni, poi la scelta è dell'utente)
             icona/marchio/favicon → mind-mark (brief → 3 direzioni mono → riduzione 16px → colore/varianti → export → verifica visiva) → mind-verification
             asset raster / .ico / favicon set / .icns / ritaglio / conversione → mind-image (destinazione → scala fonti → costruzione → verifica a dimensione d'uso → formati) → mind-verification
-fixare:     mind-debugging → mind-implementation → mind-verification
+fixare:     mind-debugging → mind-implementation [metodo=tdd|bdd|atdd|after, default=tdd] → mind-verification
             assessment offensivo → mind-breach (gate auth SEMPRE) → mind-security → implementation → mind-verification | assessment multi-sessione/bounty → mind-breach-pipeline (scope→…→retest, stato su file)
             audit strutturato di un'area (pre-release, pre-deploy, due diligence) → mind-security-audit-pipeline (8 stage, report riproducibile)
             hardware fisico (USB/driver/radio/device, APK da cavo) → mind-hardware (azioni fisiche SOLO con conferma utente) → mind-verification
